@@ -3,6 +3,10 @@
 #include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
+#include <idtLoader.h>
+#include <clock.h>
+#include <time.h>
+#include <videoDriver.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -82,23 +86,67 @@ void * initializeKernelBinary()
 
 int main()
 {	
+	load_idt();
 	ncPrint("[Kernel Main]");
 	ncNewline();
-	ncPrint("  Sample code module at 0x");
-	ncPrintHex((uint64_t)sampleCodeModuleAddress);
-	ncNewline();
-	ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
-	ncNewline();
-	ncNewline();
+	//ncPrint("Sample code module at 0x");
+	//ncPrintHex((uint64_t)sampleCodeModuleAddress);
+	//ncNewline();
+	//ncPrint("  Calling the sample code module returned: ");
+	//ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
+	//ncNewline();
+	//ncNewline();
 
-	ncPrint("  Sample data module at 0x");
-	ncPrintHex((uint64_t)sampleDataModuleAddress);
-	ncNewline();
-	ncPrint("  Sample data module contents: ");
-	ncPrint((char*)sampleDataModuleAddress);
+	//ncPrint("  Sample data module at 0x");
+	//ncPrintHex((uint64_t)sampleDataModuleAddress);
+	//ncNewline();
+	//ncPrint("  Sample data module contents: ");
+	//ncPrint((char*)sampleDataModuleAddress);
 	ncNewline();
 
 	ncPrint("[Finished]");
+	/*
+	char* msg = "Arquitectura de computadoras";
+	char fmt = 0xF2;
+	ncPrintFmt(msg,fmt);
+	ncClear();
+	int secs, curr = seconds_elapsed();
+	secs = curr;
+	
+		while(1){
+			curr = seconds_elapsed();
+			if(curr > secs){
+				char timeStr[] = {'0','0',':','0','0',':','0','0',0};
+				time t = getTime(-3);
+				
+				timeStr[0] += (t.hour/10)%10;
+				timeStr[1] += t.hour%10;
+
+				timeStr[3] += (t.min/10)%10;
+				timeStr[4] += t.min%10;
+
+				timeStr[6] += (t.sec/10)%10;
+				timeStr[7] += t.sec%10;
+				ncClear();
+				ncPrintFmt(timeStr,0xf2);
+				secs = curr;
+			}
+			
+		}
+	*/
+
+	penDown();
+	setX(5);
+	setY(5);
+	int side = 100;
+	right(side);
+	down(side);
+	left(side);
+	up(side);
+
+
 	return 0;
 }
+
+
+

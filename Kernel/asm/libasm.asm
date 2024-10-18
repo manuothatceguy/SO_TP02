@@ -1,4 +1,5 @@
 GLOBAL cpuVendor
+GLOBAL rtc
 
 section .text
 	
@@ -22,6 +23,19 @@ cpuVendor:
 
 	pop rbx
 
+	mov rsp, rbp
+	pop rbp
+	ret
+
+; RTC
+
+rtc:
+	push rbp
+	mov rbp, rsp 
+	mov al, dil  
+	out 70h, al
+	in al, 71h   
+	movzx rax, al
 	mov rsp, rbp
 	pop rbp
 	ret
