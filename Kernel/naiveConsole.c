@@ -78,9 +78,9 @@ typedef struct coloredChar{
 void ncClear()
 {
 	int i;
-	coloredChar * v = video;
+	coloredChar * v = (coloredChar*)video;
 
-	for(int i = 0; i < height * width; i++){
+	for(i = 0; i < height * width; i++){
 		v[i].c = ' ';
 		v[i].color = DEFAULT_FMT;
 	}
@@ -95,7 +95,7 @@ void ncDelete()
 }
 
 void ncScrollUp(){
-	coloredChar ** v = video;
+	coloredChar ** v = (coloredChar**)video;
 	for(int i = 0; i < height - 1; i++){
 		for(int j = 0; j < width; j++){
 			v[i][j] = v[i+1][j];
@@ -108,7 +108,7 @@ void ncScrollUp(){
 }
 
 void ncScrollDown(){
-	coloredChar ** v = video;
+	coloredChar ** v = (coloredChar**)video;
 	for(int i = 0; i < height-1; i++){
 		for(int j = 0; j < width; j++){
 			v[i+1][j] = v[i][j];
