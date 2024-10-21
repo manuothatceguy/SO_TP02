@@ -1,5 +1,6 @@
 GLOBAL cpuVendor
 GLOBAL rtc
+GLOBAL kb_getKey
 
 section .text
 	
@@ -39,3 +40,18 @@ rtc:
 	mov rsp, rbp
 	pop rbp
 	ret
+
+kb_getKey:
+    push rbp
+    mov rbp, rsp
+
+.wait_key:
+    in al, 64h        
+    and al, 1         
+    jz .wait_key       
+
+    in al, 60h
+	movzx rax, al      
+    mov rsp, rbp
+    pop rbp
+    ret

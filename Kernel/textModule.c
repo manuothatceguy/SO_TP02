@@ -197,6 +197,12 @@ void putChar(unsigned char char_to_print, int scaleFactor, uint32_t color){
     }
 }
 
+void clearText(uint64_t color){
+    clearScreen(color);
+    x_pos = 0;
+    y_pos = 0;
+}
+
 void lineFeed(int fontHeight){
     y_pos += fontHeight;
     x_pos = 0;

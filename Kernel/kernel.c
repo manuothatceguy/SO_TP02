@@ -7,6 +7,8 @@
 #include <clock.h>
 #include <time.h>
 #include <videoDriver.h>
+#include <textModule.h>
+#include <keyboardDriver.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -107,45 +109,43 @@ int main()
 	ncPrint("[Finished]");
 	/*
 	char* msg = "Arquitectura de computadoras";
-	char fmt = 0xF2;
-	ncPrintFmt(msg,fmt);
-	ncClear();
-	int secs, curr = seconds_elapsed();
-	secs = curr;
-	
-		while(1){
-			curr = seconds_elapsed();
-			if(curr > secs){
-				char timeStr[] = {'0','0',':','0','0',':','0','0',0};
-				time t = getTime(-3);
-				
-				timeStr[0] += (t.hour/10)%10;
-				timeStr[1] += t.hour%10;
-
-				timeStr[3] += (t.min/10)%10;
-				timeStr[4] += t.min%10;
-
-				timeStr[6] += (t.sec/10)%10;
-				timeStr[7] += t.sec%10;
-				ncClear();
-				ncPrintFmt(timeStr,0xf2);
-				secs = curr;
-			}
-			
-		}
+	printStr(msg,0x00FF00FF);
 	*/
+	/*
+		clearScreen(0);
+		int secs, curr = seconds_elapsed();
+		secs = curr;
+		
+		while(1){
+			wait_seconds(1);
+			char timeStr[] = {'0','0',':','0','0',':','0','0',0};
+			time t = getTime(-3);
+			
+			timeStr[0] += (t.hour/10)%10;
+			timeStr[1] += t.hour%10;
 
-	penDown();
-	setX(5);
-	setY(5);
-	int side = 100;
-	right(side);
-	down(side);
-	left(side);
-	up(side);
-	clearScreen(0);
+			timeStr[3] += (t.min/10)%10;
+			timeStr[4] += t.min%10;
+
+			timeStr[6] += (t.sec/10)%10;
+			timeStr[7] += t.sec%10;
+			clearText(0);
+			printStrSize(timeStr,0x00FF00FF,5);
+		}
+	*/	
+		penDown();
+		setX(5);
+		setY(5);
+		int side = 100;
+		right(side);
+		down(side);
+		left(side);
+		up(side);
+		clearScreen(0); 
+		while(1){
+			putChar(getChar(),2,0x00FFFFFF);
+		}
 	
-
 
 	return 0;
 }

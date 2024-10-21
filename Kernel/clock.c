@@ -31,6 +31,38 @@ unsigned int year(){
     return BCDToDecimal(rtc(YEAR));
 }
 
+char isLeapYear(int year){ // From K&R - The C Programming Language
+    return ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0);
+}
+
+void checkMonth(time * time){
+    if(time->month > 12){
+        time->month = 1;
+        time->year++;
+    } else if(time->month <= 0){
+        time->year--;
+        time->month = 12;
+    }
+}
+
+void checkDay(time * time){
+    char daytab[2][13] = { // From K&R - The C Programming Language
+        {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+        {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+    };
+    if(time->day > daytab[isLeapYear(time->year)][time->month]){
+        time->day = 1;
+        time->month++;
+    } else if(time->day <= 0){
+        time->month--;
+        checkMonth(time);
+        time->day = daytab[isLeapYear(time->year)][time->month];
+    }
+}
+
+unsigned int BCDToDecimal(unsigned char bcd) {
+    return (bcd >> 4)*10 + bcd%16;
+}
 
 time getTime(int timeZone){
     time toReturn = {
@@ -56,37 +88,3 @@ time getTime(int timeZone){
     }
     return toReturn;
 }
-
-char isLeapYear(int year){
-    return ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0);
-}
-
-void checkDay(time * time){
-    char daytab[2][13] = {
-        {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-        {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-    };
-    if(time->day > daytab[isLeapYear(time->year)][time->month]){
-        time->day = 1;
-        time->month++;
-    } else if(time->day <= 0){
-        time->month--;
-        checkMonth(time);
-        time->day = daytab[isLeapYear(time->year)][time->month];
-    }
-}
-
-void checkMonth(time * time){
-    if(time->month > 12){
-        time->month = 1;
-        time->year++;
-    } else if(time->month <= 0){
-        time->year--;
-        time->month = 12;
-    }
-}
-
-unsigned int BCDToDecimal(unsigned char bcd) {
-    return (bcd >> 4)*10 + bcd%16;
-}
-
