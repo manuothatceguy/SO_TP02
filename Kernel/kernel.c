@@ -143,6 +143,8 @@ int main()
 	down(side);
 	left(side);
 	up(side);
+	clearScreen(0);
+	
 
 
 	return 0;
