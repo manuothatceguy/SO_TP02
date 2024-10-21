@@ -50,6 +50,15 @@ void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
     framebuffer[offset+2]   =  (hexColor >> 16) & 0xFF;
 }
 
+void clearScreen(uint32_t color) {
+    for (uint64_t y = 0; y < VBE_mode_info->height; y++) {
+        for (uint64_t x = 0; x < VBE_mode_info->width; x++) {
+            putPixel(color, x, y);
+        }
+    }
+}
+
+
 static char isPenDown = 0;
 void penUp(){
 	isPenDown = 0;
@@ -124,3 +133,15 @@ int setY(uint64_t newY){
 	return 0;
 }
 
+int drawSquare(uint64_t x, uint64_t y,uint64_t sideLength, uint32_t hexColor){
+	if(x > VBE_mode_info->width || x < 0 || y < 0 || y > VBE_mode_info->height || sideLength <= 0){
+		return -1; // error de argumentos.
+	}
+	int i = x, j = y;
+	for(; i < x+sideLength && i < VBE_mode_info->width; i++){
+		for(j = y; j < y+sideLength && j < VBE_mode_info->height; j++ ){
+			putPixel(hexColor,i,j);
+		}
+	}
+	return (sideLength * sideLength) - ((i - x) * (j - y)); // retorna la cantidad de pixeles no dibujados.
+}
