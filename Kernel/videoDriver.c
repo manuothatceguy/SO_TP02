@@ -58,6 +58,14 @@ void clearScreen(uint32_t color) {
     }
 }
 
+uint64_t getWidth(){
+	return VBE_mode_info->width;
+}
+
+uint64_t getHeight(){
+	return VBE_mode_info->height;
+}
+
 
 static char isPenDown = 0;
 void penUp(){

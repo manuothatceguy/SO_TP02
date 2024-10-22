@@ -22,4 +22,7 @@ int down(uint64_t delta);
 int setX(uint64_t newX);
 int setY(uint64_t newY);
 
+uint64_t getHeight();
+uint64_t getWidth();
+
 #endif // VIDEO_DRIVER_H

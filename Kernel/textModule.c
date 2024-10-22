@@ -162,6 +162,21 @@ static int font_width = 8;
 
 static uint64_t x_pos = 10, y_pos = 10;
 
+void deleteChar(int scaleFactor){
+    x_pos -= scaleFactor * font_width;
+    if(x_pos < 0){
+        x_pos = 0;
+    }
+    for (int i = 0; i < font_width * scaleFactor; i++){
+        for(int j = 0; j < font_height; j++){
+            drawSquare(x_pos+i,y_pos+j,scaleFactor,0);
+        }
+    }
+    
+}
+
+
+
 /*
 void loadFont(char **newFont, int newFontHeight, int newFontWidth){
     if(newFont == 0) return;
@@ -180,21 +195,22 @@ void putChar(unsigned char char_to_print, int scaleFactor, uint32_t color){
             putChar(' ', scaleFactor, color);
         }
         return;
+    } else if(char_to_print == '\b'){
+        deleteChar(scaleFactor);
     }
-    int newLineCondition = 0;
+    if(x_pos + font_width * scaleFactor > getWidth()){
+        lineFeed(font_height * scaleFactor);
+    }
     unsigned char mask = 0x01;
     for(int i = 0; i < font_height; i++){
         for(int j = 0; j < 8; j++){
             if((mask << j & font8x8_basic[char_to_print][i]) != 0){
-                newLineCondition = drawSquare(x_pos + j * scaleFactor, y_pos + i * scaleFactor, scaleFactor, color);
+                drawSquare(x_pos + j * scaleFactor, y_pos + i * scaleFactor, scaleFactor, color);
             }
         }
     }
-    if(newLineCondition){
-        lineFeed(font_height * scaleFactor);
-    } else {
-        x_pos += font_width * scaleFactor;
-    }
+    x_pos += font_width * scaleFactor;
+
 }
 
 void clearText(uint64_t color){
