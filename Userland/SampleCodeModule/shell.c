@@ -1,5 +1,6 @@
+// Es nescesario shell.h ?? (la unica funcion que tendria es Shell)
 /*
-//#include <nanoshell.h>
+#include "shellfunctions.h"
 
 char * help = "Para ayuda relacionada a un comando en especifico, ingrese el comando \"help\" seguido del comando.\n"
                 "Lista de comandos disponibles en la Shell:\n"
@@ -18,14 +19,17 @@ typedef enum {
     TEST_DIV_0,
     TEST_INVALID_OPCODE
 } instructions;
-
-
+/*
 Ver lo de la funcion readline para switch(instruction)
+*/
 
-
-void nanoshell() {
+/*
+Solo estan las funciones, faltan implementar mas 
+*/
+/*
+void shell() {
     // Ver como hacer getInstructions
-    Instructions instruction; // Assuming you will get the instruction somehow
+    instructions instruction; // Assuming you will get the instruction somehow
     switch(instruction) {
         case HELP: {
             printf(help); // Usando nuestro printf
@@ -52,8 +56,9 @@ void nanoshell() {
             break;
         }
         default : {
-            invalidOpcode();
+            invalidOpcode(); // Si no se manda ningun comando valido se lanza esta exepcion no ? 
         }
     }
 }
+
 */

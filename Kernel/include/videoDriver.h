@@ -8,6 +8,7 @@ void putPixel(uint32_t hexColor, uint64_t x, uint64_t y);
 void clearScreen(uint32_t color);
 
 int drawSquare(uint64_t x, uint64_t y, uint64_t sideLength, uint32_t hexColor);
+int drawRectangle(uint64_t x, uint64_t y, uint64_t vLength, uint64_t hLength, uint32_t hexColor);
 
 void penUp();
 void penDown();

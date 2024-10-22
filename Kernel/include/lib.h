@@ -10,4 +10,6 @@ char *cpuVendor(char *result);
 
 unsigned int rtc(char reg);
 
+uint64_t* getRegisters();
+
 #endif

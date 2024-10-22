@@ -12,11 +12,13 @@ GLOBAL _irq02Handler
 GLOBAL _irq03Handler
 GLOBAL _irq04Handler
 GLOBAL _irq05Handler
+GLOBAL _irq80Handler
 
 GLOBAL _exception0Handler
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
+EXTERN syscallDispatcher
 
 SECTION .text
 
@@ -138,6 +140,20 @@ _irq04Handler:
 _irq05Handler:
 	irqHandlerMaster 5
 
+_irq80Handler:
+    pushState
+
+    ; Pasaje de parametros x86_64
+    mov rdi, rax  ; Número de syscall
+    mov rsi, rbx  ; Primer parámetro
+    mov rdx, rcx  ; Segundo parámetro
+    mov rcx, rdx  ; Tercer parámetro
+
+    ; Llamar a la función syscallDispatcher
+    call syscallDispatcher
+
+    popState
+    iretq
 
 ;Zero Division Exception
 _exception0Handler:
@@ -147,8 +163,6 @@ haltcpu:
 	cli
 	hlt
 	ret
-
-
 
 SECTION .bss
 	aux resq 1

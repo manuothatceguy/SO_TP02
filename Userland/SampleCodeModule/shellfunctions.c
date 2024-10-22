@@ -1,4 +1,21 @@
 /*
-Desde guachin soy un demonio, vos en cambio sos re moño
-*/
+void printf(char * msg){
+    
+}
 
+void showTime(){
+    
+}
+
+void showRegisters(){
+    
+}
+
+void divZero(){
+
+}
+
+void invalidOpCode(){
+
+}
+*/

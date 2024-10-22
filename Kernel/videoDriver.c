@@ -153,3 +153,14 @@ int drawSquare(uint64_t x, uint64_t y,uint64_t sideLength, uint32_t hexColor){
 	}
 	return (sideLength * sideLength) - ((i - x) * (j - y)); // retorna la cantidad de pixeles no dibujados.
 }
+
+// TODO validar parámetros
+
+int drawRectangle(uint64_t x, uint64_t y, uint64_t vLength, uint64_t hLength, uint32_t hexColor){
+	for(int i = x; i < hLength + x; i++){
+		for (int j = y; j < vLength + y; j++){
+			putPixel(hexColor,i,j);
+		}
+	}
+	return 0;
+}
