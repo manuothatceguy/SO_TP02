@@ -1,4 +1,5 @@
-#include <nanoshell.h>
+/*
+//#include <nanoshell.h>
 
 char * help = "Para ayuda relacionada a un comando en especifico, ingrese el comando \"help\" seguido del comando.\n"
                 "Lista de comandos disponibles en la Shell:\n"
@@ -18,9 +19,9 @@ typedef enum {
     TEST_INVALID_OPCODE
 } instructions;
 
-/*
+
 Ver lo de la funcion readline para switch(instruction)
-*/
+
 
 void nanoshell() {
     // Ver como hacer getInstructions
@@ -55,3 +56,4 @@ void nanoshell() {
         }
     }
 }
+*/
