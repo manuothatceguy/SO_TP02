@@ -3,6 +3,11 @@
 
 #define NUM_CHARS 128
 
+#define ON 1
+#define OFF 0
+
+#define CURSOR_COLOR 0xFFFFFF 
+
 /**
  * 8x8 monochrome bitmap fonts for rendering
  * Author: Daniel Hepper <daniel@hepper.net>
@@ -163,16 +168,20 @@ static int font_width = 8;
 static uint64_t x_pos = 0, y_pos = 0;
 
 void deleteChar(int scaleFactor){
-    x_pos -= scaleFactor * font_width;
-    if(x_pos < 0){
-        x_pos = 0;
+    if(x_pos == 0){
+        if(y_pos > 0){
+            x_pos = getWidth() - font_width * scaleFactor;
+            y_pos -= scaleFactor * font_height;
+        }
+    } else {
+        x_pos -= scaleFactor * font_width;
     }
+    
     for (int i = 0; i < font_width; i++){
         for(int j = 0; j < font_height; j++){
             drawSquare(x_pos+i*scaleFactor,y_pos+j*scaleFactor,scaleFactor,0);
         }
     }
-    
 }
 
 /*
@@ -186,29 +195,38 @@ void loadFont(char **newFont, int newFontHeight, int newFontWidth){
 
 void putChar(unsigned char char_to_print, int scaleFactor, uint32_t color){
     if(char_to_print == '\n' || x_pos + font_width * scaleFactor > getWidth()){
+        toggleCursor(scaleFactor, OFF); // CURSOR ############################################################
         lineFeed(font_height * scaleFactor);
-        return;
+        toggleCursor(scaleFactor, ON); // CURSOR ############################################################
+        if(char_to_print == '\n'){ // Unicamente retorno si es un ENTER, si no sigo con el flujo (imprimo el caracter)
+            return;
+        }   
     } else if(char_to_print == '\t'){ // un tab son 4 espacios consecutivos
         for(int i = 0; i < 4; i++){
             putChar(' ', scaleFactor, color);
         }
         return;
     } else if(char_to_print == '\b'){
+        toggleCursor(scaleFactor, OFF); // CURSOR ############################################################
         deleteChar(scaleFactor);
+        toggleCursor(scaleFactor, ON); // CURSOR ############################################################
+        return;
     } else if(y_pos + font_height * scaleFactor > getHeight()){
         clearScreen(0);
         x_pos = 0;
         y_pos = 0;
     }
+    toggleCursor(scaleFactor, OFF); // CURSOR ############################################################
     unsigned char mask = 0x01;
     for(int i = 0; i < font_height; i++){
-        for(int j = 0; j < 8; j++){
+        for(int j = 0; j < font_width; j++){
             if((mask << j & font8x8_basic[char_to_print][i]) != 0){
                 drawSquare(x_pos + j * scaleFactor, y_pos + i * scaleFactor, scaleFactor, color);
             }
         }
     }
     x_pos += font_width * scaleFactor; // me muevo horizontalmente
+    toggleCursor(scaleFactor, ON); // CURSOR ############################################################
 }
 
 void clearText(uint64_t color){
@@ -218,7 +236,7 @@ void clearText(uint64_t color){
 }
 
 void lineFeed(int fontHeight){
-    y_pos += fontHeight;
+    y_pos += fontHeight; // Avanzo para abajo veticalmente
     x_pos = 0;
 }
 
@@ -229,5 +247,16 @@ void printStr(char * s, uint32_t color){
 void printStrSize(char * s, uint32_t color, int scaleFactor){
     while(*s){
         putChar(*s++, scaleFactor, color);
+    }
+}
+
+
+
+// POSIBLE IMPLEMENTACION DEL CURSOR
+
+void toggleCursor(int scaleFactor, unsigned int enable){
+    uint32_t color = enable ? CURSOR_COLOR : 0x00000000; // CURSOR_COLOR para encender y negro para apagar
+    for(int i = 0; i < font_height * scaleFactor; i++){
+        drawSquare(x_pos, y_pos + i, scaleFactor, color);
     }
 }

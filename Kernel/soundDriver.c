@@ -1,11 +1,12 @@
+ /*
+ 
  #include <soundDriver.h>
  #include <lib.h>
  #include <time.h>
  
-/**
  * Sound driver
  * source: https://wiki.osdev.org/PC_Speaker
- */
+ 
 
  //Play sound using built-in speaker
 void play_sound(uint32_t nFrequence) {
@@ -39,3 +40,5 @@ void nosound() {
  	 nosound();
           //set_PIT_2(old_frequency);
  }
+
+ */

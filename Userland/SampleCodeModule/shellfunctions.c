@@ -1,4 +1,4 @@
-
+/*
 void printf(char * msg){
     
 }
@@ -18,3 +18,4 @@ void divZero(){
 void invalidOpCode(){
 
 }
+*/

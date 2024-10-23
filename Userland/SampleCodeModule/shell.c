@@ -1,5 +1,5 @@
 // Es nescesario shell.h ?? (la unica funcion que tendria es Shell)
-
+/*
 #include "shellfunctions.h"
 
 #define LINEA "TERMINAL>"
@@ -21,6 +21,7 @@ typedef enum {
     TEST_DIV_0,
     TEST_INVALID_OPCODE
 } instructions;
+*/
 /*
 Ver lo de la funcion readline para switch(instruction)
 */
@@ -28,7 +29,7 @@ Ver lo de la funcion readline para switch(instruction)
 /*
 Solo estan las funciones, faltan implementar mas 
 */
-
+/*
 void shell() {
     // Ver como hacer getInstructions
     

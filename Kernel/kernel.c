@@ -140,7 +140,12 @@ int main()
 	down(side);
 	left(side);
 	up(side);
-	clearScreen(0); 
+	clearScreen(0);
+
+	//cambiar de lugar? 
+	toggleCursor(2, 1);
+	//
+	
 	while(1){
 	}
 	

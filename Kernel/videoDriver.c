@@ -141,7 +141,7 @@ int setY(uint64_t newY){
 	return 0;
 }
 
-int drawSquare(uint64_t x, uint64_t y,uint64_t sideLength, uint32_t hexColor){
+int drawSquare(uint64_t x, uint64_t y, uint64_t sideLength, uint32_t hexColor){
 	if(x > VBE_mode_info->width || x < 0 || y < 0 || y > VBE_mode_info->height || sideLength <= 0){
 		return -1; // error de argumentos.
 	}

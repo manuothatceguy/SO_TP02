@@ -1,4 +1,5 @@
 #define BUFFER_SIZE 1000
+#define CANT_SPECIAL_KEYS 6
 
 #define LSHIFT_PRESS 0x2A
 #define LSHIFT_RELEASE 0xAA
@@ -114,6 +115,7 @@ ScanCode press_keys[] = { // from 0x01 to 0x58. sub 0x81 for release keys
     {0, 0}  // F12
 };
 
+static unsigned int specialKeys[] = {LSHIFT_PRESS, LSHIFT_RELEASE, RSHIFT_RELEASE, RSHIFT_PRESS, CAPS_PRESS, ALT_PRESS, CTRL_PRESS, ESC_PRESS};
 static char buffer[BUFFER_SIZE];
 
 unsigned int shift = 0;
@@ -151,13 +153,25 @@ static void handleSpecialKeys(unsigned int key){
     }
 }
 
+
 static void checkSpecialKeys(unsigned int key){
+    for(int i = 0; i < CANT_SPECIAL_KEYS && !specialKey ; i++){
+        if(key == specialKeys[i]){
+            handleSpecialKeys(key);
+            specialKey = 1;
+        }
+    }
+    /*                  O ES MEJOR ESTO ??? @mothatceguy
+
     if(key == LSHIFT_PRESS || key == RSHIFT_PRESS|| key == CAPS_PRESS 
     || key == ALT_PRESS || key == CTRL_PRESS || key == ESC_PRESS || isFKey(key) 
-    ){ 
+    || key == BACKSPACE_PRESS || key == TAB_PRESS || key == ENTER_PRESS){ 
         handleSpecialKeys(key);
         specialKey = 1;
-    }
+    }  
+
+
+    */
 }
 
 static void addToBuffer(unsigned int key){
@@ -171,9 +185,9 @@ int bufferWrite(){
     int c = kb_getKey();
 
     checkSpecialKeys(c);
-    mayus = (caps && !shift) || (!caps && shift);
 
-    if(!specialKey && c > 0 && c <= 0x58){
+    if(!specialKey /*&& c > 0*/ && c <= F12_PRESS){  // A partir de F12_PRESS tengo los release keys
+        mayus = (caps && !shift) || (!caps && shift);
         if( (isAlpha(c) && mayus) || (!isAlpha(c) && shift) ){
             addToBuffer(press_keys[c].shift_ascii);
         } else {
