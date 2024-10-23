@@ -1,6 +1,8 @@
 // Es nescesario shell.h ?? (la unica funcion que tendria es Shell)
-/*
+
 #include "shellfunctions.h"
+
+#define LINEA "TERMINAL>"
 
 char * help = "Para ayuda relacionada a un comando en especifico, ingrese el comando \"help\" seguido del comando.\n"
                 "Lista de comandos disponibles en la Shell:\n"
@@ -26,10 +28,18 @@ Ver lo de la funcion readline para switch(instruction)
 /*
 Solo estan las funciones, faltan implementar mas 
 */
-/*
+
 void shell() {
     // Ver como hacer getInstructions
-    instructions instruction; // Assuming you will get the instruction somehow
+    
+
+
+    int instruction = getInstruction(); // Lee el comando que ingresa el usuario en la shell
+
+    
+
+    while(1){
+
     switch(instruction) {
         case HELP: {
             printf(help); // Usando nuestro printf
@@ -58,6 +68,14 @@ void shell() {
         default : {
             invalidOpcode(); // Si no se manda ningun comando valido se lanza esta exepcion no ? 
         }
+
+        // Salto al procimo renglon si la instruccion no es Snake : 
+
+        if(instruction != SNAKE){
+            printf('\n');
+        }
+    }
+
     }
 }
 

@@ -1,4 +1,4 @@
-/*
+
 #ifndef SHELLFUNCTIONS_H
 #define SHELLFUNCTIONS_H
 
@@ -11,4 +11,3 @@ void divZero();
 void invalidOpCode();
 
 #endif SHELLFUNCTIONS_H
-*/
