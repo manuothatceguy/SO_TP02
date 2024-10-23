@@ -89,6 +89,7 @@ void * initializeKernelBinary()
 int main()
 {	
 	load_idt();
+	/*
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	//ncPrint("Sample code module at 0x");
@@ -107,11 +108,9 @@ int main()
 	ncNewline();
 
 	ncPrint("[Finished]");
-	/*
+	
 	char* msg = "Arquitectura de computadoras";
 	printStr(msg,0x00FF00FF);
-	*/
-	/*
 		clearScreen(0);
 		int secs, curr = seconds_elapsed();
 		secs = curr;
@@ -133,17 +132,17 @@ int main()
 			printStrSize(timeStr,0x00FF00FF,5);
 		}
 	*/	
-		penDown();
-		setX(5);
-		setY(5);
-		int side = 100;
-		right(side);
-		down(side);
-		left(side);
-		up(side);
-		clearScreen(0); 
-		while(1){
-		}
+	penDown();
+	setX(5);
+	setY(5);
+	int side = 100;
+	right(side);
+	down(side);
+	left(side);
+	up(side);
+	clearScreen(0); 
+	while(1){
+	}
 	
 
 	return 0;

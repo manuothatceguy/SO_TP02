@@ -2,7 +2,8 @@ GLOBAL cpuVendor
 GLOBAL rtc
 GLOBAL kb_getKey
 GLOBAL getRegisters
-
+GLOBAL outb
+GLOBAL inb
 section .text
 	
 cpuVendor:
@@ -66,27 +67,49 @@ getRegisters:
 	call getRip
 	mov [regs], rax 
 	pop rax
-	mov [regs + 8], rax
-	mov [regs + 16], rbx
-	mov [regs + 24], rcx 
-	mov [regs + 32], rdx
-	mov [regs + 40], rsi
-	mov [regs + 48], rdi 
-	mov [regs + 56], rbp
-	mov [regs + 64], rsp 
-	mov [regs + 72], r8 
-	mov [regs + 80], r9 
-	mov [regs + 88], r10
-	mov [regs + 96], r11
-	mov [regs + 104], r12
-	mov [regs + 112], r13 
-	mov [regs + 120], r14
-	mov [regs + 128], r15
+	mov [regs + 8*1], rax
+	mov [regs + 8*2], rbx
+	mov [regs + 8*3], rcx 
+	mov [regs + 8*4], rdx
+	mov [regs + 8*5], rsi
+	mov [regs + 8*6], rdi 
+	mov [regs + 8*7], rbp
+	mov [regs + 8*8], rsp 
+	mov [regs + 8*9], r8 
+	mov [regs + 8*10], r9 
+	mov [regs + 8*11], r10
+	mov [regs + 8*12], r11
+	mov [regs + 8*13], r12
+	mov [regs + 8*14], r13 
+	mov [regs + 8*15], r14
+	mov [regs + 8*16], r15
 	pushfq
 	pop rax
-	mov [regs + 136], rax 
+	push rax
+	popfq
+	mov [regs + 8*17], rax 
 	mov rax, regs
 	ret
+
+outb:
+    push rbp              
+    mov rbp, rsp           
+    mov dx, di             
+    mov al, sil            
+    out dx, al             
+    mov rsp, rbp           
+    pop rbp                
+    ret                    
+
+inb:
+	push rbp
+	mov rbp, rsp
+    mov dx, di             
+    in  al, dx             
+    movzx eax, al  
+	mov rsp, rbp
+	pop rbp        
+    ret                    
 
 section .bss
 regs resb 144 ; 18 x 8

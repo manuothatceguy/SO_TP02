@@ -167,9 +167,9 @@ void deleteChar(int scaleFactor){
     if(x_pos < 0){
         x_pos = 0;
     }
-    for (int i = 0; i < font_width * scaleFactor; i++){
+    for (int i = 0; i < font_width; i++){
         for(int j = 0; j < font_height; j++){
-            drawSquare(x_pos+i,y_pos+j,scaleFactor,0);
+            drawSquare(x_pos+i*scaleFactor,y_pos+j*scaleFactor,scaleFactor,0);
         }
     }
     
