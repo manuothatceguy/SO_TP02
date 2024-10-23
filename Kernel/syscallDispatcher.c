@@ -5,6 +5,7 @@
 #include <keyboardDriver.h>
 #include <textModule.h>
 #include <lib.h>
+#include <soundDriver.h>
 
 // Prototipos de las funciones de syscall
 uint64_t syscall_write(uint64_t, char*, uint64_t);
@@ -80,7 +81,7 @@ uint64_t syscall_read(char * buff, uint64_t length){
 }
 
 uint64_t syscall_beep(uint64_t freq, uint64_t secs){
-    return 0; // TODO implementar
+    
 }
 
 uint64_t syscall_drawRectangle(Point2D* upLeft, Point2D *bottomRight, uint32_t color){

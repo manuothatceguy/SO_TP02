@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <naiveConsole.h>
 #include <keyboardDriver.h>
+#include <soundDriver.h>
 #include <textModule.h>
 
 void int_20();
@@ -23,6 +24,8 @@ void int_20(){
 }
 
 void int_21(){
+	play_sound(440);
+	
 	int c = bufferWrite();
 	if(c != 0)
 		putChar(getChar(),2,0x00FF0000); // BORRAR
