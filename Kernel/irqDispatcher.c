@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <naiveConsole.h>
 #include <keyboardDriver.h>
+#include <textModule.h>
 
 void int_20();
 void int_21();
@@ -22,5 +23,7 @@ void int_20(){
 }
 
 void int_21(){
-	bufferWrite();
+	int c = bufferWrite();
+	if(c != 0)
+		putChar(getChar(),2,0x00FF0000); // BORRAR
 }

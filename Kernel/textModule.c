@@ -160,7 +160,7 @@ char font8x8_basic[128][8] = {
 static int font_height = 8;
 static int font_width = 8;
 
-static uint64_t x_pos = 10, y_pos = 10;
+static uint64_t x_pos = 0, y_pos = 0;
 
 void deleteChar(int scaleFactor){
     x_pos -= scaleFactor * font_width;
@@ -175,8 +175,6 @@ void deleteChar(int scaleFactor){
     
 }
 
-
-
 /*
 void loadFont(char **newFont, int newFontHeight, int newFontWidth){
     if(newFont == 0) return;
@@ -187,7 +185,7 @@ void loadFont(char **newFont, int newFontHeight, int newFontWidth){
 */
 
 void putChar(unsigned char char_to_print, int scaleFactor, uint32_t color){
-    if(char_to_print == '\n'){
+    if(char_to_print == '\n' || x_pos + font_width * scaleFactor > getWidth()){
         lineFeed(font_height * scaleFactor);
         return;
     } else if(char_to_print == '\t'){ // un tab son 4 espacios consecutivos
@@ -197,9 +195,10 @@ void putChar(unsigned char char_to_print, int scaleFactor, uint32_t color){
         return;
     } else if(char_to_print == '\b'){
         deleteChar(scaleFactor);
-    }
-    if(x_pos + font_width * scaleFactor > getWidth()){
-        lineFeed(font_height * scaleFactor);
+    } else if(y_pos + font_height * scaleFactor > getHeight()){
+        clearScreen(0);
+        x_pos = 0;
+        y_pos = 0;
     }
     unsigned char mask = 0x01;
     for(int i = 0; i < font_height; i++){
@@ -209,8 +208,7 @@ void putChar(unsigned char char_to_print, int scaleFactor, uint32_t color){
             }
         }
     }
-    x_pos += font_width * scaleFactor;
-
+    x_pos += font_width * scaleFactor; // me muevo horizontalmente
 }
 
 void clearText(uint64_t color){

@@ -3,6 +3,6 @@
 #define KEYBOARDDRIVER_H
 
 char getChar(); 
-void bufferWrite();
+int bufferWrite();
 
 #endif // KEYBOARDDRIVER_H

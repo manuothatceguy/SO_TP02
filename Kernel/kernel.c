@@ -143,7 +143,6 @@ int main()
 		up(side);
 		clearScreen(0); 
 		while(1){
-			putChar(getChar(),2,0x00FFFFFF);
 		}
 	
 
