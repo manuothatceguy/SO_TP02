@@ -89,6 +89,7 @@ void * initializeKernelBinary()
 int main()
 {	
 	load_idt();
+	((EntryPoint)sampleCodeModuleAddress)(); // LLAMADA AL USERLAND
 	/*
 	ncPrint("[Kernel Main]");
 	ncNewline();
@@ -96,7 +97,7 @@ int main()
 	//ncPrintHex((uint64_t)sampleCodeModuleAddress);
 	//ncNewline();
 	//ncPrint("  Calling the sample code module returned: ");
-	//ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
+	ncPrintHex();
 	//ncNewline();
 	//ncNewline();
 
@@ -132,14 +133,6 @@ int main()
 			printStrSize(timeStr,0x00FF00FF,5);
 		}
 	*/	
-	penDown();
-	setX(5);
-	setY(5);
-	int side = 100;
-	right(side);
-	down(side);
-	left(side);
-	up(side);
 	clearScreen(0);
 
 	//cambiar de lugar? 
