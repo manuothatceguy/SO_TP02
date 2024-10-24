@@ -53,6 +53,12 @@ uint64_t syscall_read( char* str,  uint64_t length){
     for(int i = 0; i < length && length > 0; i++){
         str[i] = getChar();
     }
+    return length > 0 ? length : 0;
+}
+
+time* syscall_time(int64_t timeZone){ 
+    time t = getTime(timeZone);
+    return &t;
 }
 
 typedef void* (*syscall_fn)(void*, void*, void*);

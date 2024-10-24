@@ -10,6 +10,6 @@
  * @param count cantidad de argumentos a pasar
  * @return lo que devuelva la syscall
  */
-u_int64_t syscall(u_int64_t code, int count,...);
+uint64_t syscall(uint64_t code, int count,...);
 
 #endif
