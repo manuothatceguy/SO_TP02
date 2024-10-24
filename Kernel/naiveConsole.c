@@ -1,4 +1,4 @@
-#include <naiveConsole.h>
+/*#include <naiveConsole.h>
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 
@@ -85,3 +85,4 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
 
 	return digits;
 }
+*/

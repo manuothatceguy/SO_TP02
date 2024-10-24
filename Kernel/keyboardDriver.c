@@ -126,9 +126,11 @@ unsigned int specialKey = 0;
 static unsigned int current = 0;
 static unsigned int next = 0;
 
+/*
 static char isFKey(unsigned int key){
     return (key >= F1_PRESS && key <= F10_PRESS) || key == F11_PRESS || key == F12_PRESS;
 }
+*/
 
 static char isAlpha(unsigned int key){
     return press_keys[key].ascii >= 'a' && press_keys[key].ascii <= 'z';

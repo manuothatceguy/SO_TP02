@@ -31,7 +31,7 @@ unsigned int year(){
     return BCDToDecimal(rtc(YEAR));
 }
 
-char isLeapYear(int year){ // From K&R - The C Programming Language
+int isLeapYear(int year){ // From K&R - The C Programming Language
     return ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0);
 }
 
