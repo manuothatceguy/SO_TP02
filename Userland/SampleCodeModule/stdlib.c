@@ -41,18 +41,23 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
 	return digits;
 }
 
-u_int64_t strlen(char * s){
-    u_int64_t length = 0;
+uint64_t strlen(char * s){
+    uint64_t length = 0;
     while(*(s++)) length++;
     return length;
 }
 
-char * intToStr(int n){
+char * intToStr(int n){ // ARREGLAR: QUE LE PASE CHAR *  Y QUE LO MANIPULE LA FN
+/**
+ * stdlib.c:53:12: warning: function returns address of local variable [-Wreturn-local-addr]
+   53 |     return toRet;
+ */
     char toRet[MAX_INT_LENGTH];
     uintToBase(n, toRet, 10);
     return toRet;
 }
 
+// mismo fix para el intToStr
 char * intToHex(int n){
     char toRet[MAX_INT_LENGTH];
     uintToBase(n, toRet, 16);
@@ -93,7 +98,7 @@ int printf(const char *format, ...){
                     break;
                 }
                 case 'c':{
-                    int8_t c = va_arg(args, int);
+                    uint8_t c = va_arg(args, int);
                     output[k++] = c;
                     break;
                 }

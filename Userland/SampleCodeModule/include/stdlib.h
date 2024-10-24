@@ -8,7 +8,7 @@
  * @param s string para sacarle la longitud
  *
  */
-u_int64_t strlen(char * s);
+uint64_t strlen(char * s);
 
 /**
  * @brief Imprime en pantalla un string formateado

@@ -2,10 +2,6 @@
 
 #define CANT_INSTRUCTIONS 9
 
-void printf(char * msg, ...){
-    
-}
-
 void showTime(){
     
 }

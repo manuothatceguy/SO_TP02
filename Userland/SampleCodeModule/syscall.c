@@ -1,6 +1,6 @@
 #include <syscall.h>
 
-extern uint64_t _syscall(uint64_t code, uint64_t rbx, uint64_t rcx, uint64_t rdx);
+uint64_t _syscall(uint64_t code, uint64_t rbx, uint64_t rcx, uint64_t rdx);
 
 uint64_t syscall(uint64_t code, int count,...){
     va_list ap;
