@@ -20,33 +20,16 @@ void ncPrintFmt(const char * string, char fmt){
 		ncPrintCharFmt(string[i],fmt);
 }
 
-void checkFull(){
-	if(currentVideo == (video + height*width*sizeof(uint16_t))){
-		ncClear();
-	}
-}
-
 void ncPrintChar(char character)
 {
-	checkFull();
 	*currentVideo = character;
 	currentVideo += 2;
 }
 
 void ncPrintCharFmt(char character, char fmt)
 {
-	checkFull();
 	*currentVideo++ = character;
 	*currentVideo++ = fmt;
-}
-
-void ncNewline()
-{
-	do
-	{
-		ncPrintChar(' ');
-	}
-	while((uint64_t)(currentVideo - video) % (width * 2) != 0);
 }
 
 void ncPrintDec(uint64_t value)
@@ -69,58 +52,6 @@ void ncPrintBase(uint64_t value, uint32_t base)
     uintToBase(value, buffer, base);
     ncPrint(buffer);
 }
-
-typedef struct coloredChar{
-	char c;
-	char color;
-} coloredChar;
-
-void ncClear()
-{
-	int i;
-	coloredChar * v = (coloredChar*)video;
-
-	for(i = 0; i < height * width; i++){
-		v[i].c = ' ';
-		v[i].color = DEFAULT_FMT;
-	}
-	currentVideo = video;
-}
-
-void ncDelete()
-{
-	currentVideo -= 2;
-	ncPrintCharFmt(' ',DEFAULT_FMT);
-	currentVideo -= 2;
-}
-
-void ncScrollUp(){
-	coloredChar ** v = (coloredChar**)video;
-	for(int i = 0; i < height - 1; i++){
-		for(int j = 0; j < width; j++){
-			v[i][j] = v[i+1][j];
-		}
-	}
-	for(int i = 0; i < width; i++){
-		v[height-1][i].c = ' ';
-	}
-	
-}
-
-void ncScrollDown(){
-	coloredChar ** v = (coloredChar**)video;
-	for(int i = 0; i < height-1; i++){
-		for(int j = 0; j < width; j++){
-			v[i+1][j] = v[i][j];
-		}
-	}
-	for(int i = 0; i < width; i++){
-		v[0][i].c = ' ';
-	}
-	currentVideo += 2*width;
-}
-
-
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
 {

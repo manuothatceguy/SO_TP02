@@ -1,5 +1,8 @@
-/*
-void printf(char * msg){
+#include <shellfunctions.h>
+
+#define CANT_INSTRUCTIONS 9
+
+void printf(char * msg, ...){
     
 }
 
@@ -18,4 +21,5 @@ void divZero(){
 void invalidOpCode(){
 
 }
-*/
+
+
