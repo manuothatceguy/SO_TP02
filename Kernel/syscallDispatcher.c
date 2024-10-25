@@ -1,4 +1,4 @@
-#include <time.h>
+    #include <time.h>
 #include <stdint.h>
 #include <clock.h>
 #include <videoDriver.h>
@@ -31,8 +31,10 @@ uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     return 0;  
 }
 
-uint64_t syscall_beep(uint64_t freq, uint64_t secs) {
-    
+uint64_t syscall_beep(uint64_t freq, int64_t secs) {
+    play_sound(freq);
+    wait_seconds(secs);
+    nosound();
     return 0;
 }
 
@@ -56,9 +58,8 @@ uint64_t syscall_read( char* str,  uint64_t length){
     return length > 0 ? length : 0;
 }
 
-time* syscall_time(int64_t timeZone){ // TODO pensar como que le paso un struct time y "me lo llena"
-    time t = getTime(timeZone);
-    return &t;
+time syscall_time(int64_t timeZone){ // TODO pensar como que le paso un struct time y "me lo llena"
+    return getTime(timeZone);
 }
 
 typedef void* (*syscall_fn)(void*, void*, void*);
