@@ -62,9 +62,7 @@ time syscall_time(int64_t timeZone){ // TODO pensar como que le paso un struct t
     return getTime(timeZone);
 }
 
-typedef void* (*syscall_fn)(void*, void*, void*);
-
-
+typedef uint64_t (*syscall_fn)(void*, void*, void*);
 
 // Declaraciones de las funciones en formato genérico para el array
 void* syscall_read_wrapper(void* param1, void* param2, void* param3) {
@@ -75,8 +73,8 @@ void* syscall_write_wrapper(void* param1, void* param2, void* param3) {
     return (void*)syscall_write((uint64_t)param1, (char*)param2, (uint64_t)param3);
 }
 
-void* syscall_time_wrapper(void* param1, void* param2, void* param3) {
-    return (void*)syscall_time((int64_t)param1);
+time syscall_time_wrapper(void* param1, void* param2, void* param3) {
+    return syscall_time((int64_t)param1);
 }
 
 void* syscall_beep_wrapper(void* param1, void* param2, void* param3) {
@@ -84,13 +82,7 @@ void* syscall_beep_wrapper(void* param1, void* param2, void* param3) {
 }
 
 void* syscall_drawRectangle_wrapper(void* param1, void* param2, void* param3) {
-    return (void*)syscall_drawRectangle((Point2D*)param1, (Point2D*)param2, (uint32_t)param3);
-    // el casteo de param3 es inválido --> revisar
-    /*
-    syscallDispatcher.c: In function 'syscall_drawRectangle_wrapper':
-    syscallDispatcher.c:86:77: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-    86 |     return (void*)syscall_drawRectangle((Point2D*)param1, (Point2D*)param2, (uint32_t)param3);
-    */
+    return (void*)syscall_drawRectangle((Point2D*)param1, (Point2D*)param2, *(uint32_t*)param3);
 }
 
 void* syscall_getRegisters_wrapper(void* param1, void* param2, void* param3) {
@@ -115,7 +107,7 @@ syscall_fn syscalls[] = {
 };
 
 // Prototipos de las funciones de syscall
-void* syscallDispatcher(uint64_t syscall_number, void* param1, void* param2, void* param3) {
+uint64_t syscallDispatcher(uint64_t syscall_number, void* param1, void* param2, void* param3) {
     if (syscall_number > 0 && syscall_number < sizeof(syscalls) / sizeof(syscall_fn)) {
         // Llama a la función correspondiente a la syscall
         return syscalls[syscall_number](param1, param2, param3);
