@@ -74,7 +74,7 @@ int strcmp(const char *s1, const char *s2){
 }
 
 
-int printf(const char *format, ...){
+uint64_t printf(const char *format, ...){
     va_list args;
     va_start(args, format);
     char output[MAX_LENGTH];
@@ -130,6 +130,6 @@ int printferror(){
     return 0; // borrar... cuando se implemente esto
 }
 
-int readLine(char * buff, uint64_t length){
+uint64_t readLine(char * buff, uint64_t length){
     return syscall(4,2,buff,length);
 }

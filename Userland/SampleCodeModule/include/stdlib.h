@@ -2,6 +2,7 @@
 #define STDLIB_H
 
 #include <stdint.h>
+#include <stdarg.h>
 
 /**
  * @brief Longitud de un string null-terminated
@@ -16,15 +17,15 @@ uint64_t strlen(char * s);
  * @param ... argumentos a imprimir
  * @return cantidad de caracteres impresos
  */
-int printf(const char *format, ...);
+uint64_t printf(const char *format, ...);
 
 /**
- * @brief Lee de la entrada estandar un string formateado
- * @param format string con formato
- * @param ... punteros a los argumentos a leer
+ * @brief Lee de la entrada estandar un string
+ * @param buff Buffer donde poner lo leído
+ * @param length cantidad de caracteres a leer (menor o igual al tamaño del buffer)
  * @return cantidad de caracteres leidos
  */
-int scanf(const char *format, ...);
+uint64_t readLine(char * buff, uint64_t length);
 
 /**
  * @brief Compara dos strings
