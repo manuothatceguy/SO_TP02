@@ -60,7 +60,7 @@ void clearScreen(uint32_t color) {
         for (uint64_t x = 0; x < VBE_mode_info->width; x++) {
             putPixel(color, x, y);
         }
-    }
+    } 
 }
 
 uint64_t getWidth(){

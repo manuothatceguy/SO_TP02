@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <syscall.h>
+#include <stdint.h>
 
 #define MAX_LENGTH 1000
 #define MAX_INT_LENGTH 10
@@ -129,52 +130,6 @@ int printferror(){
     return 0; // borrar... cuando se implemente esto
 }
 
-int scanf(const char *format, ...){
-    va_list args;
-    va_start(args, format);
-    char input[MAX_LENGTH];
-    int i = 0, k = 0;
-    
-    // syscall(1): read
-    // 2 params: 
-    //      - char * 
-    //      - unsigned int
-    syscall(1, 2, input, MAX_LENGTH);
-    while (format[i] != 0) {
-        if (format[i] == '%' && format[i + 1] != 0) {
-            i++;
-            switch (format[i]) {
-                case 'd': {
-                    int *num = va_arg(args, int *);
-                    *num = 0;
-                    while (input[k] >= '0' && input[k] <= '9') {
-                        *num = *num * 10 + (input[k] - '0');
-                        k++;
-                    }
-                    break;
-                }
-                case 's': {
-                    char *str = va_arg(args, char *);
-                    while (input[k] != ' ' && input[k] != '\n' && input[k] != 0) {
-                        *str++ = input[k++];
-                    }
-                    *str = 0;
-                    break;
-                }
-                case 'c': {
-                    char *c = va_arg(args, char *);
-                    *c = input[k++];
-                    break;
-                }
-                default:
-                    break;
-            }
-        } else {
-            k++;
-        }
-        i++;
-    }
-    
-    va_end(args);
-    return 0;
+int readLine(char * buff, uint64_t length){
+    return syscall(4,2,buff,length);
 }

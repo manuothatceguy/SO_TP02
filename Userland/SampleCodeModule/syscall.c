@@ -1,4 +1,6 @@
 #include <syscall.h>
+#include <stdint.h>
+#include <stdarg.h>
 
 uint64_t _syscall(uint64_t code, uint64_t rbx, uint64_t rcx, uint64_t rdx);
 

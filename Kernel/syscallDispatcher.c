@@ -1,4 +1,4 @@
-    #include <time.h>
+#include <time.h>
 #include <stdint.h>
 #include <clock.h>
 #include <videoDriver.h>
@@ -31,7 +31,7 @@ uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     return 0;  
 }
 
-uint64_t syscall_beep(uint64_t freq, int64_t secs) {
+uint64_t syscall_beep(uint64_t freq, uint64_t secs) {
     play_sound(freq);
     wait_seconds(secs);
     nosound();
