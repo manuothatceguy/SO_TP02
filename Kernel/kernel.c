@@ -41,7 +41,7 @@ void * getStackBase()
 
 void * initializeKernelBinary()
 {
-	char buffer[10];
+	//char buffer[10];
 
 	//ncPrint("[x64BareBones]");
 	//ncNewline();

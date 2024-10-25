@@ -56,7 +56,7 @@ uint64_t syscall_read( char* str,  uint64_t length){
     return length > 0 ? length : 0;
 }
 
-time* syscall_time(int64_t timeZone){ 
+time* syscall_time(int64_t timeZone){ // TODO pensar como que le paso un struct time y "me lo llena"
     time t = getTime(timeZone);
     return &t;
 }
@@ -84,6 +84,12 @@ void* syscall_beep_wrapper(void* param1, void* param2, void* param3) {
 
 void* syscall_drawRectangle_wrapper(void* param1, void* param2, void* param3) {
     return (void*)syscall_drawRectangle((Point2D*)param1, (Point2D*)param2, (uint32_t)param3);
+    // el casteo de param3 es inválido --> revisar
+    /*
+    syscallDispatcher.c: In function 'syscall_drawRectangle_wrapper':
+    syscallDispatcher.c:86:77: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+    86 |     return (void*)syscall_drawRectangle((Point2D*)param1, (Point2D*)param2, (uint32_t)param3);
+    */
 }
 
 void* syscall_getRegisters_wrapper(void* param1, void* param2, void* param3) {

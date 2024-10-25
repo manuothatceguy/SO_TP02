@@ -126,6 +126,7 @@ int printf(const char *format, ...){
 int printferror(){
     // como printf pero al hacer syscall ponemos STDERR 
     // TODO modularizar
+    return 0; // borrar... cuando se implemente esto
 }
 
 int scanf(const char *format, ...){
