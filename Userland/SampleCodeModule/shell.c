@@ -62,13 +62,13 @@ char * man_list[CANT_INSTRUCTIONS] = {
 
     "echo - Imprime en pantalla lo que el usuario ingrese por linea de comando"
     "   Uso: echo \"Mensaje\"\n"
-    "   Este comando es util para "
+    "   Este comando es util para probar el funcionamiento de la teminal"
 
-    "divzero - Prueba la excepción que se produce al intentar dividir por cero.\n"
+    "test_div_0 - Prueba la excepción que se produce al intentar dividir por cero.\n"
     "    Uso: divzero\n"
     "    Este comando genera una excepción controlada al intentar realizar una división por cero, lo cual es un error en la mayoría de los entornos de programación. El comando está diseñado para pruebas y depuración de excepciones del sistema.\n",
 
-    "invopcode - Prueba la excepción que se genera al ingresar un código de operación inválido.\n"
+    "test_invalid_opcode - Prueba la excepción que se genera al ingresar un código de operación inválido.\n"
     "    Uso: invopcode\n"
     "    Este comando provoca una excepción al ejecutar una instrucción con un código de operación inválido. Es útil para pruebas de manejo de errores en sistemas operativos y para garantizar que el sistema maneje correctamente las instrucciones no válidas.\n",
 

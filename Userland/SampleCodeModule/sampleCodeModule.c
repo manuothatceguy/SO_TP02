@@ -2,7 +2,6 @@
 #include <shell.h>
 
 int main() {
-	// LLAMA A SHELL (bucle hasta que exit = 1)
-	// shutdown syscall ??????????
+	shell();
 	return 0;
 }

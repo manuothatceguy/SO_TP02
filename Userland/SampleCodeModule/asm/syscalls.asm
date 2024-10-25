@@ -4,7 +4,7 @@ GLOBAL _syscall
 
 section .text
 _syscall:
-    push rbp
+    push rbp ; registros a preservar
     mov rbp, rsp
     push rbx
     push r12
@@ -16,7 +16,7 @@ _syscall:
     mov rdi, rdx 
     mov rdx, rcx
     mov rcx, rdi
-    int 0x80
+    int 0x80        ; efectúa la syscall
     
     pop r15
     pop r13
