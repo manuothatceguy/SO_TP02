@@ -79,9 +79,9 @@ getRegisters:
 	pop rax
 	push rax
 	popfq
-	mov [regs + 8*16], rax 
+	mov [regs + 8*16], rax ; rflags
 	pop rax ; levanto dir ret
-	mov [regs + 8*17], rax
+	mov [regs + 8*17], rax ; rip
 	push rax
 	mov rax, regs
 	ret
