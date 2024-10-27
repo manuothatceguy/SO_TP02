@@ -96,7 +96,7 @@ void man(char * instruction){
             return;
         }
     }
-    printf("%s no es un comando valido", instruction);
+    printf("%s no es un comando valido\n", instruction);
 }
 
 int verify_instruction(char * instruction){
