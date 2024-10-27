@@ -58,36 +58,31 @@ kb_getKey:
     pop rbp
     ret
 
-getRip:
-	pop rax
-	push rax
-	ret
-
 getRegisters:
-	call getRip
 	mov [regs], rax 
-	pop rax
-	mov [regs + 8*1], rax
-	mov [regs + 8*2], rbx
-	mov [regs + 8*3], rcx 
-	mov [regs + 8*4], rdx
-	mov [regs + 8*5], rsi
-	mov [regs + 8*6], rdi 
-	mov [regs + 8*7], rbp
-	mov [regs + 8*8], rsp 
-	mov [regs + 8*9], r8 
-	mov [regs + 8*10], r9 
-	mov [regs + 8*11], r10
-	mov [regs + 8*12], r11
-	mov [regs + 8*13], r12
-	mov [regs + 8*14], r13 
-	mov [regs + 8*15], r14
-	mov [regs + 8*16], r15
+	mov [regs + 8*1], rbx
+	mov [regs + 8*2], rcx
+	mov [regs + 8*3], rdx 
+	mov [regs + 8*4], rsi
+	mov [regs + 8*5], rdi
+	mov [regs + 8*6], rbp
+	mov [regs + 8*7], rsp
+	mov [regs + 8*8], r8 
+	mov [regs + 8*9], r9 
+	mov [regs + 8*10], r10 
+	mov [regs + 8*11], r11
+	mov [regs + 8*12], r12
+	mov [regs + 8*13], r13
+	mov [regs + 8*14], r14 
+	mov [regs + 8*15], r15
 	pushfq
 	pop rax
 	push rax
 	popfq
-	mov [regs + 8*17], rax 
+	mov [regs + 8*16], rax 
+	pop rax ; levanto dir ret
+	mov [regs + 8*17], rax
+	push rax
 	mov rax, regs
 	ret
 

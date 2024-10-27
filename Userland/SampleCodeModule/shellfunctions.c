@@ -38,8 +38,8 @@ void showRegisters(){
                                             "R13: ", "R14: ", "R15: ", "RSP: ", "RIP: ", "RFLAGS: "};
     uint64_t registersRead[CANT_REGISTERS];
     syscall(6, 1, registersRead);
-    for(int i = 0; i < CANT_REGISTES ; i++){
-        printf("Valor del registro %s %x \n", registersName[i] , registersRead[i]);
+    for(int i = 0; i < CANT_REGISTERS ; i++){
+        printf("Valor del registro %s %x \n", registersNames[i] , registersRead[i]);
     }
 }
 
