@@ -186,6 +186,7 @@ void shell() {
             }
             case MAN: {
                 man(arg);
+                break;
             }
             case EXIT : {
                 exit = 1;
