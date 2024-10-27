@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "naiveconsole.h": "c"
+        "naiveconsole.h": "c",
+        "stdlib.h": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc"
 }

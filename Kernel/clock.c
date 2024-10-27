@@ -1,6 +1,7 @@
 #include <clock.h>
 #include <lib.h>
 #include <naiveConsole.h>
+#include <stdint.h>
 
 enum RTC_REGS {SECONDS = 0x00, MINUTES = 0x02, HOURS = 0x04, DAY_OF_WEEK = 0x06, DAY_OF_MONTH = 0x07, MONTH = 0x08, YEAR = 0x09};
 
@@ -87,4 +88,32 @@ time getTime(int timeZone){
         checkMonth(&toReturn);
     }
     return toReturn;
+}
+
+int64_t getTimeParam(int64_t tz,uint64_t param){
+    time t = getTime(tz);
+    switch (param)
+    {
+    case 0:
+        return t.sec;
+        break;
+    case 1:
+        return t.min;
+        break;
+    case 2:
+        return t.hour;
+        break;
+    case 3:
+        return t.day;
+        break;
+    case 4:
+        return t.month;
+        break;
+    case 5:
+        return t.year;
+        break;
+    default:
+        break;
+    }
+    return -1;
 }

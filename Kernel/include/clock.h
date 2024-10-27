@@ -1,6 +1,8 @@
 #ifndef CLOCK_H
 #define CLOCK_H
 
+#include <stdint.h>
+
 typedef struct time{
     int sec;
     int min;
@@ -16,5 +18,7 @@ typedef struct time{
  * timeZone is invalid.
  */
 time getTime(int timeZone);
+
+int64_t getTimeParam(int64_t tz,uint64_t param); // -1 si falla
 
 #endif // CLOCK_H

@@ -47,7 +47,7 @@ uint64_t* syscall_getRegisters() {
 }
 
 uint64_t syscall_clearScreen(){
-    clearScreen(0);
+    clearText(0);
     return 0;
 }
 
@@ -58,8 +58,13 @@ uint64_t syscall_read( char* str,  uint64_t length){
     return length > 0 ? length : 0;
 }
 
-time syscall_time(int64_t timeZone){ // TODO pensar como que le paso un struct time y "me lo llena"
-    return getTime(timeZone);
+uint64_t syscall_time(int64_t timeZone, uint64_t mod){
+    int64_t time = getTimeParam(timeZone, mod);
+    if(time > 0){
+       return time; 
+    } else {
+        // error
+    }
 }
 
 typedef uint64_t (*syscall_fn)(void*, void*, void*);
@@ -73,8 +78,8 @@ void* syscall_write_wrapper(void* param1, void* param2, void* param3) {
     return (void*)syscall_write((uint64_t)param1, (char*)param2, (uint64_t)param3);
 }
 
-time syscall_time_wrapper(void* param1, void* param2, void* param3) {
-    return syscall_time((int64_t)param1);
+void* syscall_time_wrapper(void* param1, void* param2, void* param3) {
+    return (void*)syscall_time((int64_t)param1, (uint64_t)param2);
 }
 
 void* syscall_beep_wrapper(void* param1, void* param2, void* param3) {

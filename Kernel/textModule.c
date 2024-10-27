@@ -201,11 +201,8 @@ void putChar(unsigned char char_to_print, int scaleFactor, uint32_t color){
         if(char_to_print == '\n'){ // Unicamente retorno si es un ENTER, si no sigo con el flujo (imprimo el caracter)
             return;
         }   
-    } else if(char_to_print == '\t'){ // un tab son 4 espacios consecutivos
-        for(int i = 0; i < 4; i++){
-            putChar(' ', scaleFactor, color);
-        }
-        return;
+    } else if(char_to_print == '\t'){
+        char_to_print = ' '; // imprimo un espacio
     } else if(char_to_print == '\b'){
         toggleCursor(scaleFactor, OFF); // CURSOR ############################################################
         deleteChar(scaleFactor);
@@ -229,7 +226,7 @@ void putChar(unsigned char char_to_print, int scaleFactor, uint32_t color){
     toggleCursor(scaleFactor, ON); // CURSOR ############################################################
 }
 
-void clearText(uint64_t color){
+void clearText(uint32_t color){
     clearScreen(color);
     x_pos = 0;
     y_pos = 0;

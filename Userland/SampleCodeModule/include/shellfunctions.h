@@ -8,5 +8,6 @@ void showTime();
 void showRegisters();
 void divZero();
 void invalidOpCode();
+void clear() ;
 
 #endif //SHELLFUNCTIONS_H

@@ -38,15 +38,26 @@ int strcmp(const char *s1, const char *s2);
 /**
  * @brief Convierte un entero a string
  * @param n entero a imprimir
- * @return string con el entero
+ * @param buff buffer donde se guardará el string
  */
-char * intToStr(int n);
+void intToStr(int n, char * buff);
 
 /**
  * @brief Convierte un entero a string en hexadecimal
  * @param n entero a imprimir
- * @return string con el entero en hexadecimal
+ * @param buff buffer donde se guardará el string
  */
-char * intToHex(int n);
+void intToHex(int n, char * buff);
+
+
+/**
+ * @brief Obtiene un carácter de la entrada estándar.
+ * 
+ * Esta función espera y devuelve un único carácter ingresado por el usuario.
+ * No requiere parámetros y devuelve el carácter como tipo char.
+ * 
+ * @return El carácter ingresado por el usuario.
+ */
+char getChar();
 
 #endif // STDLIB_H

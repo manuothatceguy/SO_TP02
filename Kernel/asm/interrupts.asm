@@ -145,8 +145,9 @@ _irq80Handler:
     ; Pasaje de parametros x86_64
     mov rdi, rax  ; Número de syscall
     mov rsi, rbx  ; Primer parámetro
+	mov r8, rdx ;
     mov rdx, rcx  ; Segundo parámetro
-    mov rcx, rdx  ; Tercer parámetro
+    mov rcx, r8  ; Tercer parámetro
 
     ; Llamar a la función syscallDispatcher
     call syscallDispatcher

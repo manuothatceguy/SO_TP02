@@ -24,8 +24,5 @@ void int_20(){
 }
 
 void int_21(){
-	play_sound(440);
-	if(bufferWrite() != 0){
-		putChar(getChar(),2,0x00FF0000); // BORRAR
-	}
+	bufferWrite();
 }

@@ -188,7 +188,7 @@ int bufferWrite(){
 
     checkSpecialKeys(c);
 
-    if(!specialKey /*&& c > 0*/ && c <= F12_PRESS){  // A partir de F12_PRESS tengo los release keys
+    if(!specialKey && c <= F12_PRESS){  // A partir de F12_PRESS tengo los release keys
         mayus = (caps && !shift) || (!caps && shift);
         if( (isAlpha(c) && mayus) || (!isAlpha(c) && shift) ){
             addToBuffer(press_keys[c].shift_ascii);

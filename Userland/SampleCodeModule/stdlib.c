@@ -48,21 +48,14 @@ uint64_t strlen(char * s){
     return length;
 }
 
-char * intToStr(int n){ // ARREGLAR: QUE LE PASE CHAR *  Y QUE LO MANIPULE LA FN
-/**
- * stdlib.c:53:12: warning: function returns address of local variable [-Wreturn-local-addr]
-   53 |     return toRet;
- */
-    char toRet[MAX_INT_LENGTH];
-    uintToBase(n, toRet, 10);
-    return toRet;
+void intToStr(int n, char * buff){
+    uintToBase(n, buff, 10);
+    return;
 }
 
-// mismo fix para el intToStr
-char * intToHex(int n){
-    char toRet[MAX_INT_LENGTH];
-    uintToBase(n, toRet, 16);
-    return toRet;
+void intToHex(int n, char * buff){
+    uintToBase(n, buff, 16);
+    return;
 }
 
 int strcmp(const char *s1, const char *s2){
@@ -77,7 +70,7 @@ int strcmp(const char *s1, const char *s2){
 uint64_t printf(const char *format, ...){
     va_list args;
     va_start(args, format);
-    char output[MAX_LENGTH];
+    char output[MAX_LENGTH] = {0};
     int i = 0, k = 0;
     while(format[i] != 0){
         if(format[i] == '%' && format[i+1] != 0){
@@ -85,7 +78,8 @@ uint64_t printf(const char *format, ...){
             switch(format[i]){
                 case 'd':{
                     int num = va_arg(args, int);
-                    const char *str = intToStr(num);
+                    char str[MAX_INT_LENGTH];
+                    intToStr(num, str);
                     for(int j = 0; str[j] != 0; j++, k++){
                         output[k] = str[j];
                     }
@@ -105,7 +99,8 @@ uint64_t printf(const char *format, ...){
                 }
                 case 'x':{
                     int num = va_arg(args, int);
-                    const char *str = intToHex(num);
+                    char str[MAX_INT_LENGTH]; 
+                    intToHex(num, str);
                     for(int j = 0; str[j] != 0; j++, k++){
                         output[k] = str[j];
                     }
@@ -121,7 +116,7 @@ uint64_t printf(const char *format, ...){
     }
     va_end(args);
     
-    return syscall(4, 3, STDOUT, output, strlen(output));
+    return syscall(2, 3, STDOUT, output, strlen(output));
 }
 
 int printferror(){
@@ -130,6 +125,31 @@ int printferror(){
     return 0; // borrar... cuando se implemente esto
 }
 
-uint64_t readLine(char * buff, uint64_t length){
-    return syscall(4,2,buff,length);
+char getChar(){
+    char c;
+    syscall(1,2,&c,1);
+    return c;
 }
+
+uint64_t readLine(char *buff, uint64_t length) {
+    char c;
+    int i = 0;
+    while ((c = getChar()) != '\n' && i < length - 1) { // -1 para dejar espacio para el null
+        if (c == '\b') {
+            if (i > 0) {
+                i--; // Decrementa el índice para "borrar" el último carácter
+                printf("%c", c);
+            }
+        } else if (c != 0) {
+            buff[i++] = c;
+            printf("%c", c);
+        }
+    }
+    buff[i] = 0;
+    printf("\n");
+    return i;
+}
+
+
+
+

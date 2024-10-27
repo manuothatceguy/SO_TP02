@@ -15,4 +15,6 @@ void printStrSize(char * s, uint32_t color, int scaleFactor);
 
 void toggleCursor(int scaleFactor, unsigned int enable);
 
+void clearText(uint32_t color);
+
 #endif // TEXTMODULE_H

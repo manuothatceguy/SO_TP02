@@ -6,12 +6,13 @@
 
 #define BUFFER_SPACE 1000
 #define MAX_ECHO 1000
-#define MAX_LENGTH 16
+#define MAX_USERNAME_LENGTH 16
 #define PROMPT "%s$>"
-#define CANT_INSTRUCTIONS 9
+#define CANT_INSTRUCTIONS 10
 uint64_t curr = 0;
 
-char * help = "Para ayuda relacionada a un comando en especifico, ingrese el comando \"man\" seguido del comando.\n"
+
+char * help = "Para ayuda relacionada a un comando en especifico, ingrese el comando\n\"man\" seguido del comando.\n"
                 "Lista de comandos disponibles en la Shell:\n"        
                 "exit\n"
                 "help\n"
@@ -37,7 +38,16 @@ typedef enum {
     CLEAR
 } instructions;
 
-static char * inst_list[CANT_INSTRUCTIONS] = {"exit", "help", "snake", "time", "registers", "echo", "man", "test_div_0", "test_invalid_opcode"};
+static char * inst_list[CANT_INSTRUCTIONS] = {"exit", 
+                                            "help", 
+                                            "snake", 
+                                            "time", 
+                                            "registers", 
+                                            "echo", 
+                                            "man", 
+                                            "test_div_0", 
+                                            "test_invalid_opcode", 
+                                            "clear"};
 
 char * man_list[CANT_INSTRUCTIONS] = {
     "exit - Sale de la terminal.\n"
@@ -91,58 +101,66 @@ void man(char * instruction){
 
 int verify_instruction(char * instruction){
     for(int i = 0; i < CANT_INSTRUCTIONS; i++){
-        if(strcmp(inst_list[i],instruction) <= 0){
+        if(strcmp(inst_list[i], instruction) == 0){
             return i;
         }
     }
     return -1;
 }
 
-int getInstruction(char * shell_buffer){
-    scanf("%s",&shell_buffer);
+int getInstruction(char * arguments){
+    char shell_buffer[BUFFER_SPACE] = {0};
+    readLine(shell_buffer, BUFFER_SPACE);
+    int i = 0;
+    int j = 0;
     char instruction[BUFFER_SPACE] = {0};
-    int i = curr;
-    for(; i < BUFFER_SPACE + curr; i++){
-        if(shell_buffer[i] == '\n'){
-            shell_buffer[i] = 0;
+    
+    // Extract the instruction
+    for(; i < BUFFER_SPACE; i++){
+        if(shell_buffer[i] == ' ' || shell_buffer[i] == '\n'){
+            instruction[j] = 0;
             break;
         }
         else{
-            instruction[i-curr] = shell_buffer[i % BUFFER_SPACE];
+            instruction[j++] = shell_buffer[i];
         }
     }
-    curr = i;
-    curr %= BUFFER_SPACE;
+
+    // Skip the space
+    if(shell_buffer[i] == ' ') {
+        i++;
+    }
+    // Copy the rest of the buffer to arguments
+    int arg_index = 0;
+    while (shell_buffer[i] != '\0' && shell_buffer[i] != '\n') {
+        arguments[arg_index++] = shell_buffer[i++];
+    }
+    arguments[arg_index] = '\0';
+
+
     int iNum = 0;
-    if((iNum = verify_instruction(instruction)) == -1){
-        // error
+    if((iNum = verify_instruction(instruction)) == -1 && instruction[0] != '\n'){
+        printf("Comando no reconocido: %s\n", instruction); // Usando nuestro printf 
+        return -1;
     }
     return iNum;
 }
 
-void clear(){
-    syscall(7,0);
-}
-
-void invalidInstruction(){
-    // bla bla bla
-    // IMPLEMENTAR!
-}
 
 void shell() {
     // pedir username
     printf("Ingrese el usuario:");
-    char username[MAX_LENGTH];
-    scanf("%s", &username);
-    char shell_buffer[BUFFER_SPACE] = {0}; 
+    char username[MAX_USERNAME_LENGTH];
+    readLine(username, MAX_USERNAME_LENGTH);
     unsigned int exit = EXIT; // 0
-    
     int instruction;
     while(!exit){
         printf(PROMPT, username);
-        instruction = getInstruction(shell_buffer); // Lee el comando que ingresa el usuario en la shell
+        char arg[BUFFER_SPACE] = {0};
+        instruction = getInstruction(arg); // Lee el comando que ingresa el usuario en la shell
         switch(instruction) {
             case HELP: {
+                printf("\n");
                 printf(help); // Usando nuestro printf
                 break;
             }
@@ -163,33 +181,11 @@ void shell() {
                 break;
             }
             case ECHO: {
-                int i = 0;
-                while(/*shellBuffer[i] && */shell_buffer[i] != ' '){ 
-                    i++;
-                }
-                i++;
-                // Ahora estoy parado despues de user>  , empiezo a leer y hago un printf
-                char ret[MAX_ECHO];
-                for(int k = 0 ; shell_buffer[i]; k++, i++){
-                    ret[k++] = shell_buffer[i]; // En ret tengo el mensaje que imprimio el usuario
-                }
-                printf(ret);
+                printf("%s\n", arg);
                 break;
             }
             case MAN: {
-                // Estaria bueno modularizar aca, estoy hacinedo lo mismo que en el de arriba 
-                int i = 0;
-                while(/*shellBuffer[i] && */shell_buffer[i] != ' '){
-                    i++;
-                }
-                i++;
-                
-                char instruction[MAX_ECHO];
-                for(int k = 0 ; shell_buffer[i]; k++, i++){
-                    instruction[k++] = shell_buffer[i]; // En instrcuton tengo el mensaje que imprimio el usuario
-                }   
-                
-                man(instruction);
+                man(arg);
             }
             case EXIT : {
                 exit = 1;
@@ -199,9 +195,12 @@ void shell() {
                 invalidOpCode();
                 break;
             }
+            case CLEAR : {
+                clear();
+                break;
+            }
             default: {
-                // implementar
-                invalidInstruction(); // Si no se manda ningun comando valido se lanza esta exepcion no ? 
+                break;
             }
 
             // Salto al proximo renglon si la instruccion no es Snake : 
@@ -214,5 +213,6 @@ void shell() {
         AL FINAL DE CADA CICLO SE RESETEA EL SHELL BUFFER COMENZANDO DESDE 0, LO HACE getInstruction()? 
         */
     }
+    printf("Saliendo de la terminal...\n");
     return;
 }

@@ -16,7 +16,7 @@ _syscall:
     mov rdi, rdx 
     mov rdx, rcx
     mov rcx, rdi
-    int 0x80        ; efectúa la syscall
+    int 0x80        ; efectúa la syscall 
     
     pop r15
     pop r13
