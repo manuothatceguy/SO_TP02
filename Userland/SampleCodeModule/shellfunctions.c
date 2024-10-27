@@ -32,12 +32,15 @@ void showTime(){
     printf("Son las %d:%d:%d del %d de %s de %d\n", time[0], time[1], time[2], time[3], months[time[4]-1], time[5]);
 }
 
-void showRegisters(){
-    /*
-    char * registers[CANT_REGISTERS] = {"RAX: ", "RBX: ", "RCX: ", "RDX: ", "RSI: ", "RDI: ",
-                                        "RBP: ", "R8: ", "R9: ", "R10: ", "R11: ", "R12: ",
-                                        "R13: ", "R14: ", "R15: ", "RSP: ", "RIP: ", "RFLAGS: "}
-*/
+void showRegisters(){    
+    char * registersNames[CANT_REGISTERS] = {"RAX: ", "RBX: ", "RCX: ", "RDX: ", "RSI: ", "RDI: ",
+                                            "RBP: ", "R8: ", "R9: ", "R10: ", "R11: ", "R12: ",
+                                            "R13: ", "R14: ", "R15: ", "RSP: ", "RIP: ", "RFLAGS: "};
+    uint64_t registersRead[CANT_REGISTERS];
+    syscall(6, 1, registersRead);
+    for(int i = 0; i < CANT_REGISTES ; i++){
+        printf("Valor del registro %s %x \n", registersName[i] , registersRead[i]);
+    }
 }
 
 void divZero(){

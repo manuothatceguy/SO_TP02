@@ -42,8 +42,11 @@ uint64_t syscall_drawRectangle(Point2D* upLeft, Point2D *bottomRight, uint32_t c
     return drawRectangle(upLeft->x, upLeft->y, bottomRight->y - upLeft->y, bottomRight->x - upLeft->x, color);
 }
 
-uint64_t* syscall_getRegisters() {
-    return getRegisters();
+#define CANT_REGS 18
+
+uint64_t* syscall_getRegisters(uint64_t buff[]) {
+    uint64_t copy[] = getRegisters();
+    memcpy((void*)buff,(const void *)copy,CANT_REGS*sizeof(void*));
 }
 
 uint64_t syscall_clearScreen(){
@@ -91,7 +94,7 @@ void* syscall_drawRectangle_wrapper(void* param1, void* param2, void* param3) {
 }
 
 void* syscall_getRegisters_wrapper(void* param1, void* param2, void* param3) {
-    return (void*)syscall_getRegisters();
+    return (void*)syscall_getRegisters((uint64_t[])param1);
 }
 
 void* syscall_clearScreen_wrapper(void *param1, void* param2, void* param3){
