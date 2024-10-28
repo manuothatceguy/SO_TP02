@@ -152,6 +152,10 @@ _irq80Handler:
     ; Llamar a la función syscallDispatcher
     call syscallDispatcher
 
+	; signal pic EOI (End of Interrupt)
+	mov al, 20h
+	out 20h, al
+
     popState
     iretq
 

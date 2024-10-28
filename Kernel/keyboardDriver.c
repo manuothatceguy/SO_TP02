@@ -121,6 +121,7 @@ static char buffer[BUFFER_SIZE];
 unsigned int shift = 0;
 unsigned int caps = 0;
 unsigned int mayus = 0;
+unsigned int esc = 0;
 unsigned int specialKey = 0;
 
 static unsigned int current = 0;
@@ -150,8 +151,16 @@ static void handleSpecialKeys(unsigned int key){
         case CAPS_PRESS:
             caps = !caps;
             break;
+        case ESC_PRESS:
+            esc = 1; 
         default:
             break;
+
+        if(esc){
+            getRegisters(); // Funcion de ASM. VER 
+            esc = 0; 
+        }
+        
     }
 }
 

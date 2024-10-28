@@ -22,29 +22,31 @@ char *months[] = {
 
 void showTime(){
     uint64_t time[] = {
-        syscall(3,2,-3,0),
-        syscall(3,2,-3,1),
-        syscall(3,2,-3,2),
-        syscall(3,2,-3,3),
-        syscall(3,2,-3,4),
-        syscall(3,2,-3,5)
+        syscall(3,2,-3,0), // secs
+        syscall(3,2,-3,1), // mins
+        syscall(3,2,-3,2), // hour
+        syscall(3,2,-3,3), // day
+        syscall(3,2,-3,4), // month
+        syscall(3,2,-3,5)  // year
     };
     printf("Son las %d:%d:%d del %d de %s de %d\n", time[0], time[1], time[2], time[3], months[time[4]-1], time[5]);
 }
 
 void showRegisters(){    
     char * registersNames[CANT_REGISTERS] = {"RAX: ", "RBX: ", "RCX: ", "RDX: ", "RSI: ", "RDI: ",
-                                            "RBP: ", "R8: ", "R9: ", "R10: ", "R11: ", "R12: ",
-                                            "R13: ", "R14: ", "R15: ", "RSP: ", "RIP: ", "RFLAGS: "};
+                                            "RBP: ", "RSP: ", "R8: ", "R9: ", "R10: ", "R11: ",
+                                            "R12: ", "R13: ", "R14: ", "R15: ", "RFLAGS: ", "RIP: "};
     uint64_t registersRead[CANT_REGISTERS];
-    syscall(6, 1, registersRead);
+    uint64_t aux = syscall(6, 1, registersRead);
+    if(!aux){
+        printf("No hay un guardado de registros. Presione ESC para hacer un backup\n");
+    }
     for(int i = 0; i < CANT_REGISTERS ; i++){
         printf("Valor del registro %s %x \n", registersNames[i] , registersRead[i]);
     }
 }
 
 void divZero(){
-
 }
 
 void invalidOpCode(){

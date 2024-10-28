@@ -5,16 +5,18 @@
 
 void loadFont(char **newFont, int newFontHeight, int newFontWidth);
 
-void putChar(unsigned char c, int scaleFactor, uint32_t color);
+void putChar(unsigned char c, uint32_t color);
 
 void lineFeed(int fontHeight);
 
 void printStr(char * s, uint32_t color);
 
-void printStrSize(char * s, uint32_t color, int scaleFactor);
-
-void toggleCursor(int scaleFactor, unsigned int enable);
+void toggleCursor(unsigned int enable);
 
 void clearText(uint32_t color);
+
+uint64_t fontSizeUp();
+
+uint64_t fontSizeDown();
 
 #endif // TEXTMODULE_H

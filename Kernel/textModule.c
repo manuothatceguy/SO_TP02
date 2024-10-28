@@ -167,19 +167,21 @@ static int font_width = 8;
 
 static uint64_t x_pos = 0, y_pos = 0;
 
-void deleteChar(int scaleFactor){
+static uint64_t fontSize = 2;
+
+void deleteChar(){
     if(x_pos == 0){
         if(y_pos > 0){
-            x_pos = getWidth() - font_width * scaleFactor;
-            y_pos -= scaleFactor * font_height;
+            x_pos = getWidth() - font_width * fontSize;
+            y_pos -= fontSize * font_height;
         }
     } else {
-        x_pos -= scaleFactor * font_width;
+        x_pos -= fontSize * font_width;
     }
     
     for (int i = 0; i < font_width; i++){
         for(int j = 0; j < font_height; j++){
-            drawSquare(x_pos+i*scaleFactor,y_pos+j*scaleFactor,scaleFactor,0);
+            drawSquare(x_pos+i*fontSize,y_pos+j*fontSize,fontSize,0);
         }
     }
 }
@@ -193,37 +195,37 @@ void loadFont(char **newFont, int newFontHeight, int newFontWidth){
 }
 */
 
-void putChar(unsigned char char_to_print, int scaleFactor, uint32_t color){
-    if(char_to_print == '\n' || x_pos + font_width * scaleFactor > getWidth()){
-        toggleCursor(scaleFactor, OFF); // CURSOR ############################################################
-        lineFeed(font_height * scaleFactor);
-        toggleCursor(scaleFactor, ON); // CURSOR ############################################################
+void putChar(unsigned char char_to_print, uint32_t color){
+    if(char_to_print == '\n' || x_pos + font_width * fontSize > getWidth()){
+        toggleCursor(OFF); // CURSOR ############################################################
+        lineFeed(font_height * fontSize);
+        toggleCursor(ON); // CURSOR ############################################################
         if(char_to_print == '\n'){ // Unicamente retorno si es un ENTER, si no sigo con el flujo (imprimo el caracter)
             return;
         }   
     } else if(char_to_print == '\t'){
         char_to_print = ' '; // imprimo un espacio
     } else if(char_to_print == '\b'){
-        toggleCursor(scaleFactor, OFF); // CURSOR ############################################################
-        deleteChar(scaleFactor);
-        toggleCursor(scaleFactor, ON); // CURSOR ############################################################
+        toggleCursor(OFF); // CURSOR ############################################################
+        deleteChar();
+        toggleCursor(ON); // CURSOR ############################################################
         return;
-    } else if(y_pos + font_height * scaleFactor > getHeight()){
+    } else if(y_pos + font_height * fontSize > getHeight()){
         clearScreen(0);
         x_pos = 0;
         y_pos = 0;
     }
-    toggleCursor(scaleFactor, OFF); // CURSOR ############################################################
+    toggleCursor(OFF); // CURSOR ############################################################
     unsigned char mask = 0x01;
     for(int i = 0; i < font_height; i++){
         for(int j = 0; j < font_width; j++){
             if((mask << j & font8x8_basic[char_to_print][i]) != 0){
-                drawSquare(x_pos + j * scaleFactor, y_pos + i * scaleFactor, scaleFactor, color);
+                drawSquare(x_pos + j * fontSize, y_pos + i * fontSize, fontSize, color);
             }
         }
     }
-    x_pos += font_width * scaleFactor; // me muevo horizontalmente
-    toggleCursor(scaleFactor, ON); // CURSOR ############################################################
+    x_pos += font_width * fontSize; // me muevo horizontalmente
+    toggleCursor(ON); // CURSOR ############################################################
 }
 
 void clearText(uint32_t color){
@@ -238,22 +240,28 @@ void lineFeed(int fontHeight){
 }
 
 void printStr(char * s, uint32_t color){
-    printStrSize(s, color, 1);
-}
-
-void printStrSize(char * s, uint32_t color, int scaleFactor){
     while(*s){
-        putChar(*s++, scaleFactor, color);
+        putChar(*s++, color);
     }
 }
-
-
 
 // POSIBLE IMPLEMENTACION DEL CURSOR
 
-void toggleCursor(int scaleFactor, unsigned int enable){
+void toggleCursor(unsigned int enable){
     uint32_t color = enable ? CURSOR_COLOR : 0x00000000; // CURSOR_COLOR para encender y negro para apagar
-    for(int i = 0; i < font_height * scaleFactor; i++){
-        drawSquare(x_pos, y_pos + i, scaleFactor, color);
+    for(int i = 0; i < font_height * fontSize; i++){
+        drawSquare(x_pos, y_pos + i, fontSize, color);
     }
+}
+
+#define TOPE_FONT 5
+
+uint64_t fontSizeUp(){
+    if(fontSize < TOPE_FONT) return ++fontSize;
+    return fontSize;
+}
+
+uint64_t fontSizeDown(){
+    if(fontSize > 1) return --fontSize;
+    return fontSize;
 }

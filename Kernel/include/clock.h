@@ -17,8 +17,8 @@ typedef struct time{
  * @param timeZone to adjust to the correct time zone. Must put the value as it is. May cause errors if
  * timeZone is invalid.
  */
-time getTime(int timeZone);
+time getTime(int64_t timeZone);
 
-int64_t getTimeParam(int64_t tz,uint64_t param); // -1 si falla
+int64_t getTimeParam(int64_t tz, uint64_t param); // -1 si falla
 
 #endif // CLOCK_H

@@ -12,7 +12,7 @@
 uint64_t curr = 0;
 
 
-char * help = "Para ayuda relacionada a un comando en especifico, ingrese el comando\n\"man\" seguido del comando.\n"
+char * help = "Para ayuda relacionada a un comando en especifico,\n ingrese el comando\"man\" seguido del comando.\n"
                 "Lista de comandos disponibles en la Shell:\n"        
                 "exit\n"
                 "help\n"
@@ -52,11 +52,11 @@ static char * inst_list[CANT_INSTRUCTIONS] = {"exit",
 char * man_list[CANT_INSTRUCTIONS] = {
     "exit - Sale de la terminal.\n"
     "    Uso: exit\n"
-    "    Este comando cierra la sesión de la terminal actual y termina cualquier proceso que se esté ejecutando. Es útil cuando deseas finalizar una sesión o apagar el sistema de manera controlada.\n",
+    "    Este comando cierra la sesion de la terminal actual y termina cualquier proceso que se este ejecutando. Es util cuando deseas finalizar una sesion o apagar el sistema de manera controlada.\n",
 
     "help - Muestra la lista de comandos disponibles en la Shell.\n"
     "    Uso: help\n"
-    "    Este comando despliega una lista completa de los comandos que se pueden ejecutar desde la terminal, junto con una breve descripción de cada uno. Es útil para los usuarios que no están familiarizados con todos los comandos disponibles.\n",
+    "    Este comando despliega una lista completa de los comandos que se pueden ejecutar desde la terminal, junto con una breve descripcion de cada uno. Es util para los usuarios que no estan familiarizados con todos los comandos disponibles.\n",
 
     "snake - Inicia un juego de Snake.\n"
     "    Uso: snake\n"
@@ -64,27 +64,27 @@ char * man_list[CANT_INSTRUCTIONS] = {
 
     "time - Muestra en pantalla el horario actual.\n"
     "    Uso: time\n"
-    "    Este comando muestra la hora actual del sistema, basada en el reloj interno. Es útil para verificar la hora mientras trabajas en la terminal sin salir o cambiar de ventana.\n",
+    "    Este comando muestra la hora actual del sistema, basada en el reloj interno. Es util para verificar la hora mientras trabajas en la terminal sin salir o cambiar de ventana.\n",
 
     "registers - Imprime el valor de los registros en tiempo real.\n"
     "    Uso: registers\n"
-    "    Este comando muestra los valores actuales de los registros de la CPU. Es ideal para desarrolladores o ingenieros que necesitan monitorear el estado del hardware o realizar depuración en tiempo real.\n",
+    "    Este comando muestra los valores actuales de los registros de la CPU. Es ideal para desarrolladores o ingenieros que necesitan monitorear el estado del hardware o realizar depuracion en tiempo real.\n",
 
     "echo - Imprime en pantalla lo que el usuario ingrese por linea de comando"
     "   Uso: echo \"Mensaje\"\n"
     "   Este comando es util para probar el funcionamiento de la teminal"
 
-    "test_div_0 - Prueba la excepción que se produce al intentar dividir por cero.\n"
+    "test_div_0 - Prueba la excepcion que se produce al intentar dividir por cero.\n"
     "    Uso: divzero\n"
-    "    Este comando genera una excepción controlada al intentar realizar una división por cero, lo cual es un error en la mayoría de los entornos de programación. El comando está diseñado para pruebas y depuración de excepciones del sistema.\n",
+    "    Este comando genera una excepcion controlada al intentar realizar una division por cero, lo cual es un error en la mayoria de los entornos de programacion. El comando esta pensado para para pruebas y depuracion de excepciones del sistema.\n",
 
-    "test_invalid_opcode - Prueba la excepción que se genera al ingresar un código de operación inválido.\n"
+    "test_invalid_opcode - Prueba la excepcion que se genera al ingresar un codigo de operacion invalido.\n"
     "    Uso: invopcode\n"
-    "    Este comando provoca una excepción al ejecutar una instrucción con un código de operación inválido. Es útil para pruebas de manejo de errores en sistemas operativos y para garantizar que el sistema maneje correctamente las instrucciones no válidas.\n",
+    "    Este comando provoca una excepcion al ejecutar una instruccion con un codigo de operacion invalido. Es util para pruebas de manejo de errores en sistemas operativos y para garantizar que el sistema maneje correctamente las instrucciones no validas.\n",
 
     "clear - Limpia la pantalla de la terminal.\n"
     "    Uso: clear\n"
-    "    Este comando borra todo el contenido de la terminal, dejando la pantalla vacía. Es útil para mejorar la visibilidad cuando la terminal está llena de texto y quieres comenzar de nuevo con una vista limpia.\n",
+    "    Este comando borra todo el contenido de la terminal, dejando la pantalla vacia. Es util para mejorar la visibilidad cuando la terminal esta llena de texto y quieres comenzar de nuevo con una vista limpia.\n",
 };
 
 

@@ -8,7 +8,6 @@ enum RTC_REGS {SECONDS = 0x00, MINUTES = 0x02, HOURS = 0x04, DAY_OF_WEEK = 0x06,
 unsigned int BCDToDecimal(unsigned char time);
 
 unsigned int seconds(){
-    
     return BCDToDecimal(rtc(SECONDS));
 }
 
@@ -35,7 +34,7 @@ unsigned int year(){
 int isLeapYear(int year){ // From K&R - The C Programming Language
     return ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0);
 }
-
+/*
 void checkMonth(time * time){
     if(time->month > 12){
         time->month = 1;
@@ -59,13 +58,13 @@ void checkDay(time * time){
         checkMonth(time);
         time->day = daytab[isLeapYear(time->year)][time->month];
     }
-}
+}*/
 
 unsigned int BCDToDecimal(unsigned char bcd) {
     return (bcd >> 4)*10 + bcd%16;
 }
-
-time getTime(int timeZone){
+/*
+time getTime(int64_t timeZone){
     time toReturn = {
         seconds(),
         minutes(),
@@ -88,32 +87,87 @@ time getTime(int timeZone){
         checkMonth(&toReturn);
     }
     return toReturn;
+}*/
+
+void checkDay(int *day, int *month, int *year) {
+    char daytab[2][13] = { // from K&R - The C Programming Language
+        {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+        {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+    };
+    
+    int leap = isLeapYear(*year);
+    
+    if (*day > daytab[leap][*month]) {
+        *day = 1;
+        (*month)++;
+        if (*month > 12) {
+            *month = 1;
+            (*year)++;
+        }
+    } else if (*day <= 0) {
+        (*month)--;
+        if (*month <= 0) {
+            *month = 12;
+            (*year)--;
+        }
+        *day = daytab[isLeapYear(*year)][*month];
+    }
 }
 
-int64_t getTimeParam(int64_t tz,uint64_t param){
-    time t = getTime(tz);
-    switch (param)
-    {
-    case 0:
-        return t.sec;
-        break;
-    case 1:
-        return t.min;
-        break;
-    case 2:
-        return t.hour;
-        break;
-    case 3:
-        return t.day;
-        break;
-    case 4:
-        return t.month;
-        break;
-    case 5:
-        return t.year;
-        break;
-    default:
-        break;
-    }
-    return -1;
+int getDaysInMonth(int month, int year) {
+    char daytab[2][13] = {
+        {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+        {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+    };
+    return daytab[isLeapYear(year)][month];
 }
+
+
+#define GMT_ARG -3
+
+int64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
+    int sec = seconds();
+    int min = minutes();
+    int hour = hours() + GMT_ARG;
+    int day = day();
+    int month = month();
+    int year = year();
+
+    // Ajustar la hora con cambio de día si es necesario
+    if (hour >= 24) {
+        hour -= 24;
+        day++;
+    } else if (hour < 0) {
+        hour += 24;
+        day--;
+    }
+
+    // Ajustar el día con cambio de mes si es necesario
+    if (day > getDaysInMonth(month, year)) {
+        day = 1;
+        month++;
+        if (month > 12) {
+            month = 1;
+            year++;
+        }
+    } else if (day <= 0) {
+        month--;
+        if (month <= 0) {
+            month = 12;
+            year--;
+        }
+        day = getDaysInMonth(month, year);
+    }
+
+    // Devolver el parámetro solicitado
+    switch (param) {
+        case 0: return sec;
+        case 1: return min;
+        case 2: return hour;
+        case 3: return day;
+        case 4: return month;
+        case 5: return year;
+        default: return -1;
+    }
+}
+
