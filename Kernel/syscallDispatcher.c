@@ -82,6 +82,11 @@ uint64_t syscall_getHeight(){
     return getHeight();
 }
 
+uint64_t syscall_wait(uint64_t ticks){
+    wait_ticks(ticks);
+    return ticks;
+}
+
 // Prototipos de las funciones de syscall
 uint64_t syscallDispatcher(uint64_t syscall_number, ...) {
     va_list ap;
@@ -134,6 +139,10 @@ uint64_t syscallDispatcher(uint64_t syscall_number, ...) {
     case 11:
         va_end(ap);
         return syscall_getWidth(); 
+    case 12: // wait
+        uint64_t param1 = va_arg(ap,uint64_t);
+        va_end(ap);
+        return syscall_wait(param1);
     default:
         break;
     }
