@@ -32,12 +32,12 @@ cpuVendor:
 
 ; RTC
 
-rtc:
+rtc: 
 	push rbp
 	mov rbp, rsp 
 	mov al, dil  
 	out 70h, al
-	in al, 71h   
+	in al, 71h  
 	movzx rax, al
 	mov rsp, rbp
 	pop rbp
@@ -58,8 +58,10 @@ kb_getKey:
     pop rbp
     ret
 
+
+
 getRegisters:
-	mov [regs], rax 
+	mov [regs], rax
 	mov [regs + 8*1], rbx
 	mov [regs + 8*2], rcx
 	mov [regs + 8*3], rdx 

@@ -1,9 +1,9 @@
 ;syscalls.asm
 
-GLOBAL _syscall
+GLOBAL syscall
 
 section .text
-_syscall:
+syscall:
     push rbp ; registros a preservar
     mov rbp, rsp
     push rbx

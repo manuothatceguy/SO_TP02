@@ -12,7 +12,6 @@ typedef struct Point2D {
     uint64_t x, y;
 } Point2D;
 
-// Implementaciones de las syscalls
 uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     if (length < 0) return 1;
     if (fd > 2 || fd < 0) return 2;
@@ -47,7 +46,7 @@ uint64_t syscall_drawRectangle(Point2D* upLeft, Point2D *bottomRight, uint32_t c
 
 uint64_t* syscall_getRegisters(uint64_t buff[]) {
     uint64_t *copy = getRegisters();
-    memcpy((void*)buff,(const void *)copy,CANT_REGS*sizeof(void*)); // funcionara?
+    memcpy((void*)buff,(const void *)copy,CANT_REGS); // funcionara?
 }
 
 uint64_t syscall_clearScreen(){
@@ -62,13 +61,8 @@ uint64_t syscall_read( char* str,  uint64_t length){
     return length > 0 ? length : 0;
 }
 
-uint64_t syscall_time(int64_t timeZone, int64_t mod){
-    int64_t time = getTimeParam(timeZone, mod);
-    if(time > 0){
-       return time; 
-    } else {
-        // error
-    }
+int64_t syscall_time(uint64_t mod){
+    return getTimeParam(mod);
 }
 
 uint64_t syscall_fontSizeUp(){
@@ -94,31 +88,52 @@ uint64_t syscallDispatcher(uint64_t syscall_number, ...) {
     switch (syscall_number)
     {
     case 1:
-        return syscall_read(va_arg(ap,char*),va_arg(ap,uint64_t));
-        break;
+        char * param1_read = va_arg(ap,char*);
+        uint64_t param2_read = va_arg(ap,uint64_t);
+        va_end(ap);
+        return syscall_read(param1_read,param2_read);
     case 2:
-        return syscall_write(va_arg(ap,uint64_t),va_arg(ap,char*),va_arg(ap, uint64_t));
-        break;
+        uint64_t param1_write = va_arg(ap,uint64_t);
+        char * param2_write = va_arg(ap,char*);
+        uint64_t param3_write = va_arg(ap,uint64_t); 
+        va_end(ap);
+        return syscall_write(param1_write,param2_write,param3_write);
     case 3:
-        return syscall_beep(va_arg(ap,uint64_t),va_arg(ap,uint64_t));
-        break;
+        uint64_t param_time = va_arg(ap,uint64_t);
+        va_end(ap);
+        return syscall_time(param_time);
     case 4:
-        return syscall_drawRectangle(va_arg(ap,Point2D*),va_arg(ap,Point2D*),va_arg(ap,uint32_t));
+        uint64_t param1_beep = va_arg(ap,uint64_t);
+        uint64_t param2_beep = va_arg(ap,uint64_t);
+        va_end(ap);
+        return syscall_beep(param1_beep,param2_beep);
     case 5:
-        return syscall_getRegisters(va_arg(ap, uint64_t*));
+        Point2D * param1_rectangle = va_arg(ap,Point2D*);
+        Point2D * param2_rectangle = va_arg(ap,Point2D*);
+        uint32_t param3_rectangle = va_arg(ap,uint32_t);
+        va_end(ap);
+        return syscall_drawRectangle(param1_rectangle,param2_rectangle,param3_rectangle);
     case 6:
-        return syscall_clearScreen();
+        uint64_t * param_registers = va_arg(ap,uint64_t*);
+        va_end(ap);
+        return syscall_getRegisters(param_registers);
     case 7:
-        return syscall_fontSizeUp(); 
+        va_end(ap);
+        return syscall_clearScreen();
     case 8:
-        return syscall_fontSizeDown();  
+        va_end(ap);
+        return syscall_fontSizeUp(); 
     case 9:
-        return syscall_getHeight(); 
+        va_end(ap);
+        return syscall_fontSizeDown();  
     case 10:
+        va_end(ap);
+        return syscall_getHeight(); 
+    case 11:
+        va_end(ap);
         return syscall_getWidth(); 
     default:
         break;
     }
-    va_end(ap);
     return 0; // error
 }

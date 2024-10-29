@@ -24,6 +24,5 @@ void int_20(){
 }
 
 void int_21(){
-	//beep();
 	bufferWrite();
 }

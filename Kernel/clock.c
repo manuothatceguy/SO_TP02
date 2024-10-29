@@ -129,34 +129,34 @@ int64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
     int sec = seconds();
     int min = minutes();
     int hour = hours() + GMT_ARG;
-    int day = day();
-    int month = month();
-    int year = year();
+    int dayVar = day();
+    int monthVar = month();
+    int yearVar = year();
 
     // Ajustar la hora con cambio de día si es necesario
     if (hour >= 24) {
         hour -= 24;
-        day++;
+        dayVar++;
     } else if (hour < 0) {
         hour += 24;
-        day--;
+        dayVar--;
     }
 
     // Ajustar el día con cambio de mes si es necesario
-    if (day > getDaysInMonth(month, year)) {
-        day = 1;
-        month++;
-        if (month > 12) {
-            month = 1;
-            year++;
+    if (dayVar > getDaysInMonth(monthVar, yearVar)) {
+        dayVar = 1;
+        monthVar++;
+        if (monthVar > 12) {
+            monthVar = 1;
+            yearVar++;
         }
-    } else if (day <= 0) {
-        month--;
-        if (month <= 0) {
-            month = 12;
-            year--;
+    } else if (dayVar <= 0) {
+        monthVar--;
+        if (monthVar <= 0) {
+            monthVar = 12;
+            yearVar--;
         }
-        day = getDaysInMonth(month, year);
+        dayVar = getDaysInMonth(monthVar, yearVar);
     }
 
     // Devolver el parámetro solicitado
@@ -164,9 +164,9 @@ int64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
         case 0: return sec;
         case 1: return min;
         case 2: return hour;
-        case 3: return day;
-        case 4: return month;
-        case 5: return year;
+        case 3: return dayVar;
+        case 4: return monthVar;
+        case 5: return yearVar;
         default: return -1;
     }
 }

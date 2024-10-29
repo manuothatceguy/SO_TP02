@@ -136,11 +136,8 @@ int main()
 	clearScreen(0);
 
 	//cambiar de lugar? 
-	toggleCursor(2, 1);
+	toggleCursor(1);
 	//
-	
-	while(1){
-	}
 	
 
 	return 0;

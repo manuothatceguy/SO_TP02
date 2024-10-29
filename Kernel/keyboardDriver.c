@@ -1,5 +1,8 @@
+#include <keyboardDriver.h>
+#include <lib.h>
+
 #define BUFFER_SIZE 1000
-#define CANT_SPECIAL_KEYS 6
+#define CANT_SPECIAL_KEYS 8
 
 #define LSHIFT_PRESS 0x2A
 #define LSHIFT_RELEASE 0xAA
@@ -157,7 +160,7 @@ static void handleSpecialKeys(unsigned int key){
             break;
 
         if(esc){
-            getRegisters(); // Funcion de ASM. VER 
+            getRegisters(); // Funcion de ASM. Ver si funciona
             esc = 0; 
         }
         
@@ -172,17 +175,6 @@ static void checkSpecialKeys(unsigned int key){
             specialKey = 1;
         }
     }
-    /*                  O ES MEJOR ESTO ??? @mothatceguy
-
-    if(key == LSHIFT_PRESS || key == RSHIFT_PRESS|| key == CAPS_PRESS 
-    || key == ALT_PRESS || key == CTRL_PRESS || key == ESC_PRESS || isFKey(key) 
-    || key == BACKSPACE_PRESS || key == TAB_PRESS || key == ENTER_PRESS){ 
-        handleSpecialKeys(key);
-        specialKey = 1;
-    }  
-
-
-    */
 }
 
 static void addToBuffer(unsigned int key){

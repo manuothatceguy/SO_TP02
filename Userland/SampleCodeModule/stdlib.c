@@ -116,7 +116,7 @@ uint64_t printf(const char *format, ...){
     }
     va_end(args);
     
-    return syscall(2, 3, STDOUT, output, strlen(output));
+    return syscall(2, STDOUT, output, strlen(output));
 }
 
 int printferror(){
@@ -127,7 +127,7 @@ int printferror(){
 
 char getChar(){
     char c;
-    syscall(1,2,&c,1);
+    syscall(1,&c,1,0);
     return c;
 }
 
