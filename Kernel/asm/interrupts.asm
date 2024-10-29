@@ -59,14 +59,8 @@ SECTION .text
 
 %macro irqHandlerMaster 1
 	pushState
-
 	mov rdi, %1 ; pasaje de parametro
 	call irqDispatcher
-
-	; signal pic EOI (End of Interrupt)
-	mov al, 20h
-	out 20h, al
-
 	popState
 	iretq
 %endmacro
@@ -140,23 +134,23 @@ _irq05Handler:
 	irqHandlerMaster 5
 
 _irq80Handler:
-    pushState
+	push rbp ; registros a preservar
+    mov rbp, rsp
+    push rbx
 
     ; Pasaje de parametros x86_64
     mov rdi, rax  ; Número de syscall
     mov rsi, rbx  ; Primer parámetro
-	mov r8, rdx ;
+	mov rax, rdx ;
     mov rdx, rcx  ; Segundo parámetro
-    mov rcx, r8  ; Tercer parámetro
+    mov rcx, rax  ; Tercer parámetro
 
     ; Llamar a la función syscallDispatcher
     call syscallDispatcher
-
-	; signal pic EOI (End of Interrupt)
-	mov al, 20h
-	out 20h, al
-
-    popState
+	
+	pop rbx
+	mov rsp, rbp
+	pop rbp
     iretq
 
 ;Zero Division Exception

@@ -34,9 +34,9 @@ uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     return 0;  
 }
 
-uint64_t syscall_beep(uint64_t freq, uint64_t secs) {
+uint64_t syscall_beep(uint64_t freq, uint64_t ticks) {
     play_sound(freq);
-    wait_seconds(secs);
+    wait_ticks(ticks);
     nosound();
     return 0;
 }

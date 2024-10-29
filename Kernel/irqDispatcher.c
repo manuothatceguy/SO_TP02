@@ -4,6 +4,7 @@
 #include <keyboardDriver.h>
 #include <soundDriver.h>
 #include <textModule.h>
+#include <lib.h>
 
 void int_20();
 void int_21();
@@ -16,6 +17,7 @@ void irqDispatcher(uint64_t irq) {
 		case 1:
 			int_21();
 	}
+	outb(0x20, 0x20);
 	return;
 }
 
@@ -25,5 +27,4 @@ void int_20(){
 
 void int_21(){
 	bufferWrite();
-
 }

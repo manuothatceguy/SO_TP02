@@ -31,10 +31,17 @@ void nosound() {
  }
  
  //Make a beep
- void beep() {
+ /*void beep() {
  	 play_sound(1000);
  	 //wait_ticks(10);
-	 wait_seconds(1);
+	 wait_ticks(18);
  	 nosound();
           //set_PIT_2(old_frequency);
+ }*/
+
+
+ void beep(uint32_t nFrequence, uint32_t time) {
+ 	 play_sound(nFrequence);
+ 	 wait_ticks(time);
+ 	 nosound();
  }

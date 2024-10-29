@@ -72,7 +72,12 @@ char * man_list[CANT_INSTRUCTIONS] = {
 
     "echo - Imprime en pantalla lo que el usuario ingrese por linea de comando"
     "   Uso: echo \"Mensaje\"\n"
-    "   Este comando es util para probar el funcionamiento de la teminal"
+    "   Este comando es util para probar el funcionamiento de la teminal",
+
+    "man - Da informacion sobre el comando que el usuario consulta\n"
+    "   Uso: man \"comando\"\n"
+    "   Este comando es util para obrtener informacion sobre todos los comandos de la termina, y aprender a usarlos\n",
+
 
     "test_div_0 - Prueba la excepcion que se produce al intentar dividir por cero.\n"
     "    Uso: divzero\n"
@@ -84,7 +89,7 @@ char * man_list[CANT_INSTRUCTIONS] = {
 
     "clear - Limpia la pantalla de la terminal.\n"
     "    Uso: clear\n"
-    "    Este comando borra todo el contenido de la terminal, dejando la pantalla vacia. Es util para mejorar la visibilidad cuando la terminal esta llena de texto y quieres comenzar de nuevo con una vista limpia.\n",
+    "    Este comando borra todo el contenido de la terminal, dejando la pantalla vacia. Es util para mejorar la visibilidad cuando la terminal esta llena de texto y quieres comenzar de nuevo con una vista limpia.\n"
 };
 
 
@@ -96,7 +101,11 @@ void man(char * instruction){
             return;
         }
     }
-    printf("%s no es un comando valido\n", instruction);
+    if(instruction[0] = 0){
+        printf("Por favor, ingrese el comando que desea consultar\n");
+    } else {
+        printf("No existe el comando: %s\n", instruction);
+    }
 }
 
 int verify_instruction(char * instruction){

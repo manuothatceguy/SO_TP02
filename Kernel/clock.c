@@ -8,39 +8,38 @@
 
 #define NMI_DISABLE_BIT 1
 
-unsigned int rtc(unsigned char reg){
+uint8_t rtc(unsigned char reg){
     _cli();
-    outb(0x70, reg | 0x80);
-    outb(0x71, 0x20);
+    outb(0x70, 128 | reg); // 128 = 10000000b
     _sti();
     return inb(0x71);
 }
 
-enum RTC_REGS {SECONDS = 0x00, MINUTES = 0x02, HOURS = 0x04, DAY_OF_WEEK = 0x06, DAY_OF_MONTH = 0x07, MONTH = 0x08, YEAR = 0x09};
+enum RTC_REGS {SECONDS = 0x00, MINUTES = 0x02, HOURS = 0x04, DAY_OF_MONTH = 0x07, MONTH = 0x08, YEAR = 0x09};
 
-unsigned int BCDToDecimal(unsigned char time);
+uint8_t BCDToDecimal(uint8_t time);
 
-unsigned int seconds(){
+uint8_t seconds(){
     return BCDToDecimal(rtc(SECONDS));
 }
 
-unsigned int minutes(){
+uint8_t minutes(){
     return BCDToDecimal(rtc(MINUTES));
 }
 
-unsigned int hours(){
+uint8_t hours(){
     return BCDToDecimal(rtc(HOURS));
 }
 
-unsigned int day(){
+uint8_t day(){
     return BCDToDecimal(rtc(DAY_OF_MONTH));
 }
 
-unsigned int month(){
+uint8_t month(){
     return BCDToDecimal(rtc(MONTH));
 }
 
-unsigned int year(){
+uint8_t year(){
     return BCDToDecimal(rtc(YEAR));
 }
 
@@ -73,8 +72,8 @@ void checkDay(time * time){
     }
 }*/
 
-unsigned int BCDToDecimal(unsigned char bcd) {
-    return (bcd >> 4)*10 + bcd%16;
+uint8_t BCDToDecimal(uint8_t time) {
+	return ((time & 0xF0) >> 4) * 10 + (time & 0x0F);
 }
 /*
 time getTime(int64_t timeZone){
@@ -138,13 +137,35 @@ int getDaysInMonth(int month, int year) {
 
 #define GMT_ARG -3
 
+char* intToString(int num) {
+    static char buffer[12]; // Enough to hold -2147483648 and null terminator
+    int i = 10;
+    buffer[11] = '\0';
+    int isNegative = num < 0;
+
+    if (isNegative) {
+        num = -num;
+    }
+
+    do {
+        buffer[i--] = (num % 10) + '0';
+        num /= 10;
+    } while (num > 0);
+
+    if (isNegative) {
+        buffer[i--] = '-';
+    }
+
+    return &buffer[i + 1];
+}
+
 uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
-    int sec = seconds();
-    int min = minutes();
-    int hour = hours() + GMT_ARG;
-    int dayVar = day();
-    int monthVar = month();
-    int yearVar = year();
+    uint8_t sec = seconds();
+    uint8_t min = minutes();
+    uint8_t hour = hours() + GMT_ARG;
+    uint8_t dayVar = day();
+    uint8_t monthVar = month();
+    uint16_t yearVar = year();
 
 
     // Ajustar la hora con cambio de día si es necesario
@@ -175,12 +196,24 @@ uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
 
     // Devolver el parámetro solicitado
     switch (param) {
-        case 0: return sec;
-        case 1: return min;
-        case 2: return hour;
-        case 3: return dayVar;
-        case 4: return monthVar;
-        case 5: return yearVar;
+        case 0: {
+            return sec;
+        } 
+        case 1: {
+            return min;
+        }
+        case 2: {
+            return hour;
+        }
+        case 3: {
+            return dayVar;
+        }
+        case 4: {
+            return monthVar;
+        }
+        case 5: {
+            return yearVar;
+        }
         default: return 0;
     }
 }

@@ -89,6 +89,7 @@ void * initializeKernelBinary()
 int main()
 {	
 	load_idt();
+	setup_timer(18);
 	((EntryPoint)sampleCodeModuleAddress)(); // LLAMADA AL USERLAND
 	/*
 	ncPrint("[Kernel Main]");
