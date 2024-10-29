@@ -19,6 +19,6 @@ typedef struct time{
  */
 time getTime(int64_t timeZone);
 
-int64_t getTimeParam(uint64_t param); // -1 si falla
+uint64_t getTimeParam(uint64_t param); // -1 si falla
 
 #endif // CLOCK_H

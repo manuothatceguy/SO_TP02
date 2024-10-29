@@ -10,13 +10,13 @@ syscall:
     push r12
     push r13
     push r15
-
+ 
     mov rax, rdi
     mov rbx, rsi
     mov rdi, rdx 
     mov rdx, rcx
     mov rcx, rdi
-    int 0x80        ; efectúa la syscall 
+    int 80h        ; efectúa la syscall 
     
     pop r15
     pop r13

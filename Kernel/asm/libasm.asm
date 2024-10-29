@@ -1,9 +1,9 @@
 GLOBAL cpuVendor
-GLOBAL rtc
 GLOBAL kb_getKey
 GLOBAL getRegisters
 GLOBAL outb
 GLOBAL inb
+GLOBAL regs
 section .text
 	
 cpuVendor:
@@ -30,19 +30,6 @@ cpuVendor:
 	pop rbp
 	ret
 
-; RTC
-
-rtc: 
-	push rbp
-	mov rbp, rsp 
-	mov al, dil  
-	out 70h, al
-	in al, 71h  
-	movzx rax, al
-	mov rsp, rbp
-	pop rbp
-	ret
-
 kb_getKey:
     push rbp
     mov rbp, rsp
@@ -60,23 +47,23 @@ kb_getKey:
 
 
 
-getRegisters:
-	mov [regs], rax
-	mov [regs + 8*1], rbx
-	mov [regs + 8*2], rcx
-	mov [regs + 8*3], rdx 
-	mov [regs + 8*4], rsi
-	mov [regs + 8*5], rdi
-	mov [regs + 8*6], rbp
-	mov [regs + 8*7], rsp
-	mov [regs + 8*8], r8 
-	mov [regs + 8*9], r9 
-	mov [regs + 8*10], r10 
-	mov [regs + 8*11], r11
-	mov [regs + 8*12], r12
-	mov [regs + 8*13], r13
-	mov [regs + 8*14], r14 
-	mov [regs + 8*15], r15
+getRegisters: ; Deja el vector de registros en RAX. 
+	mov [regs], rax  ; ACA SE TENDIRA QUE IMORIMIR EN 1 EL PRIMER REGISTRIO. TENDIRA QUE IR RAX
+	mov [regs + 8*1], rbx ; rbx
+	mov [regs + 8*2], rcx; rcx
+	mov [regs + 8*3], rdx ;rdx 
+	mov [regs + 8*4], rsi;rsi
+	mov [regs + 8*5], rdi;rdi
+	mov [regs + 8*6], rbp;rbp
+	mov [regs + 8*7], rsp;rsp
+	mov [regs + 8*8], r8;r8 
+	mov [regs + 8*9], r9;r9 
+	mov [regs + 8*10], r10;r10 
+	mov [regs + 8*11], r11;r11
+	mov [regs + 8*12], r12;r12
+	mov [regs + 8*13], r13;r13
+	mov [regs + 8*14], r14;r14 
+	mov [regs + 8*15], r15;r15
 	pushfq
 	pop rax
 	push rax
@@ -93,7 +80,7 @@ outb:
     mov rbp, rsp           
     mov dx, di             
     mov al, sil            
-    out dx, al             
+    out dx, al
     mov rsp, rbp           
     pop rbp                
     ret                    
@@ -103,10 +90,10 @@ inb:
 	mov rbp, rsp
     mov dx, di             
     in  al, dx             
-    movzx eax, al  
+    movzx eax, al
 	mov rsp, rbp
 	pop rbp        
     ret                    
 
 section .bss
-regs resb 144 ; 18 x 8
+regs resq 18 ; 18 x 8 bytes... es como foook 

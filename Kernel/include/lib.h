@@ -8,8 +8,6 @@ void * memcpy(void * destination, const void * source, uint64_t length);
 
 char *cpuVendor(char *result);
 
-unsigned int rtc(char reg);
-
 uint64_t* getRegisters();
 
 void outb(uint16_t port, uint8_t val);

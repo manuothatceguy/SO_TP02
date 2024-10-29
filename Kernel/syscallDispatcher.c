@@ -12,6 +12,9 @@ typedef struct Point2D {
     uint64_t x, y;
 } Point2D;
 
+#define CANT_REGS 18
+extern uint64_t regs[CANT_REGS];
+
 uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     if (length < 0) return 1;
     if (fd > 2 || fd < 0) return 2;
@@ -42,11 +45,9 @@ uint64_t syscall_drawRectangle(Point2D* upLeft, Point2D *bottomRight, uint32_t c
     return drawRectangle(upLeft->x, upLeft->y, bottomRight->y - upLeft->y + 1, bottomRight->x - upLeft->x + 1, color);
 }
 
-#define CANT_REGS 18
 
-uint64_t* syscall_getRegisters(uint64_t buff[]) {
-    uint64_t *copy = getRegisters();
-    memcpy((void*)buff,(const void *)copy,CANT_REGS); // funcionara?
+void syscall_getRegisters(uint64_t buff[]) {
+    memcpy((void*)buff,(const void *)regs,CANT_REGS*(sizeof(void*))); // funcionara?
 }
 
 uint64_t syscall_clearScreen(){
@@ -61,7 +62,7 @@ uint64_t syscall_read( char* str,  uint64_t length){
     return length > 0 ? length : 0;
 }
 
-int64_t syscall_time(uint64_t mod){
+uint64_t syscall_time(uint64_t mod){
     return getTimeParam(mod);
 }
 
@@ -116,7 +117,8 @@ uint64_t syscallDispatcher(uint64_t syscall_number, ...) {
     case 6:
         uint64_t * param_registers = va_arg(ap,uint64_t*);
         va_end(ap);
-        return syscall_getRegisters(param_registers);
+        syscall_getRegisters(param_registers);
+        return 0;
     case 7:
         va_end(ap);
         return syscall_clearScreen();

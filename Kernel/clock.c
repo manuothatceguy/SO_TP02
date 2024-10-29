@@ -2,6 +2,19 @@
 #include <lib.h>
 #include <naiveConsole.h>
 #include <stdint.h>
+#include <interrupts.h>
+
+#include <textModule.h> // BORRAR
+
+#define NMI_DISABLE_BIT 1
+
+unsigned int rtc(unsigned char reg){
+    _cli();
+    outb(0x70, reg | 0x80);
+    outb(0x71, 0x20);
+    _sti();
+    return inb(0x71);
+}
 
 enum RTC_REGS {SECONDS = 0x00, MINUTES = 0x02, HOURS = 0x04, DAY_OF_WEEK = 0x06, DAY_OF_MONTH = 0x07, MONTH = 0x08, YEAR = 0x09};
 
@@ -125,13 +138,14 @@ int getDaysInMonth(int month, int year) {
 
 #define GMT_ARG -3
 
-int64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
+uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
     int sec = seconds();
     int min = minutes();
     int hour = hours() + GMT_ARG;
     int dayVar = day();
     int monthVar = month();
     int yearVar = year();
+
 
     // Ajustar la hora con cambio de día si es necesario
     if (hour >= 24) {
@@ -167,7 +181,7 @@ int64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
         case 3: return dayVar;
         case 4: return monthVar;
         case 5: return yearVar;
-        default: return -1;
+        default: return 0;
     }
 }
 

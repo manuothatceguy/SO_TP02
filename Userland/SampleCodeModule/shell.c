@@ -115,23 +115,19 @@ int getInstruction(char * arguments){
     int j = 0;
     char instruction[BUFFER_SPACE] = {0};
     
-    // Extract the instruction
     for(; i < BUFFER_SPACE; i++){
-        if(shell_buffer[i] == ' ' || shell_buffer[i] == '\n'){
+        if(shell_buffer[i] == ' ' || shell_buffer[i] == '\0'){
             instruction[j] = 0;
+            i++;
             break;
         }
-        else{
+        else {
             instruction[j++] = shell_buffer[i];
         }
     }
 
-    // Skip the space
-    if(shell_buffer[i] == ' ') {
-        i++;
-    }
-    // Copy the rest of the buffer to arguments
     int arg_index = 0;
+
     while (shell_buffer[i] != '\0' && shell_buffer[i] != '\n') {
         arguments[arg_index++] = shell_buffer[i++];
     }
@@ -139,7 +135,7 @@ int getInstruction(char * arguments){
 
 
     int iNum = 0;
-    if((iNum = verify_instruction(instruction)) == -1 && instruction[0] != '\n'){
+    if((iNum = verify_instruction(instruction)) == -1 && instruction[0] != 0){ // borrar esto
         printf("Comando no reconocido: %s\n", instruction); // Usando nuestro printf 
         return -1;
     }

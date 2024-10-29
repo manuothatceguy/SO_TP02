@@ -133,12 +133,8 @@ int main()
 			printStrSize(timeStr,0x00FF00FF,5);
 		}
 	*/	
-	clearScreen(0);
-
-	//cambiar de lugar? 
-	toggleCursor(1);
-	//
 	
+	clearScreen(0);
 
 	return 0;
 }

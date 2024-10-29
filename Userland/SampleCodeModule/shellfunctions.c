@@ -36,9 +36,11 @@ void showRegisters(){
                                             "RBP: ", "RSP: ", "R8: ", "R9: ", "R10: ", "R11: ",
                                             "R12: ", "R13: ", "R14: ", "R15: ", "RFLAGS: ", "RIP: "};
     uint64_t registersRead[CANT_REGISTERS];
-    uint64_t aux = syscall(6, registersRead, 0, 0); 
+    syscall(6, registersRead, 0, 0); 
+    uint64_t aux = registersRead[7]; // asumiendo RSP (7) distinto de 0
     if(!aux){
         printf("No hay un guardado de registros. Presione ESC para hacer un backup\n");
+        return;
     }
     for(int i = 0; i < CANT_REGISTERS ; i++){
         printf("Valor del registro %s %x \n", registersNames[i] , registersRead[i]);

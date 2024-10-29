@@ -4,5 +4,4 @@
 
 char getChar(); 
 int bufferWrite();
-
 #endif // KEYBOARDDRIVER_H

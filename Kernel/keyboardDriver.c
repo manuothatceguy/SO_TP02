@@ -10,12 +10,12 @@
 #define RSHIFT_RELEASE 0xB6
 #define CAPS_PRESS 0x3A
 
-#define F1_PRESS 0x3B
-#define F10_PRESS 0x44
-#define F11_PRESS 0x57
-#define F12_PRESS 0x58
+#define F1_PRESS 0x3B // BORRAR SI AL FINAL NO USAMOS
+#define F10_PRESS 0x44// BORRAR SI AL FINAL NO USAMOS
+#define F11_PRESS 0x57// BORRAR SI AL FINAL NO USAMOS
+#define F12_PRESS 0x58// BORRAR SI AL FINAL NO USAMOS
 
-#define ESC_PRESS 0x1B
+#define ESC_PRESS 0x01
 #define ALT_PRESS 0x3B
 #define CTRL_PRESS 0x1D
 
@@ -155,15 +155,10 @@ static void handleSpecialKeys(unsigned int key){
             caps = !caps;
             break;
         case ESC_PRESS:
-            esc = 1; 
-        default:
+            getRegisters();
             break;
-
-        if(esc){
-            getRegisters(); // Funcion de ASM. Ver si funciona
-            esc = 0; 
-        }
-        
+        default:
+            break; 
     }
 }
 
