@@ -1,6 +1,8 @@
 #ifndef SNAKE_H
 #define SNAKE_H
 
-void runSnake();
+#include <stdint.h>
+
+void runSnake(uint64_t speedLevel);
 
 #endif //SNAKE_H

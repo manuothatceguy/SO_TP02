@@ -67,9 +67,7 @@ int strcmp(const char *s1, const char *s2){
 }
 
 
-uint64_t format_printf(const uint64_t fd, const char *format, ...){
-    va_list args;
-    va_start(args, format);
+uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
     char output[MAX_LENGTH] = {0};
     int i = 0, k = 0;
     while(format[i] != 0){
@@ -114,9 +112,7 @@ uint64_t format_printf(const uint64_t fd, const char *format, ...){
         }
         i++;
     }
-    
-    
-    return syscall(2, fd, output, strlen(output));
+    return syscall(2, fd, (uint64_t)output, strlen(output));
 }
 
 uint64_t printf(const char *format, ...){
@@ -137,7 +133,7 @@ uint64_t printferror(const char *format, ...){
 
 char getChar(){
     char c;
-    syscall(1,&c,1,0);
+    syscall(1,(uint64_t)&c,1,0);
     return c;
 }
 

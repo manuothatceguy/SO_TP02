@@ -70,7 +70,7 @@ ScanCode press_keys[] = { // from 0x01 to 0x58. sub 0x81 for release keys
     {'\'', '\"'}, // shift for single quote
     {'`', '~'}, // shift for backtick
     {0, 0}, // left shift
-    {'\\', '|'}, // shift for backslash NASH??
+    {'\\', '|'}, // shift for backslash 
     {'z', 'Z'},
     {'x', 'X'},
     {'c', 'C'},

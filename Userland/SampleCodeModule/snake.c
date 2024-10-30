@@ -40,7 +40,6 @@ typedef struct Snake{
     direction dir;
 } Snake;
 
-
 uint64_t speed;
 int gameOver = 0;
 uint64_t width, height;
@@ -49,9 +48,21 @@ Point2D foodPosition;
 char canGenerateFood = 1;
 int cant_players = 1;
 
+void runSnake(uint64_t speedLevel);
+void get(Snake snake1, Snake snake2);
+void play(int players);
+int checkFood(Snake s);
+void setup(Snake s1, Snake s2);
+void drawSnake(Snake snake);
+void drawFood();
+void moveSnake(Snake snake, direction dir);
+void checkSnakes(Snake snake1, Snake snake2, int players);
+int checkSnakeBounds(Snake snake);
+int checkSnakeCollision(Snake mainSnake, Snake targetSnake);
+void start_screen();
 
 void runSnake(uint64_t speedLevel){ 
-    
+    clear();
     if(speedLevel > 5){
         printf("Velocidad invalida. Los valores validos son [1,5]\n"); 
         return;
@@ -64,7 +75,7 @@ void runSnake(uint64_t speedLevel){
     
     do{
         if(cant_players < 1 || cant_players > MAX_PLAYERS){
-            printferror("-- Cantidad de jugadores invalida.\nLos valores validos son 1 o 2. Ingrese nuevamente ", cant_players);
+            printferror("-- Cantidad de jugadores invalida.\nLos valores validos son 1 o 2. Ingrese nuevamente \n", cant_players);
         }
         readLine(buff, 2);
         cant_players = buff[0] - '0'; // ascii a int  
@@ -76,10 +87,10 @@ void runSnake(uint64_t speedLevel){
     if(cant_players == 2){
         printf("\n%s",text_player_2);
     }
-    printf("\n\nPresione ENTER para comenzar o \"x\" para salir\n");
+    printf("\n\nPresione ENTER para comenzar, otro para salir\n");
     char c;
-    while((c = getChar()) != '\n' && c != 'x'){
-        if(c == 'x'){
+    while((c = getChar()) != '\n'){
+        if(c != 0){
             return;
         }
     }
@@ -88,7 +99,6 @@ void runSnake(uint64_t speedLevel){
     width = syscall(11,0,0,0); // getWidth();
     play(cant_players);
 }   
-
 
 void get(Snake snake1 , Snake snake2){
     char c;
@@ -147,11 +157,21 @@ void play(int players){
             drawSnake(snake2);
         }
         drawFood();
-
-
+        
         get(snake1, snake2);
         
         checkSnakes(snake1, snake2, players);
+
+        // Chequeo si alguno de los dos comio la comida, si alguno comio, hay que alargar y generar una nueva
+        
+        if(players == 2){
+            if(checkFood(snake2)){
+                    
+            }
+        }
+        if(checkFood(snake1)){
+
+        }
         
         syscall(12,speed,0,0); // wait(ticks);
         counter++;
@@ -185,7 +205,10 @@ void play(int players){
     
 }
 
-
+// Chequea si comio algo
+int checkFood(Snake s){
+    return s.body[0].x == foodPosition.x && s.body[0].y == foodPosition.y;
+}
 
 void setup(Snake s1, Snake s2){ // dibuja los bordes
     Point2D upLeft, bottomRight;
@@ -195,44 +218,52 @@ void setup(Snake s1, Snake s2){ // dibuja los bordes
         upLeft.y = 0;
         bottomRight.x = i + 1;
         bottomRight.y = 1;
-        syscall(5, &upLeft, &bottomRight, wallColor);
+        syscall(5, (uint64_t)&upLeft, (uint64_t)&bottomRight, wallColor);
         upLeft.y = height - 2;
         bottomRight.y = height - 1;
-        syscall(5, &upLeft, &bottomRight, wallColor);
+        syscall(5, (uint64_t)&upLeft, (uint64_t)&bottomRight, wallColor);
     }
     for(int i = 0; i < height ; i++){
         upLeft.x = 0;
         upLeft.y = i;
         bottomRight.x = 1;
         bottomRight.y = i + 1;
-        syscall(5, &upLeft, &bottomRight, wallColor);
+        syscall(5, (uint64_t)&upLeft, (uint64_t)&bottomRight, wallColor);
         upLeft.x = width - 2;
         bottomRight.x = width - 1;
-        syscall(5, &upLeft, &bottomRight, wallColor);
+        syscall(5, (uint64_t)&upLeft, (uint64_t)&bottomRight, wallColor);
     }
     Point2D startSnake1 = {(width/2) - SIZE, height/2};
     Point2D startSnake2 = {(width/2) + SIZE, height/2};
 
     s1.body[0] = startSnake1;
+    s1.body[1].x = startSnake1.x + SIZE;
+    s1.body[1].y = startSnake1.y;
+    s1.length = 2;
     s2.body[0] = startSnake2;
+    s2.body[1].x = startSnake2.x - SIZE;
+    s2.body[1].y = startSnake2.y;
+    s2.length = 2;
 }
 
 void drawSnake(Snake snake) {
     Point2D upLeft = {1,1}, bottomRight = {width-2, height-2};
     
-    syscall(5,&upLeft, &bottomRight, 0); // clear rectangle
+    syscall(5, (uint64_t)&upLeft, (uint64_t)&bottomRight, 0); // clear rectangle
     for(int i=0; i< snake.length; i++){
         bottomRight.x = snake.body[i].x + SIZE;
         bottomRight.y = snake.body[i].y + SIZE;
-        syscall(5, &snake.body[i], &bottomRight, snake.color);
+        syscall(5, (uint64_t)&snake.body[i], (uint64_t)&bottomRight, snake.color);
     }
 }
 
 void drawFood(){
-    Point2D foodBottomRight;
-    foodBottomRight.x = foodPosition.x + SIZE; 
-    foodBottomRight.y = foodPosition.y + SIZE; 
-    syscall(5, &foodPosition, &foodBottomRight , FOOD_COLOR);
+    if(!canGenerateFood){
+        Point2D foodBottomRight;
+        foodBottomRight.x = foodPosition.x + SIZE; 
+        foodBottomRight.y = foodPosition.y + SIZE; 
+        syscall(5, (uint64_t)&foodPosition, (uint64_t)&foodBottomRight , FOOD_COLOR);
+    }
 }
 
 void moveSnake(Snake snake, direction dir){
@@ -295,5 +326,5 @@ void start_screen(){
     syscall(8,2,0,0); // fontSizeUp(2);
     printf("SNAKE\n");
     syscall(9,2,0,0); // fontSizeDown(2);
-    printf("    Ingrese cantidad de jugadores: "); // provisorio. ver más adelante si se puede imprimir en el medio
+    printf("  Ingrese cantidad de jugadores: "); // provisorio. ver más adelante si se puede imprimir en el medio
 }

@@ -39,6 +39,7 @@ kb_getKey:
     and al, 1         
     jz .wait_key       
 
+
     in al, 60h
 	movzx rax, al      
     mov rsp, rbp
@@ -48,7 +49,7 @@ kb_getKey:
 
 
 getRegisters: ; Deja el vector de registros en RAX. 
-	mov [regs], rax  ; ACA SE TENDIRA QUE IMORIMIR EN 1 EL PRIMER REGISTRIO. TENDIRA QUE IR RAX
+	mov [regs], rax  ; rax
 	mov [regs + 8*1], rbx ; rbx
 	mov [regs + 8*2], rcx; rcx
 	mov [regs + 8*3], rdx ;rdx 
@@ -96,4 +97,4 @@ inb:
     ret                    
 
 section .bss
-regs resq 18 ; 18 x 8 bytes... es como foook 
+regs resq 18 ; 18 x 8 bytes 

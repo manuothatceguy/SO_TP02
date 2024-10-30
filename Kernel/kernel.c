@@ -91,50 +91,6 @@ int main()
 	load_idt();
 	setup_timer(18);
 	((EntryPoint)sampleCodeModuleAddress)(); // LLAMADA AL USERLAND
-	/*
-	ncPrint("[Kernel Main]");
-	ncNewline();
-	//ncPrint("Sample code module at 0x");
-	//ncPrintHex((uint64_t)sampleCodeModuleAddress);
-	//ncNewline();
-	//ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex();
-	//ncNewline();
-	//ncNewline();
-
-	//ncPrint("  Sample data module at 0x");
-	//ncPrintHex((uint64_t)sampleDataModuleAddress);
-	//ncNewline();
-	//ncPrint("  Sample data module contents: ");
-	//ncPrint((char*)sampleDataModuleAddress);
-	ncNewline();
-
-	ncPrint("[Finished]");
-	
-	char* msg = "Arquitectura de computadoras";
-	printStr(msg,0x00FF00FF);
-		clearScreen(0);
-		int secs, curr = seconds_elapsed();
-		secs = curr;
-		
-		while(1){
-			wait_seconds(1);
-			char timeStr[] = {'0','0',':','0','0',':','0','0',0};
-			time t = getTime(-3);
-			
-			timeStr[0] += (t.hour/10)%10;
-			timeStr[1] += t.hour%10;
-
-			timeStr[3] += (t.min/10)%10;
-			timeStr[4] += t.min%10;
-
-			timeStr[6] += (t.sec/10)%10;
-			timeStr[7] += t.sec%10;
-			clearText(0);
-			printStrSize(timeStr,0x00FF00FF,5);
-		}
-	*/	
-	
 	clearScreen(0);
 
 	return 0;

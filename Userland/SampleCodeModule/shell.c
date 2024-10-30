@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <syscall.h>
 #include <snake.h>
+#include <stdint.h>
 
 #define BUFFER_SPACE 1000
 #define MAX_ECHO 1000
@@ -11,12 +12,14 @@
 #define CANT_INSTRUCTIONS 10
 uint64_t curr = 0;
 
+extern void div_zero();
+extern void invalid_opcode();
 
 char * help = "Para ayuda relacionada a un comando en especifico,\n ingrese el comando\"man\" seguido del comando.\n"
                 "Lista de comandos disponibles en la Shell:\n"        
                 "exit\n"
                 "help\n"
-                "snake\n"
+                "snake SPEED (numero de 1 a 5)\n"
                 "time\n"
                 "registers\n"
                 "echo\n"
@@ -59,12 +62,13 @@ char * man_list[CANT_INSTRUCTIONS] = {
     "    Este comando despliega una lista completa de los comandos que se pueden ejecutar desde la terminal, junto con una breve descripcion de cada uno. Es util para los usuarios que no estan familiarizados con todos los comandos disponibles.\n",
 
     "snake - Inicia un juego de Snake.\n"
-    "    Uso: snake\n"
-    "    Este comando ejecuta el popular juego Snake en la terminal. En Snake, controlas una serpiente que se mueve por la pantalla, tratando de comer comida que la hace crecer. El objetivo es evitar chocar con las paredes o contigo mismo mientras creces.\n",
+    "    Uso: snake SPEEDN\n\n"
+    "               SPEEDN: un numero entero que representa la velocidad del juego (1-5).\n"
+    "    Este comando ejecuta el popular juego Snakes en la terminal.\n ",
 
     "time - Muestra en pantalla el horario actual.\n"
     "    Uso: time\n"
-    "    Este comando muestra la hora actual del sistema, basada en el reloj interno. Es util para verificar la hora mientras trabajas en la terminal sin salir o cambiar de ventana.\n",
+    "    Este comando muestra la hora actual del sistema, basada en el reloj interno.\n",
 
     "registers - Imprime el valor de los registros en tiempo real.\n"
     "    Uso: registers\n"
@@ -76,7 +80,7 @@ char * man_list[CANT_INSTRUCTIONS] = {
 
     "man - Da informacion sobre el comando que el usuario consulta\n"
     "   Uso: man \"comando\"\n"
-    "   Este comando es util para obrtener informacion sobre todos los comandos de la termina, y aprender a usarlos\n",
+    "   Este comando es util para obtener informacion sobre todos los comandos de la termina, y aprender a usarlos\n",
 
 
     "test_div_0 - Prueba la excepcion que se produce al intentar dividir por cero.\n"
@@ -85,11 +89,11 @@ char * man_list[CANT_INSTRUCTIONS] = {
 
     "test_invalid_opcode - Prueba la excepcion que se genera al ingresar un codigo de operacion invalido.\n"
     "    Uso: invopcode\n"
-    "    Este comando provoca una excepcion al ejecutar una instruccion con un codigo de operacion invalido. Es util para pruebas de manejo de errores en sistemas operativos y para garantizar que el sistema maneje correctamente las instrucciones no validas.\n",
+    "    Este comando provoca una excepcion al ejecutar una instruccion con un codigo de operacion invalido.\nSu funcionalidad principal es ver si funciona la excepcion programada en el Kernel\n",
 
     "clear - Limpia la pantalla de la terminal.\n"
     "    Uso: clear\n"
-    "    Este comando borra todo el contenido de la terminal, dejando la pantalla vacia. Es util para mejorar la visibilidad cuando la terminal esta llena de texto y quieres comenzar de nuevo con una vista limpia.\n"
+    "    Este comando borra todo el contenido de la terminal, dejando la pantalla vacia. \nEs util para mejorar la visibilidad cuando la terminal esta llena de texto y quieres comenzar de nuevo con una vista limpia.\n"
 };
 
 
@@ -151,7 +155,6 @@ int getInstruction(char * arguments){
     return iNum;
 }
 
-
 void shell() {
     // pedir username
     printf("Ingrese el usuario:");
@@ -170,7 +173,11 @@ void shell() {
                 break;
             }
             case SNAKE: {
-                runSnake(); // Ver que parametros recibe
+                if(strlen(arg) != 1 || arg[0] < '0' || arg[0] > '9'){
+                    printf("Argumento inválido para el snake\n");
+                    break;
+                }
+                runSnake(arg[0]-'0'); // Ver que parametros recibe
                 break;
             }
             case TIME: {
@@ -182,7 +189,7 @@ void shell() {
                 break;
             }
             case TEST_DIV_0: {
-                divZero();
+                div_zero(); // Funcion de asm
                 break;
             }
             case ECHO: {
@@ -198,7 +205,7 @@ void shell() {
                 break;
             }
             case TEST_INVALID_OPCODE: {
-                invalidOpCode();
+                invalid_opcode(); // Funcion de asm
                 break;
             }
             case CLEAR : {
@@ -220,5 +227,6 @@ void shell() {
         */
     }
     printf("Saliendo de la terminal...\n");
+    syscall(12,10,0,0);
     return;
 }
