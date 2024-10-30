@@ -84,7 +84,7 @@ void runSnake(){
         readLine(buff, 2);
         aux = buff[0] - '0';
         if(aux < 1 || aux > MAX_SPEED ){
-            printferror("-- Velocidad invalida.\nEl rango de valores validos es [1-5]. Ingrese nuevamente \n");
+            printferror("-- Velocidad invalida.\nEl rango de valores validos es [1-5]. Ingrese nuevamente: ");
         } else {
             speed = speeds[aux - 1];
         }
