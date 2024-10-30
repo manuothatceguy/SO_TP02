@@ -1,6 +1,7 @@
 #include <textModule.h>
 #include <keyboardDriver.h>
 #include <stdint.h>
+#include <interrupts.h>
 #include <lib.h>
 
 #define RED 0x00FF0000
@@ -39,19 +40,18 @@ void showRegisters(){
 }
 
 void exception(char * name){
+    toggleCursor(0);
+    clearText(0);
     printStr(name,RED);
     printStr(" exception",RED);
     printStr("\n",RED);
     printStr("Estado de los registros: \n",RED);
     showRegisters();
     printStr("Presiona cualquier tecla para volver.\n",RED);
-    char c;
-    while(1){
-        c = getChar();
-        if(c != 0){
-            break;
-        }
-    }
+    toggleCursor(1);
+    _sti();
+    while(getChar() == 0);
+    clearScreen(0);
     init(); // vuelve al main
 }
 

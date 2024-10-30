@@ -15,7 +15,7 @@ uint64_t curr = 0;
 extern void div_zero();
 extern void invalid_opcode();
 
-char * help = "Para ayuda relacionada a un comando en especifico,\n ingrese el comando\"man\" seguido del comando.\n"
+char * help = "Para ayuda relacionada a un comando en especifico, ingrese\nel comando \"man\" seguido del comando a consultar.\n"
                 "Lista de comandos disponibles en la Shell:\n"        
                 "exit\n"
                 "help\n"
@@ -156,12 +156,14 @@ int getInstruction(char * arguments){
 }
 
 void shell() {
+    clear();
     // pedir username
-    printf("Ingrese el usuario:");
+    printf("Ingrese su nombre de usuario: ");
     char username[MAX_USERNAME_LENGTH];
     readLine(username, MAX_USERNAME_LENGTH);
     unsigned int exit = EXIT; // 0
     int instruction;
+    clear();
     while(!exit){
         printf(PROMPT, username);
         char arg[BUFFER_SPACE] = {0};
