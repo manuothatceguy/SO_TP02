@@ -173,11 +173,7 @@ void shell() {
                 break;
             }
             case SNAKE: {
-                if(strlen(arg) != 1 || arg[0] < '0' || arg[0] > '9'){
-                    printf("Argumento inválido para el snake\n");
-                    break;
-                }
-                runSnake(arg[0]-'0'); // Ver que parametros recibe
+                runSnake();
                 break;
             }
             case TIME: {

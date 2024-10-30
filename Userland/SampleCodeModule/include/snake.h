@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void runSnake(uint64_t speedLevel);
+void runSnake();
 
 #endif //SNAKE_H

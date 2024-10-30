@@ -19,7 +19,7 @@ int seconds_elapsed() {
 }
 
 void wait_ticks(uint64_t ticksToWait) {
-	// _sti(); Unicamente si se quiere que el timer siga corriendo mientras me encuentro en la interrupcion de teclado (int_21)
+	_sti();   // Unicamente si se quiere que el timer siga corriendo mientras me encuentro en la interrupcion de teclado (int_21)
 	uint64_t curr = ticks;
 	while(ticks < curr + ticksToWait);
 }
