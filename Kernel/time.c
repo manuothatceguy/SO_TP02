@@ -25,9 +25,12 @@ void wait_ticks(uint64_t ticksToWait) {
 }
 
 void setup_timer(uint16_t freq) {
-    // Configurar PIT para el temporizador
-    outb(0x43, 0xB6); // Modo de interrupción, frecuencia
-    outb(0x40, 1193180 / freq); 
-    outb(0x40, (1193180 / freq) >> 8); 
-	frequency = freq;
+    uint16_t divisor = 1193180 / freq;
+
+    outb(0x43, 0x36);            
+    outb(0x40, divisor & 0xFF);   
+    outb(0x40, (divisor >> 8) & 0xFF); 
+
+    frequency = freq;
 }
+

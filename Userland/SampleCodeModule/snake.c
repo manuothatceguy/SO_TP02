@@ -40,7 +40,8 @@ typedef struct Snake{
 uint64_t speed;
 int gameOver;
 uint64_t width, height;
-uint64_t speeds[] = {18*6, 15*6, 12*6, 9*6, 6*6, 3*6}; // 1 a 5. 
+uint64_t speeds[] = {18*6, 15*6, 12*6, 9*6, 6*6, 3*6}; // 1 a 5.
+
 Point2D foodPosition;
 int cant_players;
 
@@ -99,6 +100,7 @@ void runSnake(){
     char c;
     while((c = getChar()) != '\n'){
         if(c != 0){
+            clear();
             return;
         }
     }
@@ -199,7 +201,7 @@ void play(int players){
     }
     clear();
     syscall(8,2,0,0); // fontSizeUp(2);
-    printf("GAME OVER\n");
+    printf("GAME OVER\n\n");
     syscall(9,2,0,0); // fontSizeDown(2);
     
     switch (gameOver)
@@ -217,14 +219,14 @@ void play(int players){
         break;
     }
     syscall(8,1,0,0); // fontSizeUp(1);
-    printf("PUNTOS\n");
+    printf("\nPUNTOS\n\n");
     syscall(9,1,0,0); // fontSizeDown(1);
     printf("Puntos Jugador 1: %d\n", snake1.points);
     if(players == 2){
         printf("Puntos Jugador 2: %d\n", snake2.points);
     }
     while(getChar() != 0); // Consumir buffer
-    printf("Presione ENTER para volver a la shell\n");
+    printf("\n\nPresione ENTER para volver a la shell\n");
     while(getChar() != '\n');
     clear();
 }
