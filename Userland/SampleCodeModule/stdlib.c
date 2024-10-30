@@ -67,7 +67,7 @@ int strcmp(const char *s1, const char *s2){
 }
 
 
-uint64_t printf(const char *format, ...){
+uint64_t format_printf(const uint64_t fd, const char *format, ...){
     va_list args;
     va_start(args, format);
     char output[MAX_LENGTH] = {0};
@@ -114,15 +114,25 @@ uint64_t printf(const char *format, ...){
         }
         i++;
     }
-    va_end(args);
     
-    return syscall(2, STDOUT, output, strlen(output));
+    
+    return syscall(2, fd, output, strlen(output));
 }
 
-int printferror(){
-    // como printf pero al hacer syscall ponemos STDERR 
-    // TODO modularizar
-    return 0; // borrar... cuando se implemente esto
+uint64_t printf(const char *format, ...){
+    va_list args;
+    va_start(args, format);
+    uint64_t aux = format_printf(STDOUT, format, args);
+    va_end(args);
+    return aux;
+}
+
+uint64_t printferror(const char *format, ...){
+    va_list args;
+    va_start(args, format);
+    uint64_t aux = format_printf(STDERR, format, args);
+    va_end(args);
+    return aux;
 }
 
 char getChar(){
@@ -150,6 +160,9 @@ uint64_t readLine(char *buff, uint64_t length) {
     return i;
 }
 
+unsigned long int next = 1;
 
-
-
+unsigned int randInt(){
+    next = next * 1103515245 + 12345;
+    return (next/65536) % 32768;
+}

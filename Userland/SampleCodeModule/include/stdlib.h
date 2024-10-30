@@ -20,6 +20,14 @@ uint64_t strlen(char * s);
 uint64_t printf(const char *format, ...);
 
 /**
+ * @brief Imprime en pantalla un string formateado de error
+ * @param format string con formato
+ * @param ... argumentos a imprimir
+ * @return cantidad de caracteres impresos
+ */
+uint64_t printferror(const char *format, ...);
+
+/**
  * @brief Lee de la entrada estandar un string
  * @param buff Buffer donde poner lo leído
  * @param length cantidad de caracteres a leer (menor o igual al tamaño del buffer)
@@ -37,14 +45,14 @@ int strcmp(const char *s1, const char *s2);
 
 /**
  * @brief Convierte un entero a string
- * @param n entero a imprimir
+ * @param n entero a convertir
  * @param buff buffer donde se guardará el string
  */
 void intToStr(int n, char * buff);
 
 /**
  * @brief Convierte un entero a string en hexadecimal
- * @param n entero a imprimir
+ * @param n entero a convertir
  * @param buff buffer donde se guardará el string
  */
 void intToHex(int n, char * buff);
@@ -59,5 +67,15 @@ void intToHex(int n, char * buff);
  * @return El carácter ingresado por el usuario.
  */
 char getChar();
+
+
+/**
+ * @brief Genera un número entero sin signo aleatorio.
+ *
+ * Esta función devuelve un valor entero sin signo aleatorio.
+ *
+ * @return Un número entero sin signo aleatorio.
+ */
+unsigned int randInt();
 
 #endif // STDLIB_H

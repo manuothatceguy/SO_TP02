@@ -21,7 +21,7 @@ void play_sound(uint32_t nFrequence) {
   	if (tmp != (tmp | 3)) {
  		outb(0x61, tmp | 3);
  	}
- }
+}
  
  //make it shut up
 void nosound() {

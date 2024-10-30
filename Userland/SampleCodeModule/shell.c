@@ -101,7 +101,7 @@ void man(char * instruction){
             return;
         }
     }
-    if(instruction[0] = 0){
+    if(instruction[0] == 0){
         printf("Por favor, ingrese el comando que desea consultar\n");
     } else {
         printf("No existe el comando: %s\n", instruction);

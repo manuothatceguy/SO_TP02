@@ -8,7 +8,7 @@
 
 #define NMI_DISABLE_BIT 1
 
-uint8_t rtc(unsigned char reg){
+uint8_t rtc(unsigned char reg) {
     _cli();
     outb(0x70, 128 | reg); // 128 = 10000000b
     _sti();
@@ -216,5 +216,6 @@ uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
         }
         default: return 0;
     }
+    return 0;
 }
 

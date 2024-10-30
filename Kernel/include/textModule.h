@@ -15,8 +15,8 @@ void toggleCursor(unsigned int enable);
 
 void clearText(uint32_t color);
 
-uint64_t fontSizeUp();
+uint64_t fontSizeUp(uint64_t increase);
 
-uint64_t fontSizeDown();
+uint64_t fontSizeDown(uint64_t decrease);
 
 #endif // TEXTMODULE_H

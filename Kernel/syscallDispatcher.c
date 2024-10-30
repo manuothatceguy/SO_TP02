@@ -30,7 +30,7 @@ uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
             return 3;
     }
     for(int i = 0; i < length; i++)
-        putChar(buff[i],color); // ajustar ese 2 correctamente
+        putChar(buff[i],color); 
     return 0;  
 }
 
@@ -66,12 +66,12 @@ uint64_t syscall_time(uint64_t mod){
     return getTimeParam(mod);
 }
 
-uint64_t syscall_fontSizeUp(){
-    return fontSizeUp();
+uint64_t syscall_fontSizeUp(uint64_t increase){
+    return fontSizeUp(increase);
 }
 
-uint64_t syscall_fontSizeDown(){
-    return fontSizeDown();
+uint64_t syscall_fontSizeDown(uint64_t decrease){
+    return fontSizeDown(decrease);
 }
 
 uint64_t syscall_getWidth(){
@@ -128,11 +128,13 @@ uint64_t syscallDispatcher(uint64_t syscall_number, ...) {
         va_end(ap);
         return syscall_clearScreen();
     case 8:
+        uint64_t param_up = va_arg(ap, uint64_t);
         va_end(ap);
-        return syscall_fontSizeUp(); 
+        return syscall_fontSizeUp(param_up); 
     case 9:
+        uint64_t param_down = va_arg(ap, uint64_t);
         va_end(ap);
-        return syscall_fontSizeDown();  
+        return syscall_fontSizeDown(param_down);  
     case 10:
         va_end(ap);
         return syscall_getHeight(); 
