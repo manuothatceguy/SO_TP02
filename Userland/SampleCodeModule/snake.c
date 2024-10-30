@@ -223,6 +223,10 @@ void play(int players){
     if(players == 2){
         printf("Puntos Jugador 2: %d\n", snake2.points);
     }
+    while(getChar() != 0); // Consumir buffer
+    printf("Presione ENTER para volver a la shell\n");
+    while(getChar() != '\n');
+    clear();
 }
 
 void generateFood(){
