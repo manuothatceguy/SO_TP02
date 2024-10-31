@@ -124,11 +124,13 @@ void printSlow(char * str, uint32_t color, uint64_t pause){
 
 int main()
 {	
+	load_idt();
+	setup_timer(18);
 	/*
 	fontSizeUp(2);
 	printStr(" TPE ARQUI \n", WHITE);
 	fontSizeDown(2);
-	load_idt();
+	
 	setup_timer(18);
 	printStr("\nConfigurando\n\n", WHITE);
 	printSlow("    1- La IDT ya fue cargada\n", WHITE, 30);

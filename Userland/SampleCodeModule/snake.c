@@ -87,8 +87,8 @@ void runSnake(){
         }
     } while(aux < 1 || aux > MAX_SPEED );
 
-    char* text_player_1 = "\n\nJugador 1:\nPara moverse use las teclas W (UP), A (LEFT), S (DOWN), D (RIGHT)\n";
-    char* text_player_2 = "Jugador 2:\nPara moverse use las teclas I (UP), J (LEFT), K (DOWN), L (RIGHT)\n";
+    char* text_player_1 = "\n\nJugador 1:\nPara moverse use las teclas \nW (UP), A (LEFT), S (DOWN), D (RIGHT)\n";
+    char* text_player_2 = "Jugador 2:\nPara moverse use las teclas \nI (UP), J (LEFT), K (DOWN), L (RIGHT)\n";
     printf(text_player_1);
     if(cant_players == 2){
         printf("\n%s",text_player_2);
