@@ -441,7 +441,7 @@ void moveSnake(Snake * snake){
 
 void checkSnakes(Snake snake1, Snake snake2){ 
     gameOver = checkSnakeBounds(snake1) ? PLAYER1_LOSE : 0; 
-    if(cant_players == 2){
+    if(cant_players == 2 && !gameOver){
         gameOver = checkSnakeBounds(snake2) ? PLAYER1_WIN : 0;
         int collision1 = checkSnakeCollision(snake1, snake2);
         int collision2 = checkSnakeCollision(snake2, snake1);
@@ -458,7 +458,7 @@ void checkSnakes(Snake snake1, Snake snake2){
 
 int checkSnakeBounds(Snake snake){
     for(int i=0; i<snake.length; i++){
-        if(snake.body[i].x + SIZE > max_X || snake.body[i].x < min_X  // CHEQUEAR LOS LIMITES, ACA NO HABRIA QUE PONER >= PARA QUE NO SE VAYA DE LA PANTALLA EL ULTIMO SEGUNDO ? @goyo
+        if(snake.body[i].x + SIZE > max_X || snake.body[i].x <= min_X  // CHEQUEAR LOS LIMITES, ACA NO HABRIA QUE PONER >= PARA QUE NO SE VAYA DE LA PANTALLA EL ULTIMO SEGUNDO ? @goyo
         || snake.body[i].y + SIZE > max_Y || snake.body[i].y < min_Y){
             return 1;
         } 
