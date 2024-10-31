@@ -452,8 +452,8 @@ void checkSnakes(Snake snake1, Snake snake2){
 
 int checkSnakeBounds(Snake snake){
     for(int i=0; i<snake.length; i++){
-        if(snake.body[i].x + SIZE >= max_X || snake.body[i].x <= min_X  // CHEQUEAR LOS LIMITES, ACA NO HABRIA QUE PONER >= PARA QUE NO SE VAYA DE LA PANTALLA EL ULTIMO SEGUNDO ? @goyo
-        || snake.body[i].y + SIZE >= max_Y || snake.body[i].y <= min_Y){
+        if(snake.body[i].x + SIZE > max_X || snake.body[i].x < min_X  // CHEQUEAR LOS LIMITES, ACA NO HABRIA QUE PONER >= PARA QUE NO SE VAYA DE LA PANTALLA EL ULTIMO SEGUNDO ? @goyo
+        || snake.body[i].y + SIZE > max_Y || snake.body[i].y < min_Y){
             return 1;
         } 
     }
