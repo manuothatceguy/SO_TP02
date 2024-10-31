@@ -49,7 +49,7 @@ void exception(char * name, uint64_t rip) {
     printStr("Presiona cualquier tecla para volver.\n",RED);
     toggleCursor(0);
     while(getChar() == 0){ _hlt(); }
-    clearScreen(0);
+    clearText(0);
     init(); // vuelve al main
 }
 

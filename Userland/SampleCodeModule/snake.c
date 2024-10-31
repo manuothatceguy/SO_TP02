@@ -19,7 +19,7 @@
 #define SCALE_BY_SIZE(num) (((num) / SIZE) * SIZE)
 #define CALCULATE_POINTS(snake) (((snake).length * SIZE * SIZE) / speed)
 
-enum gameOver {CONTINUE, PLAYER1_WIN, PLAYER2_WIN, GAME_DRAW};
+enum gameOver {CONTINUE , PLAYER1_WIN ,PLAYER2_WIN, GAME_DRAW, PLAYER1_LOSE}; // El ultimo para caso de un solo jugador
 
 typedef enum direction{
     UP,
@@ -216,6 +216,7 @@ void play(int players){
 
         syscall_wait(speed); // wait(ticks);
     }
+    deathSound(); // Ver si esta bien llamar a la funcion aca 
     syscall_clearScreen();
     syscall_sizeUpFont(2); // fontSizeUp(2);
     printf("GAME OVER\n\n");
@@ -231,6 +232,9 @@ void play(int players){
         break;
     case GAME_DRAW:
         printf("Empate\n");
+        break;
+    case PLAYER1_LOSE:
+        printf("Perdiste !\n");
         break;
     default:
         break;
@@ -430,7 +434,7 @@ void moveSnake(Snake * snake){
 }
 
 void checkSnakes(Snake snake1, Snake snake2){ 
-    gameOver = checkSnakeBounds(snake1) ? PLAYER2_WIN : 0;
+    gameOver = checkSnakeBounds(snake1) ? PLAYER1_LOSE : 0;  // vER SI SE ARREGLO 
     if(cant_players == 2){
         gameOver = checkSnakeBounds(snake2) ? PLAYER1_WIN : 0;
         int collision1 = checkSnakeCollision(snake1, snake2);
@@ -448,7 +452,7 @@ void checkSnakes(Snake snake1, Snake snake2){
 
 int checkSnakeBounds(Snake snake){
     for(int i=0; i<snake.length; i++){
-        if(snake.body[i].x + SIZE > max_X || snake.body[i].x < min_X  // CHEQUEAR LOS LIMITES
+        if(snake.body[i].x + SIZE > max_X || snake.body[i].x < min_X  // CHEQUEAR LOS LIMITES, ACA NO HABRIA QUE PONER >= PARA QUE NO SE VAYA DE LA PANTALLA EL ULTIMO SEGUNDO ? @goyo
         || snake.body[i].y + SIZE > max_Y || snake.body[i].y < min_Y){
             return 1;
         } 

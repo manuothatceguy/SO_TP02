@@ -199,10 +199,12 @@ void putChar(unsigned char char_to_print, uint32_t color){
     if(char_to_print == '\n' || x_pos + font_width * fontSize > getWidth()){
         toggleCursor(OFF); // CURSOR ############################################################
         lineFeed(font_height * fontSize);
-        toggleCursor(ON); // CURSOR ############################################################
+         // CURSOR ############################################################
         if(char_to_print == '\n'){ // Unicamente retorno si es un ENTER, si no sigo con el flujo (imprimo el caracter)
             return;
-        }   
+        } else {
+            toggleCursor(ON);
+        }
     } else if(char_to_print == '\t'){
         char_to_print = ' '; // imprimo un espacio
     } else if(char_to_print == '\b'){

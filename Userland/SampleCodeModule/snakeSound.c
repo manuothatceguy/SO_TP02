@@ -8,6 +8,7 @@ void eatSound(){
     syscall_beep(700, 18);
 }
 
-void deathSound(){
-
+void deathSound(){  
+    syscall_beep(160, 36);
+    syscall_beep(100, 36);
 }
