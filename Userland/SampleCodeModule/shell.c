@@ -173,6 +173,6 @@ void shell() {
         
     }
     printf("Saliendo de la terminal...\n");
-    syscall_wait(12);
+    syscall_wait(2000);
     return;
 }

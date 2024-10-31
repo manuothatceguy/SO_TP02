@@ -28,7 +28,10 @@ void showTime(){
         syscall_time(4), // month
         syscall_time(5)  // year
     };
-    printf("Son las %d:%d:%d del %d de %s del %d\n", time[2], time[1], time[0], time[3], months[time[4]-1], time[5]);
+    char s[3] = {'0' + time[0] /10 % 10,'0' + time[0] % 10, 0};
+    char m[3] = {'0' + time[1] /10 % 10, '0' + time[1] % 10, 0}; 
+    char h[3] = {'0' + time[2] /10 % 10, '0' + time[2] % 10, 0};
+    printf("Son las %s:%s:%s del %d de %s del %d\n", h, m, s, time[3], months[time[4]-1], time[5]);
 }
 
 void showRegisters(){    
