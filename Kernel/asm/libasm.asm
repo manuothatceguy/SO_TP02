@@ -70,10 +70,11 @@ getRegisters: ; Deja el vector de registros en RAX.
 	push rax
 	popfq
 	mov [regs + 8*16], rax ; rflags
-	pop rax ; levanto dir ret
-	mov [regs + 8*17], rax ; rip
+	pop rax
+	pop rbx
+	mov [regs + 8*17], rbx ; rip
+	push rbx
 	push rax
-	mov rax, regs
 	ret
 
 outb:

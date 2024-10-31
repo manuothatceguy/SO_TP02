@@ -52,7 +52,7 @@ static uint64_t syscall_drawRectangle(Point2D* upLeft, Point2D *bottomRight, uin
 
 
 static void syscall_getRegisters(uint64_t buff[]) {
-    memcpy((void*)buff,(const void *)regs,CANT_REGS*(sizeof(void*))); // funcionara?
+    memcpy((void*)buff,(const void *)regs,CANT_REGS*(sizeof(void*)));
 }
 
 static uint64_t syscall_clearScreen(){

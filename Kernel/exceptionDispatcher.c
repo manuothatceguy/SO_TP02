@@ -7,6 +7,8 @@
 #define RED 0x00FF0000
 #define CANT_REGS 18
 
+extern uint64_t regs[18];
+
 extern void init();
 
 void printHex(uint64_t value, uint32_t color) {
@@ -24,7 +26,7 @@ void printHex(uint64_t value, uint32_t color) {
     printStr(hexStr, color);
 }
 
-void exception(char * name, uint64_t rip) {
+void exception(char * name) {
     toggleCursor(0);
     clearText(0);
     printStr(name,RED);
@@ -36,16 +38,13 @@ void exception(char * name, uint64_t rip) {
                                             "RBP: ", "RSP: ", "R8: ", "R9: ", "R10: ", "R11: ",
                                             "R12: ", "R13: ", "R14: ", "R15: ", "RFLAGS: ", "RIP: "};
     uint64_t registersRead[CANT_REGS];
-    getRegisters(registersRead);
-    for(int i = 0; i < CANT_REGS - 1; i++){
+    memcpy(registersRead, regs, sizeof(uint64_t) * CANT_REGS);
+    for(int i = 0; i < CANT_REGS; i++){
         printStr(registersNames[i],RED);
         printStr("0x",RED);
         printHex(registersRead[i],RED);
         printStr("\n",RED);
     }
-    printStr("RIP: 0x",RED);
-    printHex(rip,RED);
-    printStr("\n",RED);
     printStr("Presiona cualquier tecla para volver.\n",RED);
     toggleCursor(0);
     while(getChar() == 0){ _hlt(); }
@@ -53,13 +52,13 @@ void exception(char * name, uint64_t rip) {
     init(); // vuelve al main
 }
 
-void exceptionDispatcher(int ex, uint64_t rip) {
+void exceptionDispatcher(int ex) {
     switch (ex) {
         case 0:
-            exception("Zero division", rip);
+            exception("Zero division");
             break;
         case 6:
-            exception("Invalid opcode", rip);
+            exception("Invalid opcode");
             break;
         default:
             break;
