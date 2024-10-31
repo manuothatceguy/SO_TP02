@@ -213,6 +213,13 @@ void play(int players){
             appleEaten = 0;
         }
 
+        if(snake1.length == snakeHeight * snakeWidth / SIZE){
+            gameOver = PLAYER1_WIN;
+            return;
+        } else if(cant_players == 2 && snake2.length == snakeHeight * snakeWidth / SIZE){
+            gameOver = PLAYER2_WIN;
+            return;
+        }
         syscall_wait(speed); // wait(ticks);
     }
     deathSound(); // Ver si esta bien llamar a la funcion aca 
@@ -283,15 +290,7 @@ void generateFood(Snake s1, Snake s2){
                 canGenerate = 0;
             }
         }
-        if(s1.length == snakeHeight * snakeWidth / SIZE){
-            canGenerate = 0;
-            gameOver = PLAYER1_WIN;
-            return;
-        } else if(cant_players == 2 && s2.length == snakeHeight * snakeWidth / SIZE){
-            canGenerate = 0;
-            gameOver = PLAYER2_WIN;
-            return;
-        }
+
         if(canGenerate){
             foodPosition.x = x;
             foodPosition.y = y;
