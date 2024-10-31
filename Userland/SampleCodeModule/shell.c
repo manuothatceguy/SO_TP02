@@ -15,19 +15,18 @@ uint64_t curr = 0;
 extern void div_zero();
 extern void invalid_opcode();
 
-char * help = "Para ayuda relacionada a un comando en especifico, ingrese\nel comando \"man\" seguido del comando a consultar.\n"
-                "Lista de comandos disponibles en la Shell:\n"        
-                "    exit\n"
-                "    help\n"
-                "    snake\n"
-                "    time\n"
-                "    registers\n"
-                "    echo\n"
-                "    size_up\n"
-                "    size_down\n"
-                "    test_div_0\n"
-                "    test_invalid_opcode\n"
-                "    clear\n";
+char * help =   "Lista de comandos disponibles en la Shell:\n"        
+                "    - exit: corta la ejecucion\n"
+                "    - help: muestra este menu\n"
+                "    - snake: juego de snakes\n"
+                "    - time: muestra la hora actual GMT-3\n"
+                "    - registers: valor del ultimo snapshot de registros\n"
+                "    - echo: imprime lo que le sigue a echo\n"
+                "    - size_up: aumenta tamaño de fuente\n"
+                "    - size_down: decrementa tamaño de fuente\n"
+                "    - test_div_0: test zero division exception\n"
+                "    - test_invalid_opcode: test invalid opcode exception\n"
+                "    - clear: borra la pantalla y comienza arriba\n";
 
 typedef enum {
     EXIT = 0,

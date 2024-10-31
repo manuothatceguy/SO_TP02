@@ -213,9 +213,7 @@ void putChar(unsigned char char_to_print, uint32_t color){
         toggleCursor(ON); // CURSOR ############################################################
         return;
     } else if(y_pos + font_height * fontSize > getHeight()){
-        clearScreen(0);
-        x_pos = 0;
-        y_pos = 0;
+        clearText(0);
     }
     toggleCursor(OFF); // CURSOR ############################################################
     unsigned char mask = 0x01;

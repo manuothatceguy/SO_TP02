@@ -6,7 +6,7 @@
 
 #include <textModule.h> // BORRAR
 
-#define NMI_DISABLE_BIT 1
+#define Y2K 2000
 
 uint8_t rtc(unsigned char reg) {
     _cli();
@@ -159,13 +159,15 @@ char* intToString(int num) {
     return &buffer[i + 1];
 }
 
+
+
 uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
     uint8_t sec = seconds();
     uint8_t min = minutes();
     uint8_t hour = hours() + GMT_ARG;
     uint8_t dayVar = day();
     uint8_t monthVar = month();
-    uint16_t yearVar = year();
+    uint16_t yearVar = year() + Y2K;
 
 
     // Ajustar la hora con cambio de día si es necesario
@@ -194,8 +196,7 @@ uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
         dayVar = getDaysInMonth(monthVar, yearVar);
     }
 
-    // Devolver el parámetro solicitado
-    switch (param) {
+  switch (param) {
         case 0: {
             return sec;
         } 

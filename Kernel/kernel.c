@@ -133,7 +133,7 @@ int main()
 	printSlow("    1- La IDT ya fue cargada\n", WHITE, 30);
 	wait_ticks(40);
 	printSlow("    2- Cargando la shell",WHITE, 30);
-	printSlow("...",WHITE,3000);
+	printSlow("...",WHITE,2800);
 	
 	((EntryPoint)sampleCodeModuleAddress)(); // LLAMADA AL USERLAND
 	clearScreen(0);
