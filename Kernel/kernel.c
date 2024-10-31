@@ -124,6 +124,7 @@ void printSlow(char * str, uint32_t color, uint64_t pause){
 
 int main()
 {	
+	/*
 	fontSizeUp(2);
 	printStr(" TPE ARQUI \n", WHITE);
 	fontSizeDown(2);
@@ -134,7 +135,7 @@ int main()
 	wait_ticks(40);
 	printSlow("    2- Cargando la shell",WHITE, 30);
 	printSlow("...",WHITE,2800);
-	
+	*/
 	((EntryPoint)sampleCodeModuleAddress)(); // LLAMADA AL USERLAND
 	clearScreen(0);
 

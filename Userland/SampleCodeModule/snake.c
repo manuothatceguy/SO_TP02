@@ -6,7 +6,7 @@
 
 #define MAX_SPEED 5
 #define MAX_PLAYERS 2
-#define MAX_SNAKE_LENGTH 10000 // 10000 es un valor arbitrario para que no se rompa el stack
+#define MAX_SNAKE_LENGTH 100 // 10000 es un valor arbitrario para que no se rompa el stack
 
 #define FOOD_COLOR 0xffb600
 #define SNAKE1_COLOR 0x00ff00

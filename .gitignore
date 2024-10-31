@@ -12,3 +12,5 @@
 
 # VSCode directory
 .vscode/
+
+.bash_history
