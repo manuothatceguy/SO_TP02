@@ -41,79 +41,16 @@ void * getStackBase()
 
 void * initializeKernelBinary()
 {
-	//char buffer[10];
-
-	//ncPrint("[x64BareBones]");
-	//ncNewline();
-
-	//ncPrint("CPU Vendor:");
-	//ncPrint(cpuVendor(buffer));
-	//ncNewline();
-
-	//ncPrint("[Loading modules]");
-	//ncNewline();
 	void * moduleAddresses[] = {
 		sampleCodeModuleAddress,
 		sampleDataModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-	//ncPrint("[Done]");
-	//ncNewline();
-	//ncNewline();
-
-	//ncPrint("[Initializing kernel's binary]");
-	//ncNewline();
-
 	clearBSS(&bss, &endOfKernel - &bss);
-
-	//ncPrint("  text: 0x");
-	//ncPrintHex((uint64_t)&text);
-	//ncNewline();
-	//ncPrint("  rodata: 0x");
-	//ncPrintHex((uint64_t)&rodata);
-	//ncNewline();
-	//ncPrint("  data: 0x");
-	//ncPrintHex((uint64_t)&data);
-	//ncNewline();
-	//ncPrint("  bss: 0x");
-	//ncPrintHex((uint64_t)&bss);
-	//ncNewline();
-
-	//ncPrint("[Done]");
-	//ncNewline();
-	//ncNewline();
 	return getStackBase();
 }
 
-	uint32_t rainbowColor(int i) {
-		uint8_t r = 0, g = 0, b = 0;
-		int phase = i % 1536;
-
-		if (phase < 256) {
-			r = 255;
-			g = phase;
-		} else if (phase < 512) {
-			r = 511 - (phase - 256);
-			g = 255;
-		} else if (phase < 768) {
-			g = 255;
-			b = phase - 512;
-		} else if (phase < 1024) {
-			g = 1023 - (phase - 768);
-			b = 255;
-		} else if (phase < 1280) {
-			r = phase - 1024;
-			b = 255;
-		} else {
-			r = 255;
-			b = 1535 - phase;
-		}
-
-		return (r << 16) | (g << 8) | b;
-	}
-
-#define WHITE 0x00FFFFFF
 
 void printSlow(char * str, uint32_t color, uint64_t pause){
 	for(int i = 0; str[i]; i++){

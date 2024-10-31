@@ -15,7 +15,7 @@ uint64_t curr = 0;
 extern void div_zero();
 extern void invalid_opcode();
 
-char * help =   "Lista de comandos disponibles en la Shell:\n"        
+char * help =   " Lista de comandos disponibles:\n"        
                 "    - exit: corta la ejecucion\n"
                 "    - help: muestra este menu\n"
                 "    - snake: juego de snakes\n"
@@ -101,6 +101,10 @@ int getInstruction(char * arguments){
 
 void shell() {
     syscall_clearScreen();
+    syscall_sizeUpFont(1);
+    printf("  Bienvenido a la shell\n\n");
+    syscall_sizeDownFont(1);
+    printf(help);
     // pedir username
     printf("Ingrese su nombre de usuario: ");
     char username[MAX_USERNAME_LENGTH];
