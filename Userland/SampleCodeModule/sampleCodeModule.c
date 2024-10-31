@@ -3,6 +3,5 @@
 
 int main() {
 	shell();
-	//runSnake();
 	return 0;
 }

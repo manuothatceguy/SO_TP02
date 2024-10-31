@@ -24,44 +24,42 @@ void printHex(uint64_t value, uint32_t color) {
     printStr(hexStr, color);
 }
 
-// sí, es la misma función que userland, pero kernel y userland no comparten código y nos vimos obligados a repetirlo
-void showRegisters(){    
-    char * registersNames[CANT_REGS] = {"RAX: ", "RBX: ", "RCX: ", "RDX: ", "RSI: ", "RDI: ",
-                                            "RBP: ", "RSP: ", "R8: ", "R9: ", "R10: ", "R11: ",
-                                            "R12: ", "R13: ", "R14: ", "R15: ", "RFLAGS: ", "RIP: "};
-    uint64_t registersRead[CANT_REGS];
-    getRegisters(registersRead);
-    for(int i = 0; i < CANT_REGS ; i++){
-        printStr(registersNames[i],RED);
-        printStr("0x",RED);
-        printHex(registersRead[i],RED);
-        printStr("\n",RED);
-    }
-}
-
-void exception(char * name){
+void exception(char * name, uint64_t rip) {
     toggleCursor(0);
     clearText(0);
     printStr(name,RED);
     printStr(" exception",RED);
     printStr("\n",RED);
+
     printStr("Estado de los registros: \n",RED);
-    showRegisters();
+    char * registersNames[CANT_REGS] = {"RAX: ", "RBX: ", "RCX: ", "RDX: ", "RSI: ", "RDI: ",
+                                            "RBP: ", "RSP: ", "R8: ", "R9: ", "R10: ", "R11: ",
+                                            "R12: ", "R13: ", "R14: ", "R15: ", "RFLAGS: ", "RIP: "};
+    uint64_t registersRead[CANT_REGS];
+    getRegisters(registersRead);
+    for(int i = 0; i < CANT_REGS - 1; i++){
+        printStr(registersNames[i],RED);
+        printStr("0x",RED);
+        printHex(registersRead[i],RED);
+        printStr("\n",RED);
+    }
+    printStr("RIP: 0x",RED);
+    printHex(rip,RED);
+    printStr("\n",RED);
     printStr("Presiona cualquier tecla para volver.\n",RED);
-    toggleCursor(1);
-    _sti();
-    while(getChar() == 0);
+    toggleCursor(0);
+    while(getChar() == 0){ _hlt(); }
     clearScreen(0);
     init(); // vuelve al main
 }
 
-void exceptionDispatcher(int ex) {
+void exceptionDispatcher(int ex, uint64_t rip) {
     switch (ex) {
         case 0:
-            exception("Zero division");
+            exception("Zero division", rip);
             break;
         case 6:
-            exception("Invalid opcode");
+            exception("Invalid opcode", rip);
             break;
         default:
             break;

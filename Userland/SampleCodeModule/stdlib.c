@@ -112,7 +112,7 @@ uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
         }
         i++;
     }
-    return syscall(2, fd, (uint64_t)output, strlen(output));
+    return syscall_write(fd, output, strlen(output));
 }
 
 uint64_t printf(const char *format, ...){
@@ -133,7 +133,7 @@ uint64_t printferror(const char *format, ...){
 
 char getChar(){
     char c;
-    syscall(1,(uint64_t)&c,1,0);
+    syscall_read(&c,1);
     return c;
 }
 

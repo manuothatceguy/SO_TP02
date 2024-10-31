@@ -156,14 +156,14 @@ int getInstruction(char * arguments){
 }
 
 void shell() {
-    clear();
+    syscall_clearScreen();
     // pedir username
     printf("Ingrese su nombre de usuario: ");
     char username[MAX_USERNAME_LENGTH];
     readLine(username, MAX_USERNAME_LENGTH);
     unsigned int exit = EXIT; // 0
     int instruction;
-    clear();
+    syscall_clearScreen();
     while(!exit){
         printf(PROMPT, username);
         char arg[BUFFER_SPACE] = {0};
@@ -207,7 +207,7 @@ void shell() {
                 break;
             }
             case CLEAR : {
-                clear();
+                syscall_clearScreen();
                 break;
             }
             default: {
@@ -225,6 +225,6 @@ void shell() {
         */
     }
     printf("Saliendo de la terminal...\n");
-    syscall(12,10,0,0);
+    syscall_wait(12);
     return;
 }

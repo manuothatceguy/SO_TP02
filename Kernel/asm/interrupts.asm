@@ -69,12 +69,25 @@ SECTION .text
 
 
 %macro exceptionHandler 1
-	pushState
+	push rbp
+	mov rbp, rsp
+	push rdi
+	push rsi
+	push r12
+	push r13
+	push r15
 	
-	mov rdi, %1 ; pasaje de parametro
+	mov rdi, %1 			; pasaje de parametro de la excepcion
+	lea rsi, [rbp + 8]  	; pasaje de parametro del RIP
 	call exceptionDispatcher
 
-	popState
+	pop r15
+	pop r13
+	pop r12
+	pop rsi
+	pop rdi
+	mov rsp, rbp
+	pop rbp
 	iretq
 %endmacro
 

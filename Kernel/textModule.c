@@ -249,9 +249,12 @@ void printStr(char * s, uint32_t color){
 
 void toggleCursor(unsigned int enable){
     uint32_t color = enable ? CURSOR_COLOR : 0x00000000; // CURSOR_COLOR para encender y negro para apagar
+    
     for(int i = 0; i < font_height * fontSize; i++){
         drawSquare(x_pos, y_pos + i, fontSize, color);
     }
+    
+   //drawRectangle(x_pos, y_pos, x_pos + fontSize, y_pos + fontSize, color);
 }
 
 #define TOPE_FONT 5

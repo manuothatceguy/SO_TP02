@@ -8,14 +8,19 @@
 #include <soundDriver.h>
 #include <stdarg.h>
 
+
+#define CANT_REGS 18
+#define CANT_SYSCALLS 12
+
+extern uint64_t regs[CANT_REGS];
+
 typedef struct Point2D {
     uint64_t x, y;
 } Point2D;
+typedef uint64_t (*syscall_fn)(uint64_t rbx, uint64_t rcx, uint64_t rdx);
 
-#define CANT_REGS 18
-extern uint64_t regs[CANT_REGS];
 
-uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
+static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     if (length < 0) return 1;
     if (fd > 2 || fd < 0) return 2;
     uint64_t color;
@@ -34,119 +39,62 @@ uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     return 0;  
 }
 
-uint64_t syscall_beep(uint64_t freq, uint64_t ticks) {
+static uint64_t syscall_beep(uint64_t freq, uint64_t ticks) {
     play_sound(freq);
     wait_ticks(ticks);
     nosound();
     return 0;
 }
 
-uint64_t syscall_drawRectangle(Point2D* upLeft, Point2D *bottomRight, uint32_t color) {
+static uint64_t syscall_drawRectangle(Point2D* upLeft, Point2D *bottomRight, uint32_t color) {
     return drawRectangle(upLeft->x, upLeft->y, bottomRight->y - upLeft->y + 1, bottomRight->x - upLeft->x + 1, color);
 }
 
 
-void syscall_getRegisters(uint64_t buff[]) {
+static void syscall_getRegisters(uint64_t buff[]) {
     memcpy((void*)buff,(const void *)regs,CANT_REGS*(sizeof(void*))); // funcionara?
 }
 
-uint64_t syscall_clearScreen(){
+static uint64_t syscall_clearScreen(){
     clearText(0);
     return 0;
 }
 
-uint64_t syscall_read( char* str,  uint64_t length){
+static uint64_t syscall_read( char* str,  uint64_t length){
     for(int i = 0; i < length && length > 0; i++){
         str[i] = getChar();
     }
     return length > 0 ? length : 0;
 }
 
-uint64_t syscall_time(uint64_t mod){
+static uint64_t syscall_time(uint64_t mod){
     return getTimeParam(mod);
 }
 
-uint64_t syscall_fontSizeUp(uint64_t increase){
+static uint64_t syscall_fontSizeUp(uint64_t increase){
     return fontSizeUp(increase);
 }
 
-uint64_t syscall_fontSizeDown(uint64_t decrease){
+static uint64_t syscall_fontSizeDown(uint64_t decrease){
     return fontSizeDown(decrease);
 }
 
-uint64_t syscall_getWidth(){
+static uint64_t syscall_getWidth(){
     return getWidth();
 }
 
-uint64_t syscall_getHeight(){
+static uint64_t syscall_getHeight(){
     return getHeight();
 }
 
-uint64_t syscall_wait(uint64_t ticks){
+static uint64_t syscall_wait(uint64_t ticks){
     wait_ticks(ticks);
     return ticks;
 }
 
 // Prototipos de las funciones de syscall
-uint64_t syscallDispatcher(uint64_t syscall_number, ...) {
-    va_list ap;
-    va_start(ap,syscall_number);
-    switch (syscall_number)
-    {
-    case 1:
-        char * param1_read = va_arg(ap,char*);
-        uint64_t param2_read = va_arg(ap,uint64_t);
-        va_end(ap);
-        return syscall_read(param1_read,param2_read);
-    case 2:
-        uint64_t param1_write = va_arg(ap,uint64_t);
-        char * param2_write = va_arg(ap,char*);
-        uint64_t param3_write = va_arg(ap,uint64_t); 
-        va_end(ap);
-        return syscall_write(param1_write,param2_write,param3_write);
-    case 3:
-        uint64_t param_time = va_arg(ap,uint64_t);
-        va_end(ap);
-        return syscall_time(param_time);
-    case 4:
-        uint64_t param1_beep = va_arg(ap,uint64_t);
-        uint64_t param2_beep = va_arg(ap,uint64_t);
-        va_end(ap);
-        return syscall_beep(param1_beep,param2_beep);
-    case 5:
-        Point2D * param1_rectangle = va_arg(ap,Point2D*);
-        Point2D * param2_rectangle = va_arg(ap,Point2D*);
-        uint32_t param3_rectangle = va_arg(ap,uint32_t);
-        va_end(ap);
-        return syscall_drawRectangle(param1_rectangle,param2_rectangle,param3_rectangle);
-    case 6:
-        uint64_t * param_registers = va_arg(ap,uint64_t*);
-        va_end(ap);
-        syscall_getRegisters(param_registers);
-        return 0;
-    case 7:
-        va_end(ap);
-        return syscall_clearScreen();
-    case 8:
-        uint64_t param_up = va_arg(ap, uint64_t);
-        va_end(ap);
-        return syscall_fontSizeUp(param_up); 
-    case 9:
-        uint64_t param_down = va_arg(ap, uint64_t);
-        va_end(ap);
-        return syscall_fontSizeDown(param_down);  
-    case 10:
-        va_end(ap);
-        return syscall_getHeight(); 
-    case 11:
-        va_end(ap);
-        return syscall_getWidth(); 
-    case 12: // wait
-        uint64_t param1 = va_arg(ap,uint64_t);
-        va_end(ap);
-        return syscall_wait(param1);
-    default:
-        break;
-    }
-    return 0; // error
+uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){
+    if(syscall_number > CANT_SYSCALLS) return 0;
+    syscall_fn syscalls[] = {0,(syscall_fn)syscall_read, (syscall_fn)syscall_write, (syscall_fn)syscall_time, (syscall_fn)syscall_beep, (syscall_fn)syscall_drawRectangle, (syscall_fn)syscall_getRegisters, (syscall_fn)syscall_clearScreen, (syscall_fn)syscall_fontSizeUp, (syscall_fn)syscall_fontSizeDown, (syscall_fn)syscall_getHeight, (syscall_fn)syscall_getWidth, (syscall_fn)syscall_wait};
+    return syscalls[syscall_number](arg1, arg2, arg3);
 }

@@ -6,6 +6,6 @@
 
 void showTime();
 void showRegisters();
-void clear();
+
 
 #endif //SHELLFUNCTIONS_H
