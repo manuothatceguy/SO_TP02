@@ -7,7 +7,6 @@
 #define MAX_SPEED 5
 #define MAX_PLAYERS 2
 #define MAX_SNAKE_LENGTH 100
-#define MAX_FOOD 100
 
 #define FOOD_COLOR 0xffb600
 #define SNAKE1_COLOR 0x00ff00
@@ -284,7 +283,15 @@ void generateFood(Snake s1, Snake s2){
                 canGenerate = 0;
             }
         }
-
+        if(s1.length == snakeHeight * snakeWidth / SIZE){
+            canGenerate = 0;
+            gameOver = PLAYER1_WIN;
+            return;
+        } else if(cant_players == 2 && s2.length == snakeHeight * snakeWidth / SIZE){
+            canGenerate = 0;
+            gameOver = PLAYER2_WIN;
+            return;
+        }
         if(canGenerate){
             foodPosition.x = x;
             foodPosition.y = y;
