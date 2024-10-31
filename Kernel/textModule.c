@@ -260,11 +260,11 @@ void toggleCursor(unsigned int enable){
 #define TOPE_FONT 5
 
 uint64_t fontSizeUp(uint64_t increase){
-    if(fontSize + increase < TOPE_FONT) return (fontSize += increase);
+    if(fontSize + increase <= TOPE_FONT) return (fontSize += increase);
     return fontSize;
 }
 
 uint64_t fontSizeDown(uint64_t decrease){
-    if(fontSize - decrease > 1) return (fontSize -= decrease);
+    if(fontSize - decrease >= 1) return (fontSize -= decrease);
     return fontSize;
 }
