@@ -400,10 +400,6 @@ char apple[SIZE][SIZE] = {
 
 
 void drawFood(){ 
-    //Point2D foodBottomRight;
-    //foodBottomRight.x = foodPosition.x + SIZE; 
-    //foodBottomRight.y = foodPosition.y + SIZE; 
-    //syscall(5, (uint64_t)&foodPosition, (uint64_t)&foodBottomRight , FOOD_COLOR);
     for(int i=0; i<SIZE; i++){
         for(int j=0; j<SIZE; j++){
             syscall_drawRectangle(&(Point2D){foodPosition.x + j, foodPosition.y + i}, &(Point2D){foodPosition.x + j + 1, foodPosition.y + i + 1}, (apple[i][j] == '1') ? FOOD_COLOR : BLACK_COLOR);
@@ -440,14 +436,23 @@ void moveSnake(Snake * snake){
 }
 
 void checkSnakes(Snake snake1, Snake snake2){ 
-    gameOver = checkSnakeBounds(snake1) ? PLAYER1_LOSE : 0; 
+    gameOver = checkSnakeBounds(snake1) ? (cant_players == 2 ? PLAYER2_WIN : PLAYER1_LOSE) : CONTINUE; 
     if(cant_players == 2 && !gameOver){
         gameOver = checkSnakeBounds(snake2) ? PLAYER1_WIN : 0;
         int collision1 = checkSnakeCollision(snake1, snake2);
         int collision2 = checkSnakeCollision(snake2, snake1);
 
         if(collision1 && collision2) {
-            gameOver = GAME_DRAW; // Ambos colisionan --> empate
+            // Ambos colisionan --> desempate por puntos
+            uint64_t points1 = CALCULATE_POINTS(snake1);
+            uint64_t points2 = CALCULATE_POINTS(snake2);
+            if(points1 > points2){
+                gameOver = PLAYER1_WIN;
+            } else if(points2 > points1){
+                gameOver = PLAYER2_WIN;
+            } else { // misma cantidad de puntos y colisionan cabeza-cabeza
+                gameOver = GAME_DRAW;
+            }
         } else if(collision1) {
             gameOver = PLAYER2_WIN; // Colisiona 1 con 2 --> gana 2
         } else if(collision2) {
