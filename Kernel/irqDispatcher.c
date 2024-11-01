@@ -17,7 +17,7 @@ void irqDispatcher(uint64_t irq) {
 		case 1:
 			int_21();
 	}
-	outb(0x20, 0x20);
+	outb(0x20, 0x20); // End of interrupt
 	return;
 }
 
