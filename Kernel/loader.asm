@@ -11,7 +11,8 @@ loader:
 init:
 	call getStackBase
 	mov rsp, rax
-	call main
+	mov rax, userland
+	jmp rax
 hang:
 	cli
 	hlt	; halt machine should kernel return
