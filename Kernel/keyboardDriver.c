@@ -140,10 +140,6 @@ static char isAlpha(unsigned int key){
     return press_keys[key].ascii >= 'a' && press_keys[key].ascii <= 'z';
 }
 
-void reg_fun(){
-    getRegisters();
-}
-
 static void handleSpecialKeys(unsigned int key){
     switch(key){
         case LSHIFT_PRESS:
@@ -158,7 +154,7 @@ static void handleSpecialKeys(unsigned int key){
             caps = !caps;
             break;
         case ESC_PRESS:
-            reg_fun();
+            getRegisters();
             break;
         default:
             break; 

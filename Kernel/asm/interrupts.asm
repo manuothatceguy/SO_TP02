@@ -15,6 +15,7 @@ GLOBAL _irq80Handler
 
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
+GLOBAL rip_aux
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
@@ -60,6 +61,10 @@ SECTION .text
 %endmacro
 
 %macro irqHandlerMaster 1
+	push rax
+	mov rax, [rsp + 8]
+	mov [rip_aux], rax
+	pop rax
 	pushState
 	mov rdi, %1 ; pasaje de parametro
 	call irqDispatcher
@@ -70,6 +75,10 @@ SECTION .text
 
 
 %macro exceptionHandler 1
+	push rax
+	mov rax, [rsp + 8] ; Guardo el RIP
+	mov [rip_aux], rax
+	pop rax
 	call getRegisters
 	pushState
 	
@@ -118,6 +127,7 @@ _irq00Handler:
 
 ;Keyboard
 _irq01Handler:
+
 	irqHandlerMaster 1
 
 ;Cascade pic never called
@@ -171,3 +181,4 @@ haltcpu:
 
 SECTION .bss
 	aux resq 1
+	rip_aux resq 1

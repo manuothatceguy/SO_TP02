@@ -1,6 +1,7 @@
 GLOBAL cpuVendor
 GLOBAL kb_getKey
 GLOBAL getRegisters
+EXTERN rip_aux
 GLOBAL outb
 GLOBAL inb
 GLOBAL regs
@@ -70,11 +71,9 @@ getRegisters: ; Deja el vector de registros en RAX.
 	push rax
 	popfq
 	mov [regs + 8*16], rax ; rflags
-	pop rax
-	pop rbx
-	mov [regs + 8*17], rbx ; rip
-	push rbx
-	push rax
+	mov rax, [rip_aux] ; rip
+	mov qword[regs + 8*17], rax ; rip
+	mov rax, regs
 	ret
 
 outb:
