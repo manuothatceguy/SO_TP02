@@ -201,3 +201,9 @@ char getChar(){
     }
     return 0;
 }
+
+void clear_buffer(){
+    current = 0;
+    next = 0;
+    buffer[0] = 0;
+}

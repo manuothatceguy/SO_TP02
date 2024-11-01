@@ -2,13 +2,14 @@
 #include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
-//#include <naiveConsole.h>
 #include <idtLoader.h>
 #include <clock.h>
 #include <time.h>
 #include <videoDriver.h>
 #include <textModule.h>
 #include <keyboardDriver.h>
+
+#define WHITE 0x00FFFFFF
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -63,7 +64,7 @@ int main()
 {	
 	load_idt();
 	setup_timer(18);
-	/*
+
 	fontSizeUp(2);
 	printStr(" TPE ARQUI \n", WHITE);
 	fontSizeDown(2);
@@ -74,10 +75,11 @@ int main()
 	wait_ticks(40);
 	printSlow("    2- Cargando la shell",WHITE, 30);
 	printSlow("...",WHITE,2800);
-	*/
+	
+	clear_buffer();
 	((EntryPoint)sampleCodeModuleAddress)(); // LLAMADA AL USERLAND
 	clearScreen(0);
-
+	
 	return 0;
 }
 
