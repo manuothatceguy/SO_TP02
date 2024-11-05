@@ -2,7 +2,6 @@
 #include <stdint.h>
    
 /*
-
  * @brief Realiza una interrupción 0x80 (SYSCALL)
  * @param code código de syscall
  * @param param... lo que corresponda para cada uno de los parámetros de la syscall. 0 si no se usa.
@@ -10,7 +9,7 @@
 */
 extern int64_t syscall(uint64_t code, uint64_t param1, uint64_t param2, uint64_t param3);
 
-enum syscall_number {NULL, READ, WRITE, TIME, BEEP, DRAW_RECTANGLE, GET_REGISTERS, CLEAR_SCREEN, SIZE_UP_FONT, SIZE_DOWN_FONT, GET_HEIGHT, GET_WIDTH, WAIT};
+enum syscall_number {NULL, READ, WRITE, TIME, BEEP, DRAW_RECTANGLE, GET_REGISTERS, CLEAR_SCREEN, SIZE_UP_FONT, SIZE_DOWN_FONT, GET_HEIGHT, GET_WIDTH, WAIT, TOGGLE_CURSOR};
 
 uint64_t syscall_read(char * buff, uint64_t len){
     return syscall(READ, (uint64_t)buff, len, 0);
@@ -59,5 +58,6 @@ uint64_t syscall_getWidth(){
 uint64_t syscall_wait(uint64_t ticks){
     return syscall(WAIT, ticks, 0, 0);
 }
+
 
 

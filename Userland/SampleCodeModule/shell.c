@@ -92,8 +92,8 @@ int getInstruction(char * arguments){
 
 
     int iNum = 0;
-    if((iNum = verify_instruction(instruction)) == -1 && instruction[0] != 0){ // borrar esto
-        printf("Comando no reconocido: %s\n", instruction); // Usando nuestro printf 
+    if((iNum = verify_instruction(instruction)) == -1 && instruction[0] != 0){
+        printferror("Comando no reconocido: %s\n", instruction);
         return -1;
     }
     return iNum;
@@ -119,7 +119,7 @@ void shell() {
         switch(instruction) {
             case HELP: {
                 printf("\n");
-                printf(help); // Usando nuestro printf
+                printf(help); 
                 break;
             }
             case SNAKE: {

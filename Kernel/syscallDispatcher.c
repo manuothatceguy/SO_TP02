@@ -23,20 +23,11 @@ typedef uint64_t (*syscall_fn)(uint64_t rbx, uint64_t rcx, uint64_t rdx);
 static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     if (length < 0) return 1;
     if (fd > 2 || fd < 0) return 2;
-    uint64_t color;
-    switch (fd) {
-        case 1: // STDOUT NORMAL
-            color = 0x00FFFFFF;
-            break;
-        case 2: // STDOUT ERROR
-            color = 0x00FF0000;
-            break;
-        default:
-            return 3;
-    }
+    uint64_t color = (fd == 1 ? 0x00FFFFFF : (fd == 2 ? 0x00FF0000 : 0));
+    if(!color) return 0;
     for(int i = 0; i < length; i++)
         putChar(buff[i],color); 
-    return 0;  
+    return length;  
 }
 
 static uint64_t syscall_beep(uint64_t freq, uint64_t ticks) {

@@ -112,6 +112,7 @@ uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
         }
         i++;
     }
+    
     return syscall_write(fd, output, strlen(output));
 }
 
@@ -137,24 +138,31 @@ char getChar(){
     return c;
 }
 
+
 uint64_t readLine(char *buff, uint64_t length) {
     char c;
     int i = 0;
+    printf("|");
     while ((c = getChar()) != '\n' && i < length - 1) { // -1 para dejar espacio para el null
         if (c == '\b') {
             if (i > 0) {
-                i--; // Decrementa el índice para "borrar" el último carácter
-                printf("%c", c);
+                i--;
+                printf("\b\b");
+                printf("|");
             }
         } else if (c != 0) {
+            printf("\b");
             buff[i++] = c;
             printf("%c", c);
+            printf("|");
         }
     }
     buff[i] = 0;
+    printf("\b");
     printf("\n");
     return i;
 }
+
 
 unsigned long int next = 1;
 

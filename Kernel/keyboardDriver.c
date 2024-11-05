@@ -10,10 +10,7 @@
 #define RSHIFT_RELEASE 0xB6
 #define CAPS_PRESS 0x3A
 
-#define F1_PRESS 0x3B // BORRAR SI AL FINAL NO USAMOS
-#define F10_PRESS 0x44// BORRAR SI AL FINAL NO USAMOS
-#define F11_PRESS 0x57// BORRAR SI AL FINAL NO USAMOS
-#define F12_PRESS 0x58// BORRAR SI AL FINAL NO USAMOS
+#define F12_PRESS 0x58
 
 #define ESC_PRESS 0x01
 #define ALT_PRESS 0x3B
@@ -26,9 +23,9 @@ typedef struct {
     char shift_ascii; 
 } ScanCode;
 
-ScanCode press_keys[] = { // from 0x01 to 0x58. sub 0x81 for release keys
+ScanCode press_keys[] = { 
     {0,0},
-    {0x1B, 0x1B}, // escape
+    {0x1B, 0x1B}, 
     {'1','!'},
     {'2','"'},
     {'3','#'},
@@ -40,7 +37,7 @@ ScanCode press_keys[] = { // from 0x01 to 0x58. sub 0x81 for release keys
     {'9',')'},
     {'0','='},
     {'-','_'},
-    {'=', '+'}, // shift value corrected
+    {'=', '+'}, 
     {0x08, 0x08}, // backspace
     {'\t', '\t'}, // tab
     {'q', 'Q'},
@@ -53,10 +50,10 @@ ScanCode press_keys[] = { // from 0x01 to 0x58. sub 0x81 for release keys
     {'i', 'I'},
     {'o', 'O'},
     {'p', 'P'},
-    {'[', '{'}, // shift for brackets
+    {'[', '{'},
     {']', '}'},
     {'\n', '\n'}, // enter
-    {0, 0}, // left ctrl (no ASCII)
+    {0, 0}, // left ctrl
     {'a', 'A'},
     {'s', 'S'},
     {'d', 'D'},
@@ -66,11 +63,11 @@ ScanCode press_keys[] = { // from 0x01 to 0x58. sub 0x81 for release keys
     {'j', 'J'},
     {'k', 'K'},
     {'l', 'L'},
-    {';', ':'}, // shift for semicolon
-    {'\'', '\"'}, // shift for single quote
-    {'`', '~'}, // shift for backtick
-    {0, 0}, // left shift
-    {'\\', '|'}, // shift for backslash 
+    {';', ':'}, 
+    {'\'', '\"'},
+    {'`', '~'}, 
+    {0, 0}, 
+    {'\\', '|'}, 
     {'z', 'Z'},
     {'x', 'X'},
     {'c', 'C'},
@@ -78,44 +75,44 @@ ScanCode press_keys[] = { // from 0x01 to 0x58. sub 0x81 for release keys
     {'b', 'B'},
     {'n', 'N'},
     {'m', 'M'},
-    {',', '<'}, // shift for comma
-    {'.', '>'}, // shift for period
-    {'/', '?'}, // shift for slash
-    {0, 0}, // right shift
-    {'*', '*'}, // keypad *
-    {0, 0}, // left alt (no ASCII)
-    {' ', ' '}, // space
-    {0, 0}, // caps lock (no ASCII)
-    {0, 0}, // F1
-    {0, 0}, // F2
-    {0, 0}, // F3
-    {0, 0}, // F4
-    {0, 0}, // F5
-    {0, 0}, // F6
-    {0, 0}, // F7
-    {0, 0}, // F8
-    {0, 0}, // F9
-    {0, 0}, // F10
-    {0, 0}, // NumberLock (no ASCII)
-    {0, 0}, // ScrollLock (no ASCII)
-    {'7', '7'}, // keypad 7
-    {'8', '8'}, // keypad 8
-    {'9', '9'}, // keypad 9
-    {'-', '_'}, // keypad -
-    {'4', '4'}, // keypad 4
-    {'5', '5'}, // keypad 5
-    {'6', '6'}, // keypad 6
-    {'+', '+'}, // keypad +
-    {'1', '1'}, // keypad 1
-    {'2', '2'}, // keypad 2
-    {'3', '3'}, // keypad 3
-    {'0', '0'}, // keypad 0
-    {'.', '>'}, // keypad .
-    {0, 0}, // empty entries
+    {',', '<'}, 
+    {'.', '>'}, 
+    {'/', '?'}, 
+    {0, 0}, 
+    {'*', '*'}, 
+    {0, 0}, 
+    {' ', ' '}, 
+    {0, 0}, 
+    {0, 0}, 
+    {0, 0}, 
+    {0, 0}, 
+    {0, 0}, 
+    {0, 0}, 
+    {0, 0}, 
+    {0, 0}, 
+    {0, 0}, 
+    {0, 0}, 
+    {0, 0},
+    {0, 0}, 
+    {0, 0}, 
+    {'7', '7'},
+    {'8', '8'},
+    {'9', '9'}, 
+    {'-', '_'}, 
+    {'4', '4'}, 
+    {'5', '5'}, 
+    {'6', '6'}, 
+    {'+', '+'},
+    {'1', '1'},
+    {'2', '2'},
+    {'3', '3'},
+    {'0', '0'}, 
+    {'.', '>'}, 
+    {0, 0}, 
     {0, 0},
     {0, 0},
-    {0, 0}, // F11
-    {0, 0}  // F12
+    {0, 0}, 
+    {0, 0}  
 };
 
 static unsigned int specialKeys[] = {LSHIFT_PRESS, LSHIFT_RELEASE, RSHIFT_RELEASE, RSHIFT_PRESS, CAPS_PRESS, ALT_PRESS, CTRL_PRESS, ESC_PRESS};
@@ -129,12 +126,6 @@ unsigned int specialKey = 0;
 
 static unsigned int current = 0;
 static unsigned int next = 0;
-
-/*
-static char isFKey(unsigned int key){
-    return (key >= F1_PRESS && key <= F10_PRESS) || key == F11_PRESS || key == F12_PRESS;
-}
-*/
 
 static char isAlpha(unsigned int key){
     return press_keys[key].ascii >= 'a' && press_keys[key].ascii <= 'z';
@@ -183,7 +174,7 @@ int bufferWrite(){
 
     checkSpecialKeys(c);
 
-    if(!specialKey && c <= F12_PRESS){  // A partir de F12_PRESS tengo los release keys
+    if(!specialKey && c <= F12_PRESS){  
         mayus = (caps && !shift) || (!caps && shift);
         if( (isAlpha(c) && mayus) || (!isAlpha(c) && shift) ){
             addToBuffer(press_keys[c].shift_ascii);

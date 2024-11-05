@@ -2,11 +2,12 @@
 #include <lib.h>
 #include <naiveConsole.h>
 #include <stdint.h>
+#include <textModule.h> 
 #include <interrupts.h>
 
-#include <textModule.h> // BORRAR
 
 #define Y2K 2000
+#define CANT_PARAM 6
 
 uint8_t rtc(unsigned char reg) {
     _cli();
@@ -46,60 +47,10 @@ uint8_t year(){
 int isLeapYear(int year){ // From K&R - The C Programming Language
     return ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0);
 }
-/*
-void checkMonth(time * time){
-    if(time->month > 12){
-        time->month = 1;
-        time->year++;
-    } else if(time->month <= 0){
-        time->year--;
-        time->month = 12;
-    }
-}
-
-void checkDay(time * time){
-    char daytab[2][13] = { // From K&R - The C Programming Language
-        {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-        {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-    };
-    if(time->day > daytab[isLeapYear(time->year)][time->month]){
-        time->day = 1;
-        time->month++;
-    } else if(time->day <= 0){
-        time->month--;
-        checkMonth(time);
-        time->day = daytab[isLeapYear(time->year)][time->month];
-    }
-}*/
 
 uint8_t BCDToDecimal(uint8_t time) {
 	return ((time & 0xF0) >> 4) * 10 + (time & 0x0F);
 }
-/*
-time getTime(int64_t timeZone){
-    time toReturn = {
-        seconds(),
-        minutes(),
-        hours() + timeZone,
-        day(),
-        month(),
-        year()
-    };
-
-    if(toReturn.hour > 24){
-        toReturn.hour -= 24;
-        toReturn.day += 1;
-        checkDay(&toReturn);
-        checkMonth(&toReturn);
-    }
-    else if(toReturn.hour < 0){
-        toReturn.hour += 24;
-        toReturn.day--;
-        checkDay(&toReturn);
-        checkMonth(&toReturn);
-    }
-    return toReturn;
-}*/
 
 void checkDay(int *day, int *month, int *year) {
     char daytab[2][13] = { // from K&R - The C Programming Language
@@ -159,9 +110,7 @@ char* intToString(int num) {
     return &buffer[i + 1];
 }
 
-
-
-uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
+uint64_t getTimeParam(uint64_t param) {
     uint8_t sec = seconds();
     uint8_t min = minutes();
     uint8_t hour = hours() + GMT_ARG;
@@ -170,7 +119,7 @@ uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
     uint16_t yearVar = year() + Y2K;
 
 
-    // Ajustar la hora con cambio de día si es necesario
+    // Ajustar la hora con cambio de día
     if (hour >= 24) {
         hour -= 24;
         dayVar++;
@@ -179,7 +128,7 @@ uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
         dayVar--;
     }
 
-    // Ajustar el día con cambio de mes si es necesario
+    // Ajustar el día con cambio de mes
     if (dayVar > getDaysInMonth(monthVar, yearVar)) {
         dayVar = 1;
         monthVar++;
@@ -196,27 +145,8 @@ uint64_t getTimeParam(uint64_t param) { // hacer que parezca menos del gordo
         dayVar = getDaysInMonth(monthVar, yearVar);
     }
 
-  switch (param) {
-        case 0: {
-            return sec;
-        } 
-        case 1: {
-            return min;
-        }
-        case 2: {
-            return hour;
-        }
-        case 3: {
-            return dayVar;
-        }
-        case 4: {
-            return monthVar;
-        }
-        case 5: {
-            return yearVar;
-        }
-        default: return 0;
-    }
-    return 0;
+    uint64_t time[CANT_PARAM] = {sec, min, hour, dayVar, monthVar, yearVar};
+    if(param > 5) return 0;
+    return time[param];
 }
 

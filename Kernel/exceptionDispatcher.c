@@ -27,7 +27,6 @@ void printHex(uint64_t value, uint32_t color) {
 }
 
 void exception(char * name) {
-    toggleCursor(0);
     clearText(0);
     printStr(name,RED);
     printStr(" exception",RED);
@@ -46,7 +45,6 @@ void exception(char * name) {
         printStr("\n",RED);
     }
     printStr("Presiona cualquier tecla para volver.\n",RED);
-    toggleCursor(0);
     while(getChar() == 0){ _hlt(); }
     clearText(0);
     init(); // vuelve al main

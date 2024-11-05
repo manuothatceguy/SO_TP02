@@ -3,9 +3,6 @@
 
 #define NUM_CHARS 128
 
-#define ON 1
-#define OFF 0
-
 #define CURSOR_COLOR 0xFFFFFF 
 
 /**
@@ -155,7 +152,7 @@ char font8x8_basic[128][8] = {
     { 0x00, 0x00, 0x33, 0x33, 0x33, 0x3E, 0x30, 0x1F},   // U+0079 (y)
     { 0x00, 0x00, 0x3F, 0x19, 0x0C, 0x26, 0x3F, 0x00},   // U+007A (z)
     { 0x38, 0x0C, 0x0C, 0x07, 0x0C, 0x0C, 0x38, 0x00},   // U+007B ({)
-    { 0x18, 0x18, 0x18, 0x00, 0x18, 0x18, 0x18, 0x00},   // U+007C (|)
+    { 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18},   // U+007C (|)
     { 0x07, 0x0C, 0x0C, 0x38, 0x0C, 0x0C, 0x07, 0x00},   // U+007D (})
     { 0x6E, 0x3B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+007E (~)
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}    // U+007F
@@ -186,36 +183,20 @@ void deleteChar(){
     }
 }
 
-/*
-void loadFont(char **newFont, int newFontHeight, int newFontWidth){
-    if(newFont == 0) return;
-    font = newFont;
-    font_height = newFontHeight;
-    font_width = newFontWidth;
-}
-*/
-
 void putChar(unsigned char char_to_print, uint32_t color){
     if(char_to_print == '\n' || x_pos + font_width * fontSize > getWidth()){
-        toggleCursor(OFF); // CURSOR ############################################################
         lineFeed(font_height * fontSize);
-         // CURSOR ############################################################
         if(char_to_print == '\n'){ // Unicamente retorno si es un ENTER, si no sigo con el flujo (imprimo el caracter)
             return;
-        } else {
-            toggleCursor(ON);
         }
     } else if(char_to_print == '\t'){
         char_to_print = ' '; // imprimo un espacio
     } else if(char_to_print == '\b'){
-        toggleCursor(OFF); // CURSOR ############################################################
         deleteChar();
-        toggleCursor(ON); // CURSOR ############################################################
         return;
     } else if(y_pos + font_height * fontSize > getHeight()){
         clearText(0);
     }
-    toggleCursor(OFF); // CURSOR ############################################################
     unsigned char mask = 0x01;
     for(int i = 0; i < font_height; i++){
         for(int j = 0; j < font_width; j++){
@@ -224,8 +205,7 @@ void putChar(unsigned char char_to_print, uint32_t color){
             }
         }
     }
-    x_pos += font_width * fontSize; // me muevo horizontalmente
-    toggleCursor(ON); // CURSOR ############################################################
+    x_pos += font_width * fontSize; // Me muevo horizontalmente
 }
 
 void clearText(uint32_t color){
@@ -243,18 +223,6 @@ void printStr(char * s, uint32_t color){
     while(*s){
         putChar(*s++, color);
     }
-}
-
-// POSIBLE IMPLEMENTACION DEL CURSOR
-
-void toggleCursor(unsigned int enable){
-    uint32_t color = enable ? CURSOR_COLOR : 0x00000000; // CURSOR_COLOR para encender y negro para apagar
-    
-    for(int i = 0; i < font_height * fontSize; i++){
-        drawSquare(x_pos, y_pos + i, fontSize, color);
-    }
-    
-   //drawRectangle(x_pos, y_pos, x_pos + fontSize, y_pos + fontSize, color);
 }
 
 #define TOPE_FONT 5

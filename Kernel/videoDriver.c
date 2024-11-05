@@ -148,7 +148,7 @@ int setY(uint64_t newY){
 
 int drawSquare(uint64_t x, uint64_t y, uint64_t sideLength, uint32_t hexColor){
 	if(x > VBE_mode_info->width || x < 0 || y < 0 || y > VBE_mode_info->height || sideLength <= 0){
-		return -1; // error de argumentos.
+		return -1; // Error de argumentos.
 	}
 	int i = x, j = y;
 	for(; i < x+sideLength && i < VBE_mode_info->width; i++){
@@ -156,10 +156,8 @@ int drawSquare(uint64_t x, uint64_t y, uint64_t sideLength, uint32_t hexColor){
 			putPixel(hexColor,i,j);
 		}
 	}
-	return (sideLength * sideLength) - ((i - x) * (j - y)); // retorna la cantidad de pixeles no dibujados.
+	return (sideLength * sideLength) - ((i - x) * (j - y)); // Retorna la cantidad de pixeles no dibujados.
 }
-
-// TODO validar parámetros
 
 int drawRectangle(uint64_t x, uint64_t y, uint64_t vLength, uint64_t hLength, uint32_t hexColor){
 	for(int i = x; i < hLength + x; i++){

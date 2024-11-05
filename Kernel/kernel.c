@@ -35,8 +35,8 @@ void * getStackBase()
 {
 	return (void*)(
 		(uint64_t)&endOfKernel
-		+ PageSize * 8				//The size of the stack itself, 32KiB
-		- sizeof(uint64_t)			//Begin at the top of the stack
+		+ PageSize * 8				
+		- sizeof(uint64_t)			
 	);
 }
 
@@ -64,20 +64,19 @@ int main()
 {	
 	load_idt();
 	setup_timer(18);
-
 	fontSizeUp(2);
 	printStr(" TPE ARQUI \n", WHITE);
 	fontSizeDown(2);
 	
-	setup_timer(18);
 	printStr("\nConfigurando\n\n", WHITE);
 	printSlow("    1- La IDT ya fue cargada\n", WHITE, 30);
 	wait_ticks(40);
 	printSlow("    2- Cargando la shell",WHITE, 30);
-	printSlow("...",WHITE,2800);
+	printSlow("...",WHITE,1000);
 	
 	clear_buffer();
-	((EntryPoint)sampleCodeModuleAddress)(); // LLAMADA AL USERLAND
+	
+	((EntryPoint)sampleCodeModuleAddress)(); // Llamada al userland
 	clearScreen(0);
 	
 	return 0;
