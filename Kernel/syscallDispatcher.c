@@ -9,7 +9,7 @@
 #include <stdarg.h>
 
 
-#define CANT_REGS 18
+#define CANT_REGS 19
 #define CANT_SYSCALLS 12
 
 extern uint64_t regs[CANT_REGS];

@@ -15,7 +15,7 @@ GLOBAL _irq80Handler
 
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
-GLOBAL rip_aux
+GLOBAL rsp_aux
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
@@ -25,47 +25,45 @@ SECTION .text
 
 
 %macro pushState 0
-	push rax
-	push rbx
-	push rcx
-	push rdx
+	push r15
+	push r14
+	push r13
+	push r12
+	push r11
+	push r10
+	push r9
+	push r8
 	push rbp
 	push rdi
 	push rsi
-	push r8
-	push r9
-	push r10
-	push r11
-	push r12
-	push r13
-	push r14
-	push r15
+	push rdx
+	push rcx
+	push rbx
+	push rax
+
 %endmacro
 
 %macro popState 0
-	pop r15
-	pop r14
-	pop r13
-	pop r12
-	pop r11
-	pop r10
-	pop r9
-	pop r8
-	pop rsi
-	pop rdi
-	pop rbp
-	pop rdx
-	pop rcx
-	pop rbx
 	pop rax
+	pop rbx
+	pop rcx
+	pop rdx 
+	pop rsi 
+	pop rdi 
+	pop rbp 
+	pop r8 
+	pop r9 
+	pop r10 
+	pop r11 
+	pop r12 
+	pop r13 
+	pop r14 
+	pop r15
 %endmacro
 
 %macro irqHandlerMaster 1
-	push rax
-	mov rax, [rsp + 8]
-	mov [rip_aux], rax
-	pop rax
 	pushState
+	mov [rsp_aux], rsp
 	mov rdi, %1 ; pasaje de parametro
 	call irqDispatcher
 	popState
@@ -75,12 +73,9 @@ SECTION .text
 
 
 %macro exceptionHandler 1
-	push rax
-	mov rax, [rsp + 8] ; Guardo el RIP
-	mov [rip_aux], rax
-	pop rax
-	call getRegisters
 	pushState
+	mov [rsp_aux], rsp
+	call getRegisters
 	
 	mov rdi, %1 			; pasaje de parametro de la excepcion
 	call exceptionDispatcher
@@ -127,7 +122,12 @@ _irq00Handler:
 
 ;Keyboard
 _irq01Handler:
-
+	;pushState
+	;mov [rsp_aux], rsp
+	;mov rdi, %1 ; pasaje de parametro
+	;call irqDispatcher
+	;popState
+	;iretq
 	irqHandlerMaster 1
 
 ;Cascade pic never called
@@ -181,4 +181,4 @@ haltcpu:
 
 SECTION .bss
 	aux resq 1
-	rip_aux resq 1
+	rsp_aux resq 1
