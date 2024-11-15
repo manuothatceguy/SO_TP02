@@ -2,7 +2,7 @@
 #include <syscall.h>
 #include <stdlib.h>
 
-#define CANT_REGISTERS 19
+#define CANT_REGISTERS 20
 
 char *months[] = {
     "Enero",
@@ -37,7 +37,7 @@ void showTime(){
 void showRegisters(){    
     char * registersNames[CANT_REGISTERS] = {"RAX: ", "RBX: ", "RCX: ", "RDX: ", "RSI: ", "RDI: ",
                                             "RBP: ", "RSP: ", "R8: ", "R9: ", "R10: ", "R11: ",
-                                            "R12: ", "R13: ", "R14: ", "R15: ", "RFLAGS: ", "RIP: ", "CS: "};
+                                            "R12: ", "R13: ", "R14: ", "R15: ", "RFLAGS: ", "RIP: ", "CS: ", "SS: "};
     uint64_t registersRead[CANT_REGISTERS];
     syscall_getRegisters(registersRead); 
     uint64_t aux = registersRead[7]; // asumiendo RSP [7] distinto de 0

@@ -108,6 +108,9 @@ getRegisters: ; Deja el vector de registros en RAX.
 	mov rax, [rsi + 8*16] ; cs
 	mov [regs + 8*18], rax 	  ; cs
 
+	mov rax, [rsi + 8*19] ; ss
+	mov [regs + 8*19], rax 	  ; ss
+
 	pop rsi
 	ret
 
@@ -132,4 +135,4 @@ inb:
     ret                    
 
 section .bss
-regs resq 19 ; 18 x 8 bytes 
+regs resq 20 ; 20 x 8 bytes 
