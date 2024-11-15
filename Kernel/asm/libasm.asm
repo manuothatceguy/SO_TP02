@@ -49,64 +49,66 @@ kb_getKey:
 
 
 getRegisters: ; Deja el vector de registros en RAX. 
-	mov rax, [rsp_aux] ; rax
+	push rsi
+	mov rsi, [rsp_aux] ; rax
+	mov rax, [rsi] ; rbx
 	mov [regs], rax
 
-	mov rax, [rsp_aux + 8*1] ; rbx
+	mov rax, [rsi + 8*1] ; rbx
 	mov [regs + 8*1], rax
 
-	mov rax, [rsp_aux + 8*2] ; rcx
+	mov rax, [rsi + 8*2] ; rcx
 	mov [regs + 8*2], rax
 
-	mov rax, [rsp_aux + 8*3] ; rdx
+	mov rax, [rsi + 8*3] ; rdx
 	mov [regs + 8*3], rax
 
-	mov rax, [rsp_aux + 8*4] ; rsi
+	mov rax, [rsi + 8*4] ; rsi
 	mov [regs + 8*4], rax
 
-	mov rax, [rsp_aux + 8*5] ; rdi
+	mov rax, [rsi + 8*5] ; rdi
 	mov [regs + 8*5], rax
 
-	mov rax, [rsp_aux + 8*6] ; rbp
+	mov rax, [rsi + 8*6] ; rbp
 	mov [regs + 8*6], rax
 
-    mov rax, [rsp_aux + 8*18] ; rsp
+    mov rax, [rsi + 8*18] ; rsp
 	mov [regs + 8*7], rax
 
-	mov rax, [rsp_aux + 8*7] ; r8
+	mov rax, [rsi + 8*7] ; r8
 	mov [regs + 8*8], rax  ;r8
 
-	mov rax, [rsp_aux + 8*8] ; r9
+	mov rax, [rsi + 8*8] ; r9
 	mov [regs + 8*9], rax  ;r9
 
-	mov rax, [rsp_aux + 8*9] ; r10
+	mov rax, [rsi + 8*9] ; r10
 	mov [regs + 8*10], rax ; r10
 
-	mov rax, [rsp_aux + 8*10] ; r11
+	mov rax, [rsi + 8*10] ; r11
 	mov [regs + 8*11], rax ; r11
 
-	mov rax, [rsp_aux + 8*11] ; r12
+	mov rax, [rsi + 8*11] ; r12
 	mov [regs + 8*12], rax ; r12
 
-	mov rax, [rsp_aux + 8*12] ; r13
+	mov rax, [rsi + 8*12] ; r13
 	mov [regs + 8*13], rax ; r13
 
-	mov rax, [rsp_aux + 8*13] ; r14
+	mov rax, [rsi + 8*13] ; r14
 	mov [regs + 8*14], rax ; r14
 
-	mov rax, [rsp_aux + 8*14] ; r15
+	mov rax, [rsi + 8*14] ; r15
 	mov [regs + 8*15], rax; r15
 
-	mov rax, [rsp_aux + 8*17] ; rflags
+	mov rax, [rsi + 8*17] ; rflags
 	mov [regs + 8*16], rax ;rflags
 
-	mov rax, [rsp_aux + 8*15] ; rip
+	mov rax, [rsi + 8*15] ; rip
 	mov [regs + 8*17], rax 	  ; rip
 
-	mov rax, [rsp_aux + 8*16] ; cs
+	mov rax, [rsi + 8*16] ; cs
 	mov [regs + 8*18], rax 	  ; cs
 
-	mov rax, regs
+	pop rsi
 	ret
 
 outb:

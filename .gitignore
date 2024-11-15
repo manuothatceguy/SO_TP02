@@ -14,3 +14,5 @@
 .vscode/
 
 .bash_history
+.gdb_history
+Kernel/kernel.elf

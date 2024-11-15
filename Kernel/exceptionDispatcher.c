@@ -5,9 +5,9 @@
 #include <lib.h>
 
 #define RED 0x00FF0000
-#define CANT_REGS 18
+#define CANT_REGS 19
 
-extern uint64_t regs[18];
+extern uint64_t regs[CANT_REGS];
 
 extern void init();
 
@@ -35,7 +35,7 @@ void exception(char * name) {
     printStr("Estado de los registros: \n",RED);
     char * registersNames[CANT_REGS] = {"RAX: ", "RBX: ", "RCX: ", "RDX: ", "RSI: ", "RDI: ",
                                             "RBP: ", "RSP: ", "R8: ", "R9: ", "R10: ", "R11: ",
-                                            "R12: ", "R13: ", "R14: ", "R15: ", "RFLAGS: ", "RIP: "};
+                                            "R12: ", "R13: ", "R14: ", "R15: ", "RFLAGS: ", "RIP: ", "CS: "};
     uint64_t registersRead[CANT_REGS];
     memcpy(registersRead, regs, sizeof(uint64_t) * CANT_REGS);
     for(int i = 0; i < CANT_REGS; i++){
