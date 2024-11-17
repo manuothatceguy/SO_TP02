@@ -50,8 +50,8 @@ kb_getKey:
 
 getRegisters: ; Deja el vector de registros en RAX. 
 	push rsi
-	mov rsi, [rsp_aux] ; rax
-	mov rax, [rsi] ; rbx
+	mov rsi, [rsp_aux]
+	mov rax, [rsi] ; rax
 	mov [regs], rax
 
 	mov rax, [rsi + 8*1] ; rbx

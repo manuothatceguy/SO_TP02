@@ -70,8 +70,6 @@ SECTION .text
 	iretq
 %endmacro
 
-
-
 %macro exceptionHandler 1
 	pushState
 	mov [rsp_aux], rsp
@@ -83,7 +81,6 @@ SECTION .text
 	popState
 	iretq
 %endmacro
-
 
 _hlt:
 	sti
@@ -122,12 +119,6 @@ _irq00Handler:
 
 ;Keyboard
 _irq01Handler:
-	;pushState
-	;mov [rsp_aux], rsp
-	;mov rdi, %1 ; pasaje de parametro
-	;call irqDispatcher
-	;popState
-	;iretq
 	irqHandlerMaster 1
 
 ;Cascade pic never called
