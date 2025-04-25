@@ -1,5 +1,6 @@
 #include <videoDriver.h>
 #include <textModule.h>
+#include <lib.h>
 
 #define NUM_CHARS 128
 
@@ -164,28 +165,28 @@ static int font_width = 8;
 
 static uint64_t x_pos = 0, y_pos = 0;
 
-static uint64_t fontSize = 2;
+static uint64_t font_size = 2;
 
 void deleteChar(){
     if(x_pos == 0){
         if(y_pos > 0){
-            x_pos = getWidth() - font_width * fontSize;
-            y_pos -= fontSize * font_height;
+            x_pos = getWidth() - font_width * font_size;
+            y_pos -= font_size * font_height;
         }
     } else {
-        x_pos -= fontSize * font_width;
+        x_pos -= font_size * font_width;
     }
     
     for (int i = 0; i < font_width; i++){
         for(int j = 0; j < font_height; j++){
-            drawSquare(x_pos+i*fontSize,y_pos+j*fontSize,fontSize,0);
+            drawSquare(x_pos+i*font_size,y_pos+j*font_size,font_size,0);
         }
     }
 }
 
 void putChar(unsigned char char_to_print, uint32_t color){
-    if(char_to_print == '\n' || x_pos + font_width * fontSize > getWidth()){
-        lineFeed(font_height * fontSize);
+    if(char_to_print == '\n' || x_pos + font_width * font_size > getWidth()){
+        lineFeed(font_height * font_size);
         if(char_to_print == '\n'){ // Unicamente retorno si es un ENTER, si no sigo con el flujo (imprimo el caracter)
             return;
         }
@@ -194,18 +195,16 @@ void putChar(unsigned char char_to_print, uint32_t color){
     } else if(char_to_print == '\b'){
         deleteChar();
         return;
-    } else if(y_pos + font_height * fontSize > getHeight()){
-        clearText(0);
     }
     unsigned char mask = 0x01;
     for(int i = 0; i < font_height; i++){
         for(int j = 0; j < font_width; j++){
             if((mask << j & font8x8_basic[char_to_print][i]) != 0){
-                drawSquare(x_pos + j * fontSize, y_pos + i * fontSize, fontSize, color);
+                drawSquare(x_pos + j * font_size, y_pos + i * font_size, font_size, color);
             }
         }
     }
-    x_pos += font_width * fontSize; // Me muevo horizontalmente
+    x_pos += font_width * font_size; // Me muevo horizontalmente
 }
 
 void clearText(uint32_t color){
@@ -217,6 +216,7 @@ void clearText(uint32_t color){
 void lineFeed(int fontHeight){
     y_pos += fontHeight; // Avanzo para abajo veticalmente
     x_pos = 0;
+    moveScreenUpIfFull();
 }
 
 void printStr(char * s, uint32_t color){
@@ -228,11 +228,38 @@ void printStr(char * s, uint32_t color){
 #define TOPE_FONT 5
 
 uint64_t fontSizeUp(uint64_t increase){
-    if(fontSize + increase <= TOPE_FONT) return (fontSize += increase);
-    return fontSize;
+    if(font_size + increase <= TOPE_FONT) return (font_size += increase);
+    return font_size;
 }
 
 uint64_t fontSizeDown(uint64_t decrease){
-    if(fontSize - decrease >= 1) return (fontSize -= decrease);
-    return fontSize;
+    if(font_size - decrease >= 1) return (font_size -= decrease);
+    return font_size;
 }
+
+#define MARGIN 0 // por ahora
+
+void moveScreenUpIfFull() {
+    if (y_pos >= ( getHeight() - (font_height * font_size) ) - MARGIN) {
+        uint8_t *frame_buffer = (uint8_t *)(uintptr_t) getFrameBuffer();
+        uint64_t pitch = getPitch(); // bytes por línea
+        uint64_t height = getHeight();
+        uint64_t scroll_amount = font_height * font_size; // Cantidad a scroll en píxeles
+
+        // Mover el contenido hacia arriba
+        for (int y = 0; y < height - scroll_amount; y++) {
+            uint8_t *dest = frame_buffer + y * pitch;
+            uint8_t *src  = frame_buffer + (y + scroll_amount) * pitch;
+            memcpy(dest, src, pitch);
+        }
+
+        // Limpiar la última línea
+        for (int y = height - scroll_amount; y < height; y++) {
+            memset(frame_buffer + y * pitch, 0x00, pitch);
+        }
+
+        // Ajustar la posición del cursor
+        y_pos -= scroll_amount;
+    }
+}
+    

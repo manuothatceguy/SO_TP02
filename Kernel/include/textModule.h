@@ -17,4 +17,6 @@ uint64_t fontSizeUp(uint64_t increase);
 
 uint64_t fontSizeDown(uint64_t decrease);
 
+void moveScreenUpIfFull();
+
 #endif // TEXTMODULE_H

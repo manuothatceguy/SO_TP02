@@ -55,6 +55,10 @@ void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
     framebuffer[offset+2]   =  (hexColor >> 16) & 0xFF;
 }
 
+uint8_t * getFrameBuffer(){
+	return (uint8_t *) VBE_mode_info->framebuffer;
+}
+
 void clearScreen(uint32_t color) {
     for (uint64_t y = 0; y < VBE_mode_info->height; y++) {
         for (uint64_t x = 0; x < VBE_mode_info->width; x++) {
@@ -63,13 +67,19 @@ void clearScreen(uint32_t color) {
     } 
 }
 
-uint64_t getWidth(){
+uint16_t getWidth(){
 	return VBE_mode_info->width;
 }
 
-uint64_t getHeight(){
+uint16_t getHeight(){
 	return VBE_mode_info->height;
 }
+
+uint16_t getPitch(){
+	return VBE_mode_info->pitch;
+}
+
+/* 				BORRAR
 
 
 static char isPenDown = 0;
@@ -129,7 +139,6 @@ int down(uint64_t delta){
 	y_pos = j;
 	return y_pos+delta-y_pos;
 }
-
 int setX(uint64_t newX){
 	if(newX > VBE_mode_info->width || newX < 0){
 		return -1;
@@ -146,6 +155,7 @@ int setY(uint64_t newY){
 	return 0;
 }
 
+*/
 int drawSquare(uint64_t x, uint64_t y, uint64_t sideLength, uint32_t hexColor){
 	if(x > VBE_mode_info->width || x < 0 || y < 0 || y > VBE_mode_info->height || sideLength <= 0){
 		return -1; // Error de argumentos.
@@ -160,6 +170,9 @@ int drawSquare(uint64_t x, uint64_t y, uint64_t sideLength, uint32_t hexColor){
 }
 
 int drawRectangle(uint64_t x, uint64_t y, uint64_t vLength, uint64_t hLength, uint32_t hexColor){
+	if(x > VBE_mode_info->width || x < 0 || y < 0 || y > VBE_mode_info->height || vLength <= 0 || hLength <= 0){
+		return -1; // Error de argumentos.
+	}
 	for(int i = x; i < hLength + x; i++){
 		for (int j = y; j < vLength + y; j++){
 			putPixel(hexColor,i,j);
@@ -167,3 +180,5 @@ int drawRectangle(uint64_t x, uint64_t y, uint64_t vLength, uint64_t hLength, ui
 	}
 	return 0;
 }
+
+

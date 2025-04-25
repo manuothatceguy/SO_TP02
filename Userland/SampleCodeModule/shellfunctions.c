@@ -4,6 +4,9 @@
 
 #define CANT_REGISTERS 19
 
+extern void div_zero();
+extern void invalid_opcode();
+
 char *months[] = {
     "Enero",
     "Febrero",
@@ -18,6 +21,18 @@ char *months[] = {
     "Noviembre",
     "Diciembre"
 };
+
+char * help =   " Lista de comandos disponibles:\n"        
+                "    - exit: corta la ejecucion\n"
+                "    - help: muestra este menu\n"
+                "    - time: muestra la hora actual GMT-3\n"
+                "    - registers: muestra el ultimo snapshot (tocar ESC)\n"
+                "    - echo: imprime lo que le sigue a echo\n"
+                "    - size_up: aumenta tamano de fuente\n"
+                "    - size_down: decrementa tamano de fuente\n"
+                "    - test_div_0: test zero division exception\n"
+                "    - test_invalid_opcode: test invalid opcode exception\n"
+                "    - clear: borra la pantalla y comienza arriba\n";
 
 void showTime(){
     uint64_t time[] = {
@@ -50,4 +65,42 @@ void showRegisters(){
     }
 }
 
+void handle_help(char * arg){
+    printf("\n");
+    printf(help); 
+}
+
+void handle_time(char * arg){
+    showTime();
+}
+
+void handle_registers(char * arg){
+    showRegisters();
+}
+
+void handle_echo(char * arguments){
+    printf("%s\n", arguments);
+}
+
+void handle_size_up(char * arg){
+    syscall_sizeUpFont(1);
+    syscall_clearScreen();
+}
+
+void handle_size_down(char * arg){
+    syscall_sizeDownFont(1);
+    syscall_clearScreen();
+}
+
+void handle_test_div_0(char * arg){
+    div_zero(); 
+}
+
+void handle_test_invalid_opcode(char * arg){
+    invalid_opcode(); 
+}
+
+void handle_clear(char * arg){
+    syscall_clearScreen();
+}
 
