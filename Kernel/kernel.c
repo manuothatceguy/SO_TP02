@@ -65,7 +65,7 @@ int main()
 	load_idt();
 	setup_timer(18);
 	fontSizeUp(2);
-	printStr(" TPE ARQUI \n", WHITE);
+	printStr(" TP 2 SO \n", WHITE);
 	fontSizeDown(2);
 	
 	printStr("\nConfigurando\n\n", WHITE);
