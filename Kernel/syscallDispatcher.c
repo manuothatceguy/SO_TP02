@@ -10,7 +10,7 @@
 
 
 #define CANT_REGS 19
-#define CANT_SYSCALLS 12
+#define CANT_SYSCALLS 18
 
 extern uint64_t regs[CANT_REGS];
 
@@ -83,9 +83,52 @@ static uint64_t syscall_wait(uint64_t ticks){
     return ticks;
 }
 
-// Prototipos de las funciones de syscall
+static uint64_t syscall_create_process(char *name, uint64_t argc, char *argv[]){
+    
+}
+
+//  No se si la necesitamos
+//static uint64_t syscall_exit(){ //Finaliza el proceso que llama a esta syscall.
+    
+// }
+
+static uint64_t syscall_getpid(){
+    
+}
+
+static uint64_t syscall_kill(uint64_t pid){
+    
+}
+
+static uint64_t syscall_block(uint64_t pid){
+    
+}
+
+static uint64_t syscall_unblock(uint64_t pid){
+    
+}
+
 uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){
     if(syscall_number > CANT_SYSCALLS) return 0;
-    syscall_fn syscalls[] = {0,(syscall_fn)syscall_read, (syscall_fn)syscall_write, (syscall_fn)syscall_time, (syscall_fn)syscall_beep, (syscall_fn)syscall_drawRectangle, (syscall_fn)syscall_getRegisters, (syscall_fn)syscall_clearScreen, (syscall_fn)syscall_fontSizeUp, (syscall_fn)syscall_fontSizeDown, (syscall_fn)syscall_getHeight, (syscall_fn)syscall_getWidth, (syscall_fn)syscall_wait};
+    syscall_fn syscalls[] = {0,
+        (syscall_fn)syscall_read, 
+        (syscall_fn)syscall_write, 
+        (syscall_fn)syscall_time, 
+        (syscall_fn)syscall_beep, 
+        (syscall_fn)syscall_drawRectangle, 
+        (syscall_fn)syscall_getRegisters, 
+        (syscall_fn)syscall_clearScreen, 
+        (syscall_fn)syscall_fontSizeUp, 
+        (syscall_fn)syscall_fontSizeDown, 
+        (syscall_fn)syscall_getHeight, 
+        (syscall_fn)syscall_getWidth, 
+        (syscall_fn)syscall_wait,
+        (syscall_fn)syscall_create_process,
+        //(syscall_fn)syscall_exit,
+        (syscall_fn)syscall_getpid,
+        (syscall_fn)syscall_kill,
+        (syscall_fn)syscall_block,
+        (syscall_fn)syscall_unblock
+    };
     return syscalls[syscall_number](arg1, arg2, arg3);
 }

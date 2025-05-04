@@ -21,5 +21,6 @@
 #define ACS_DATA        (ACS_PRESENT | ACS_DSEG | ACS_WRITE)
 #define ACS_STACK       (ACS_PRESENT | ACS_DSEG | ACS_WRITE)
 
+#define MEMORY_MANAGER_ADDRESS 0x50000 // aprovechando espacio vacío de la memoria
 
 #endif
