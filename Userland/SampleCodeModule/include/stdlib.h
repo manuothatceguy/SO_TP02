@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdarg.h>
 
+#define NULL (void*) 0
+
 /**
  * @brief Longitud de un string null-terminated
  * @param s string para sacarle la longitud
@@ -57,7 +59,6 @@ void intToStr(int n, char * buff);
  */
 void intToHex(int n, char * buff);
 
-
 /**
  * @brief Obtiene un carácter de la entrada estándar.
  * 
@@ -67,7 +68,6 @@ void intToHex(int n, char * buff);
  * @return El carácter ingresado por el usuario.
  */
 char getChar();
-
 
 /**
  * @brief Genera un número entero sin signo aleatorio.

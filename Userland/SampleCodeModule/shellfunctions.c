@@ -1,6 +1,7 @@
 #include <shellfunctions.h>
 #include <syscall.h>
 #include <stdlib.h>
+#include <test_functions.h>
 
 #define CANT_REGISTERS 19
 
@@ -32,7 +33,8 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - size_down: decrementa tamano de fuente\n"
                 "    - test_div_0: test zero division exception\n"
                 "    - test_invalid_opcode: test invalid opcode exception\n"
-                "    - clear: borra la pantalla y comienza arriba\n";
+                "    - clear: borra la pantalla y comienza arriba\n"
+                "    - mem_status: imprime el estado de la memoria\n";
 
 void showTime(){
     uint64_t time[] = {
@@ -102,5 +104,32 @@ void handle_test_invalid_opcode(char * arg){
 
 void handle_clear(char * arg){
     syscall_clearScreen();
+}
+//TODO : adapatar los llamados a los test dependiendo el caso
+//       una vez que tengamos las funciones de creado de procesos
+//      TODOS deben ser ejecutados como procesos(creacion de procesos) y no built-in de la shell
+//      excepto test_mm que tambien debe andar en una aplicacion fuera del kernel
+void handle_test_mm(char * arg){
+    char *argv[] = { "100", NULL }; // Ejemplo de argumento, ajusta según sea necesario
+    test_mm(1, argv);
+}
+
+void handle_test_prio(char * arg){
+    char *argv[] = { NULL }; // Ajusta según sea necesario
+    test_prio();
+}
+
+void handle_test_processes(char * arg){
+    char *argv[] = { "5", NULL }; // Ejemplo de argumento, ajusta según sea necesario
+    test_processes(1, argv);
+}
+
+void handle_test_sync(char * arg){
+    char *argv[] = { "10", "1", NULL }; // Ejemplo de argumento, ajusta según sea necesario
+    test_sync(2, argv);
+}
+
+void handle_mem_status(char * arg){
+    //llama a syscall e imprime estado
 }
 
