@@ -10,7 +10,7 @@
 #define MAX_ECHO 1000
 #define MAX_USERNAME_LENGTH 16
 #define PROMPT "%s$>"
-#define CANT_INSTRUCTIONS 10
+#define CANT_INSTRUCTIONS (sizeof(inst_list) / sizeof(inst_list[0]))
 uint64_t curr = 0;
 
 typedef enum {
@@ -27,7 +27,7 @@ typedef enum {
     EXIT
 } instructions;
 
-static char * inst_list[CANT_INSTRUCTIONS] = {"help", 
+static char * inst_list[] = {"help", 
                                             "time", 
                                             "registers", 
                                             "echo", 

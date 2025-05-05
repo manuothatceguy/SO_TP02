@@ -1,3 +1,4 @@
+/*
 #include <memoryManager.h>
 #include <process.h>
 #include <stdlib.h> // Para usar free
@@ -25,4 +26,4 @@ void freeProcess(Process *process) {
 void closeFileDescriptors(Process *process) {
 
 }
-
+*/

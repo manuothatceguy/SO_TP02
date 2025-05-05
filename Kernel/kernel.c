@@ -8,6 +8,8 @@
 #include <videoDriver.h>
 #include <textModule.h>
 #include <keyboardDriver.h>
+#include <memoryManager.h>
+#include <defs.h>
 
 #define WHITE 0x00FFFFFF
 
@@ -60,8 +62,8 @@ void printSlow(char * str, uint32_t color, uint64_t pause){
 	}
 }
 
-int main()
-{	
+int main(){	
+
 	load_idt();
 	setup_timer(18);
 	fontSizeUp(2);
@@ -75,7 +77,15 @@ int main()
 	printSlow("...",WHITE,1000);
 	
 	clear_buffer();
-	
+
+	// MEMORY MANAGER
+
+	MemoryManagerADT memoryManager = createMemoryManager(
+		(void*)MEMORY_MANAGER_ADDRESS, // 0x50000 (dirección que según el manual de Pure64 está vacía)	
+		(void*)HEAP_START_ADDRESS, // dirección de inicio del heap (arbitrario)
+		HEAP_SIZE); // tamaño del heap (para un bibliotecario con muchos libros...)
+
+	// reemplazar por tickeo forzado para usar el scheduler
 	((EntryPoint)sampleCodeModuleAddress)(); // Llamada al userland
 	clearScreen(0);
 	

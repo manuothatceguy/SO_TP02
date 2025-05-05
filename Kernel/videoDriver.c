@@ -43,7 +43,7 @@ typedef struct vbe_mode_info_structure * VBEInfoPtr;
 VBEInfoPtr VBE_mode_info = (VBEInfoPtr) 0x0000000000005C00;
 
 void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
-    uint8_t * framebuffer = (uint8_t *) VBE_mode_info->framebuffer;
+    uint8_t * framebuffer = (uint8_t *)(uintptr_t) VBE_mode_info->framebuffer;
 	/**
 	 videoDriver.c: In function 'putPixel':
 	 videoDriver.c:46:29: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
@@ -56,7 +56,7 @@ void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
 }
 
 uint8_t * getFrameBuffer(){
-	return (uint8_t *) VBE_mode_info->framebuffer;
+	return (uint8_t *)(uintptr_t) VBE_mode_info->framebuffer;
 }
 
 void clearScreen(uint32_t color) {

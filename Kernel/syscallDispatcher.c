@@ -84,7 +84,7 @@ static uint64_t syscall_wait(uint64_t ticks){
 }
 
 static uint64_t syscall_create_process(char *name, uint64_t argc, char *argv[]){
-    
+    return 0; // IMPLEMENTAR
 }
 
 //  No se si la necesitamos
@@ -93,19 +93,19 @@ static uint64_t syscall_create_process(char *name, uint64_t argc, char *argv[]){
 // }
 
 static uint64_t syscall_getpid(){
-    
+    return 0; // IMPLEMENTAR
 }
 
 static uint64_t syscall_kill(uint64_t pid){
-    
+    return 0; // IMPLEMENTAR
 }
 
 static uint64_t syscall_block(uint64_t pid){
-    
+    return 0; // IMPLEMENTAR
 }
 
 static uint64_t syscall_unblock(uint64_t pid){
-    
+    return 0; // IMPLEMENTAR
 }
 
 uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){

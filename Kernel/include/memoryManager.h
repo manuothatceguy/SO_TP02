@@ -24,5 +24,6 @@ typedef struct memStatus
  */
 MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager, void *const restrict managedMemory, uint64_t memorySize);
 void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate);
-
+void *freeMemory(MemoryManagerADT const restrict memoryManager, void *const restrict memoryToFree);
+memStatus *getMemStatus(MemoryManagerADT const restrict memoryManager);
 #endif

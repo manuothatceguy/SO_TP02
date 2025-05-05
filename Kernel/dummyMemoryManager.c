@@ -1,5 +1,5 @@
 #ifndef buddy
-#include "memoryManager.h"
+#include <memoryManager.h>
 
 // src: https://github.com/alejoaquili/c-unit-testing-example/blob/main/src/MemoryManager.c
 
@@ -48,6 +48,11 @@ memStatus *getMemStatus(MemoryManagerADT const restrict memoryManager){
 	status->freeMemory = memoryManager->status.freeMemory;
 
 	return status;
+}
+
+void *freeMemory(MemoryManagerADT const restrict memoryManager, void *const restrict memoryToFree) {
+	// Este memory manager es dummy, no soporta liberación de memoria
+	return NULL;
 }
 
 #endif

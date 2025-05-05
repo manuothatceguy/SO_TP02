@@ -1,3 +1,4 @@
+/*
 #ifndef _PROCESS_H
 #define _PROCESS_H
 
@@ -23,3 +24,4 @@ void initProcess(Process *process, uint16_t pid, uint16_t parentPid, Code progra
 void freeProcess(Process *process);
 void closeFileDescriptors(Process *process);
 #endif
+*/

@@ -22,5 +22,7 @@
 #define ACS_STACK       (ACS_PRESENT | ACS_DSEG | ACS_WRITE)
 
 #define MEMORY_MANAGER_ADDRESS 0x50000 // aprovechando espacio vacío de la memoria
-
+#define HEAP_START_ADDRESS 0x600000 // dirección de inicio del heap
+#define HEAP_END_ADDRESS 0xFFFFFFFFFFFFFFFF  // fin de la memoria --> fin del heap 
+#define HEAP_SIZE (HEAP_END_ADDRESS - HEAP_START_ADDRESS) // tamaño del heap
 #endif
