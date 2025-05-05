@@ -33,7 +33,7 @@ void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t me
 
 	memoryManager->nextAddress += memoryToAllocate;
 	memoryManager->status.freeMemory -= memoryToAllocate;
-	memoryManager->status.usedMmeory += memoryToAllocate;
+	memoryManager->status.usedMemory += memoryToAllocate;
 	
 	return (void *) allocation;
 }
@@ -44,7 +44,7 @@ memStatus *getMemStatus(MemoryManagerADT const restrict memoryManager){
 		return NULL;
 	}
 	status->totalMemory = memoryManager->status.totalMemory;
-	status->usedMemory = memoryManager->status.usedMmeory;
+	status->usedMemory = memoryManager->status.usedMemory;
 	status->freeMemory = memoryManager->status.freeMemory;
 
 	return status;
