@@ -1,6 +1,7 @@
 #include <stdint.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <syscall.h>
+#include "test_util.h"
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 

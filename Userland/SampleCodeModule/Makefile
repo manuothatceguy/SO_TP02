@@ -7,18 +7,23 @@ OBJECTS=$(SOURCES:.c=.o)
 OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
 INCLUDE=./include
 
-all: $(MODULE)
+all: tests $(MODULE)
 
-$(MODULE): $(SOURCES) $(OBJECTS_ASM)
-	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld _loader.c $(SOURCES) $(OBJECTS_ASM) -o ../$(MODULE) -I $(INCLUDE)
+$(MODULE): $(OBJECTS) $(OBJECTS_ASM)
+	cd tests && make all
+	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld _loader.c $(OBJECTS) $(OBJECTS_ASM) tests/*.o -o ../$(MODULE) -I $(INCLUDE)
+
+tests:
+	cd tests && make all
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I$(INCLUDE) -c $< -o $@
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 clean:
 	rm -rf asm/*.o *.o
+	cd tests && make clean && cd ..
 
-.PHONY: all clean print
+.PHONY: all clean
