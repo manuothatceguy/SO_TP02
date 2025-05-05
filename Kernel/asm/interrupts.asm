@@ -66,6 +66,10 @@ SECTION .text
 	mov [rsp_aux], rsp
 	mov rdi, %1 ; pasaje de parametro
 	call irqDispatcher
+
+	mov al, 20h
+	out 20h, al ; EOI
+
 	popState
 	iretq
 %endmacro
