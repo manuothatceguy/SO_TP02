@@ -6,10 +6,14 @@
 #include <textModule.h>
 #include <lib.h>
 
+//
+// ESTE ARCHIVO TIENE QUE DESAPARECER PORQUE SE HACE TODO EN EL ASSEMBLER
+//
+
 void int_20();
 void int_21();
 
-void irqDispatcher(uint64_t irq) {
+void irqDispatcher(uint64_t irq) { 
 	switch (irq) {
 		case 0:
 			int_20();
