@@ -10,8 +10,8 @@ INCLUDE=./include
 all: tests $(MODULE)
 
 $(MODULE): $(OBJECTS) $(OBJECTS_ASM)
-	cd tests && make all
-	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld _loader.c $(OBJECTS) $(OBJECTS_ASM) tests/*.o -o ../$(MODULE) -I $(INCLUDE)
+
+	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld _loader.c $(OBJECTS) $(OBJECTS_ASM) -o ../$(MODULE) -I $(INCLUDE)
 
 tests:
 	cd tests && make all

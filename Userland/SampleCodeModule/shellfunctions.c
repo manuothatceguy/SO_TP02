@@ -105,6 +105,7 @@ void handle_test_invalid_opcode(char * arg){
 void handle_clear(char * arg){
     syscall_clearScreen();
 }
+/*
 //TODO : adapatar los llamados a los test dependiendo el caso
 //       una vez que tengamos las funciones de creado de procesos
 //      TODOS deben ser ejecutados como procesos(creacion de procesos) y no built-in de la shell
@@ -128,8 +129,9 @@ void handle_test_sync(char * arg){
     char *argv[] = { "10", "1", NULL }; // Ejemplo de argumento, ajusta según sea necesario
     test_sync(2, argv);
 }
-
+  */
 void handle_mem_status(char * arg){
     //llama a syscall e imprime estado
 }
+  
 
