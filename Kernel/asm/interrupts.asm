@@ -20,6 +20,9 @@ EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN getRegisters
+EXTERN schedule
+EXTERN timer_handler
+EXTERN bufferWrite
 
 SECTION .text
 
@@ -86,6 +89,11 @@ SECTION .text
 	iretq
 %endmacro
 
+%macro EOI 0
+	mov al, 20h
+	out 20h, al ; EOI
+%endmacro
+
 _hlt:
 	sti
 	hlt
@@ -118,12 +126,29 @@ picSlaveMask:
 
 
 ;8254 Timer (Timer Tick)
-_irq00Handler:
-	irqHandlerMaster 0
+_irq00Handler: ; basado en "interesting_handler de la práctica"
+	pushState
+	call timer_handler
+
+	mov rdi, rsp
+	call schedule ; Llama al scheduler
+	mov rsp, rax 
+
+	EOI
+
+	popState
+	iretq
 
 ;Keyboard
 _irq01Handler:
-	irqHandlerMaster 1
+	pushState
+
+	call bufferWrite
+
+	EOI
+
+	popState
+	iretq
 
 ;Cascade pic never called
 _irq02Handler:

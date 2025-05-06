@@ -10,14 +10,14 @@ typedef struct time{
     int day;
     int month;
     int year;
-} time;
+} time_t;
 
 /**
  * RTC time
  * @param timeZone to adjust to the correct time zone. Must put the value as it is. May cause errors if
  * timeZone is invalid.
  */
-time getTime(int64_t timeZone);
+time_t getTime(int64_t timeZone);
 
 uint64_t getTimeParam(uint64_t param); // -1 si falla
 
