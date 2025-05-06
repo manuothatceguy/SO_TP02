@@ -16,7 +16,7 @@ GLOBAL _irq80Handler
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 GLOBAL rsp_aux
-EXTERN irqDispatcher
+
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN getRegisters
@@ -64,19 +64,6 @@ SECTION .text
 	pop r15
 %endmacro
 
-%macro irqHandlerMaster 1
-	pushState
-	mov [rsp_aux], rsp
-	mov rdi, %1 ; pasaje de parametro
-	call irqDispatcher
-
-	mov al, 20h
-	out 20h, al ; EOI
-
-	popState
-	iretq
-%endmacro
-
 %macro exceptionHandler 1
 	pushState
 	mov [rsp_aux], rsp
@@ -87,11 +74,6 @@ SECTION .text
 
 	popState
 	iretq
-%endmacro
-
-%macro EOI 0
-	mov al, 20h
-	out 20h, al ; EOI
 %endmacro
 
 _hlt:
@@ -150,21 +132,6 @@ _irq01Handler:
 	popState
 	iretq
 
-;Cascade pic never called
-_irq02Handler:
-	irqHandlerMaster 2
-
-;Serial Port 2 and 4
-_irq03Handler:
-	irqHandlerMaster 3
-
-;Serial Port 1 and 3
-_irq04Handler:
-	irqHandlerMaster 4
-
-;USB
-_irq05Handler:
-	irqHandlerMaster 5
 
 _irq80Handler:
 	push rbp ; registros a preservar

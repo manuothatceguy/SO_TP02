@@ -63,7 +63,7 @@ void printSlow(char * str, uint32_t color, uint64_t pause){
 }
 
 int main(){	
-
+	
 	load_idt();
 	setup_timer(18);
 	fontSizeUp(2);
