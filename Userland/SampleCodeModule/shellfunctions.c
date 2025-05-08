@@ -34,7 +34,10 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - test_div_0: test zero division exception\n"
                 "    - test_invalid_opcode: test invalid opcode exception\n"
                 "    - clear: borra la pantalla y comienza arriba\n"
-                "    - mem_status: imprime el estado de la memoria\n";
+                "    - test_mm <max_memory>: test de gestion de memoria\n"
+                "    - test_processes <max_processes>: test de procesos\n"
+                "    - test_prio: test de prioridades\n"
+                "    - test_sync: test de sincronizacion\n";
 
 void showTime(){
     uint64_t time[] = {
@@ -105,33 +108,145 @@ void handle_test_invalid_opcode(char * arg){
 void handle_clear(char * arg){
     syscall_clearScreen();
 }
-/*
-//TODO : adapatar los llamados a los test dependiendo el caso
-//       una vez que tengamos las funciones de creado de procesos
-//      TODOS deben ser ejecutados como procesos(creacion de procesos) y no built-in de la shell
-//      excepto test_mm que tambien debe andar en una aplicacion fuera del kernel
-void handle_test_mm(char * arg){
-    char *argv[] = { "100", NULL }; // Ejemplo de argumento, ajusta según sea necesario
-    test_mm(1, argv);
+
+// void handle_mem_status(char * arg) {
+//     printf("Estado de memoria:\n");
+//     syscall_memStatus();
+// }
+
+void handle_test_mm(char * arg) {
+    if (arg == NULL || arg[0] == '\0') {
+        printf("Uso: test_mm <max_memory>\n");
+        return;
+    }
+    
+    // Convertir el argumento a número
+    uint64_t max_memory = 0;
+    for (int i = 0; arg[i] != '\0'; i++) {
+        if (arg[i] >= '0' && arg[i] <= '9') {
+            max_memory = max_memory * 10 + (arg[i] - '0');
+        } else {
+            printf("Error: argumento invalido\n");
+            return;
+        }
+    }
+    
+    if (max_memory <= 0) {
+        printf("Error: max_memory debe ser mayor que 0\n");
+        return;
+    }
+    
+    printf("Iniciando test de gestion de memoria...\n");
+    char *argv[] = { arg, NULL };
+    int result = test_mm(1, argv);
+    if (result == 0) {
+        printf("Test de gestion de memoria completado exitosamente\n");
+    } else {
+        printf("Test de gestion de memoria fallo con codigo: %d\n", result);
+    }
 }
 
-void handle_test_prio(char * arg){
-    char *argv[] = { NULL }; // Ajusta según sea necesario
-    test_prio();
+void handle_test_processes(char * arg) {
+    if (arg == NULL || arg[0] == '\0') {
+        printf("Uso: test_processes <max_processes>\n");
+        return;
+    }
+    
+    // Convertir el argumento a número
+    uint64_t max_processes = 0;
+    for (int i = 0; arg[i] != '\0'; i++) {
+        if (arg[i] >= '0' && arg[i] <= '9') {
+            max_processes = max_processes * 10 + (arg[i] - '0');
+        } else {
+            printf("Error: argumento invalido\n");
+            return;
+        }
+    }
+    
+    if (max_processes <= 0) {
+        printf("Error: max_processes debe ser mayor que 0\n");
+        return;
+    }
+    
+    printf("Iniciando test de procesos...\n");
+    char *argv[] = { arg, NULL };
+    int result = test_processes(1, argv);
+    if (result == 0) {
+        printf("Test de procesos completado exitosamente\n");
+    } else {
+        printf("Test de procesos fallo con codigo: %d\n", result);
+    }
 }
 
-void handle_test_processes(char * arg){
-    char *argv[] = { "5", NULL }; // Ejemplo de argumento, ajusta según sea necesario
-    test_processes(1, argv);
+void handle_test_prio(char * arg) {
+    printf("Iniciando test de prioridades...\n");
+    char *argv[] = { NULL };
+    int result = test_prio(0, argv);
+    if (result == 0) {
+        printf("Test de prioridades completado exitosamente\n");
+    } else {
+        printf("Test de prioridades fallo con codigo: %d\n", result);
+    }
 }
 
-void handle_test_sync(char * arg){
-    char *argv[] = { "10", "1", NULL }; // Ejemplo de argumento, ajusta según sea necesario
-    test_sync(2, argv);
-}
-  */
-void handle_mem_status(char * arg){
-    //llama a syscall e imprime estado
+void handle_test_sync(char * arg) {
+    if (arg == NULL || arg[0] == '\0') {
+        printf("Uso: test_sync <iterations> <processes>\n");
+        return;
+    }
+    
+    // Encontrar el primer espacio
+    int space_pos = -1;
+    for (int i = 0; arg[i] != '\0'; i++) {
+        if (arg[i] == ' ') {
+            space_pos = i;
+            break;
+        }
+    }
+    
+    if (space_pos == -1) {
+        printf("Error: se requieren dos argumentos\n");
+        return;
+    }
+    
+    // Crear copias de los argumentos
+    char iterations[32] = {0};
+    char processes[32] = {0};
+    
+    // Copiar primer argumento
+    for (int i = 0; i < space_pos; i++) {
+        iterations[i] = arg[i];
+    }
+    
+    // Copiar segundo argumento
+    int j = 0;
+    for (int i = space_pos + 1; arg[i] != '\0'; i++) {
+        processes[j++] = arg[i];
+    }
+    
+    // Verificar que ambos sean números válidos
+    for (int i = 0; iterations[i] != '\0'; i++) {
+        if (iterations[i] < '0' || iterations[i] > '9') {
+            printf("Error: iterations debe ser un número\n");
+            return;
+        }
+    }
+    
+    for (int i = 0; processes[i] != '\0'; i++) {
+        if (processes[i] < '0' || processes[i] > '9') {
+            printf("Error: processes debe ser un número\n");
+            return;
+        }
+    }
+    
+    printf("Iniciando test de sincronizacion...\n");
+    char *argv[] = { iterations, processes, NULL };
+    int result = test_sync(2, argv);
+    if (result == 0) {
+        printf("Test de sincronizacion completado exitosamente\n");
+    } else {
+        printf("Test de sincronizacion fallo con codigo: %d\n", result);
+    }
 }
   
 

@@ -111,14 +111,14 @@ static uint64_t syscall_unblock(uint64_t pid){
 }
 
 static uint64_t syscall_allocMemory(uint64_t size) {
-    // TODO: Obtener el memoryManager global del kernel
-    MemoryManagerADT memoryManager = NULL; // Esto debe ser reemplazado con el memoryManager global
+    
+    MemoryManagerADT memoryManager = (MemoryManagerADT)MEMORY_MANAGER_ADDRESS;
     return (uint64_t)allocMemory(memoryManager, size);
 }
 
 static uint64_t syscall_freeMemory(uint64_t address) {
-    // TODO: Obtener el memoryManager global del kernel
-    MemoryManagerADT memoryManager = (MemoryManagerADT)MEMORY_MANAGER_ADDRESS; // Esto debe ser reemplazado con el memoryManager global
+    
+    MemoryManagerADT memoryManager = (MemoryManagerADT)MEMORY_MANAGER_ADDRESS;
     freeMemory(memoryManager, (void*)address);
     return 0;
 }

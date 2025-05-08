@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <syscall.h>
 #include "test_util.h"
+#include <test_functions.h>
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
@@ -15,7 +16,7 @@
 
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
-void test_prio() {
+uint64_t test_prio() {
   int64_t pids[TOTAL_PROCESSES];
   char *argv[] = {0};
   uint64_t i;
@@ -50,4 +51,6 @@ void test_prio() {
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     my_kill(pids[i]);
+  
+  return 0;
 }

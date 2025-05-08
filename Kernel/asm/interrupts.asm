@@ -116,7 +116,8 @@ _irq00Handler: ; basado en "interesting_handler de la práctica"
 	;call schedule ; Llama al scheduler
 	;mov rsp, rax 
 
-	EOI
+	mov al, 20h
+	out 20h, al ; EOI
 
 	popState
 	iretq
@@ -127,7 +128,8 @@ _irq01Handler:
 
 	call bufferWrite
 
-	EOI
+	mov al, 20h
+	out 20h, al ; EOI
 
 	popState
 	iretq

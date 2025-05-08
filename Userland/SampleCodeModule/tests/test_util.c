@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <syscall.h>
 #include "test_util.h"
+#include "test_functions.h"
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
@@ -30,6 +31,15 @@ uint8_t memcheck(void *start, uint8_t value, uint32_t size) {
       return 0;
 
   return 1;
+}
+
+// Custom memset implementation
+void *my_memset(void *dest, int value, uint32_t count) {
+  unsigned char *ptr = (unsigned char *)dest;
+  while (count-- > 0) {
+    *ptr++ = (unsigned char)value;
+  }
+  return dest;
 }
 
 // Parameters
@@ -75,3 +85,5 @@ void endless_loop_print(uint64_t wait) {
     bussy_wait(wait);
   }
 }
+
+

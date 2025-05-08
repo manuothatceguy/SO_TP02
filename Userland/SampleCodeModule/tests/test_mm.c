@@ -1,8 +1,7 @@
 #include <syscall.h>
 #include "test_util.h"
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <test_functions.h>
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
@@ -25,27 +24,30 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
 
   if ((max_memory = satoi(argv[0])) <= 0)
     return -1;
-
+  char curr = 'a';
   while (1) {
     rq = 0;
     total = 0;
 
     // Request as many blocks as we can
     while (rq < MAX_BLOCKS && total < max_memory) {
+      printf("%c\n", curr);
       mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
-      mm_rqs[rq].address = malloc(mm_rqs[rq].size);
+      mm_rqs[rq].address = syscall_allocMemory(mm_rqs[rq].size);
 
       if (mm_rqs[rq].address) {
         total += mm_rqs[rq].size;
         rq++;
       }
+      curr++;
+      curr = curr % 26 + 'a';
     }
 
     // Set
     uint32_t i;
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address)
-        memset(mm_rqs[i].address, i, mm_rqs[i].size);
+        my_memset(mm_rqs[i].address, i, mm_rqs[i].size);
 
     // Check
     for (i = 0; i < rq; i++)
@@ -58,6 +60,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     // Free
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address)
-        free(mm_rqs[i].address);
+        syscall_freeMemory(mm_rqs[i].address);
   }
 }
