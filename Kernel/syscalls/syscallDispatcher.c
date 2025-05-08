@@ -7,10 +7,12 @@
 #include <lib.h>
 #include <soundDriver.h>
 #include <stdarg.h>
+#include <memoryManager.h>
+#include <defs.h>
 
 
 #define CANT_REGS 19
-#define CANT_SYSCALLS 18
+#define CANT_SYSCALLS 20
 
 extern uint64_t regs[CANT_REGS];
 
@@ -108,6 +110,19 @@ static uint64_t syscall_unblock(uint64_t pid){
     return 0; // IMPLEMENTAR
 }
 
+static uint64_t syscall_allocMemory(uint64_t size) {
+    // TODO: Obtener el memoryManager global del kernel
+    MemoryManagerADT memoryManager = NULL; // Esto debe ser reemplazado con el memoryManager global
+    return (uint64_t)allocMemory(memoryManager, size);
+}
+
+static uint64_t syscall_freeMemory(uint64_t address) {
+    // TODO: Obtener el memoryManager global del kernel
+    MemoryManagerADT memoryManager = (MemoryManagerADT)MEMORY_MANAGER_ADDRESS; // Esto debe ser reemplazado con el memoryManager global
+    freeMemory(memoryManager, (void*)address);
+    return 0;
+}
+
 uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){
     if(syscall_number > CANT_SYSCALLS) return 0;
     syscall_fn syscalls[] = {0,
@@ -123,12 +138,15 @@ uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2
         (syscall_fn)syscall_getHeight, 
         (syscall_fn)syscall_getWidth, 
         (syscall_fn)syscall_wait,
+        (syscall_fn)syscall_allocMemory,
+        (syscall_fn)syscall_freeMemory,
         (syscall_fn)syscall_create_process,
         //(syscall_fn)syscall_exit,
         (syscall_fn)syscall_getpid,
         (syscall_fn)syscall_kill,
         (syscall_fn)syscall_block,
-        (syscall_fn)syscall_unblock
+        (syscall_fn)syscall_unblock,
+
     };
     return syscalls[syscall_number](arg1, arg2, arg3);
 }

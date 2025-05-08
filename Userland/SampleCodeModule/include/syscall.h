@@ -19,6 +19,13 @@ uint64_t syscall_sizeDownFont(uint64_t decrement);
 uint64_t syscall_getHeight();
 uint64_t syscall_getWidth();
 uint64_t syscall_wait(uint64_t ticks);
+void *syscall_allocMemory(uint64_t size);
+void syscall_freeMemory(void *address);
+uint64_t syscall_create_process(char *name, uint64_t argc, char *argv[]);
+uint64_t syscall_getpid();
+uint64_t syscall_kill(uint64_t pid);
+uint64_t syscall_block(uint64_t pid);
+uint64_t syscall_unblock(uint64_t pid);
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 int64_t my_getpid();
