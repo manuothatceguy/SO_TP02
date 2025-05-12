@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-typedef struct MemoryManagerCDT * MemoryManagerADT;
-
 typedef struct memStatus
 {
     uint64_t totalMemory;
@@ -16,14 +14,8 @@ typedef struct memStatus
 } memStatus;
 
 
-/**
- * @brief Creates a memory manager that will manage the memory passed as an argument.
- * @param memoryForMemoryManager Pointer to the memory that will be used for the memory manager.
- * @param managedMemory Pointer to the memory that will be managed by the memory manager.
- * @param memorySize Size of the memory that will be managed by the memory manager.
- */
-MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager, void *const restrict managedMemory, uint64_t memorySize);
-void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate);
-void *freeMemory(MemoryManagerADT const restrict memoryManager, void *const restrict memoryToFree);
-memStatus *getMemStatus(MemoryManagerADT const restrict memoryManager);
+void createMemoryManager();
+void *allocMemory(const size_t memoryToAllocate);
+void *freeMemory(void *const restrict memoryToFree);
+memStatus *getMemStatus();
 #endif

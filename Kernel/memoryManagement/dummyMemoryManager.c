@@ -1,32 +1,34 @@
 #ifndef buddy
 #include <memoryManager.h>
+#include <defs.h>
 
 // src: https://github.com/alejoaquili/c-unit-testing-example/blob/main/src/MemoryManager.c
 
-typedef struct MemoryManagerCDT {
+typedef struct MemoryManager {
 	char *nextAddress;
 	uint32_t used;
 	uint32_t total;
 	memStatus status;
-} MemoryManagerCDT;
+} MemoryManager;
 
-MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager, void *const restrict managedMemory, uint64_t memorySize ) {
-	MemoryManagerADT memoryManager = (MemoryManagerADT) memoryForMemoryManager;
-	memoryManager->nextAddress = managedMemory;
+static MemoryManager *memoryManager = NULL;
+
+void createMemoryManager() {
+	memoryManager = (MemoryManager *) MEMORY_MANAGER_ADDRESS;
+	memoryManager->nextAddress = (char *) HEAP_START_ADDRESS;
 
 	memoryManager->used = 0;
-	memoryManager->total = memorySize;
+	memoryManager->total = HEAP_SIZE;
 
-	memoryManager->status.totalMemory = memorySize;
-	memoryManager->status.freeMemory = memorySize;
+	memoryManager->status.totalMemory = HEAP_SIZE;
+	memoryManager->status.freeMemory = HEAP_SIZE;
 	memoryManager->status.usedMemory = 0;
 
-	return memoryManager;
 }
 
-void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate) {
-	if ( memoryManager->used + memoryToAllocate > memoryManager->total ){
-		return NULL;
+void *allocMemory(const size_t memoryToAllocate) {
+	if( memoryManager == NULL  || memoryToAllocate == 0 || memoryManager->used + memoryToAllocate > memoryManager->total ){
+		return NULL; // tenes que tener un memory manager creado, sino no anda.
 	}
 
 	char *allocation = memoryManager->nextAddress;
@@ -38,8 +40,8 @@ void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t me
 	return (void *) allocation;
 }
 
-memStatus *getMemStatus(MemoryManagerADT const restrict memoryManager){
-	memStatus *status = allocMemory(memoryManager, sizeof(memStatus));
+memStatus *getMemStatus(){
+	memStatus *status = allocMemory(sizeof(memStatus));
 	if ( status == NULL ){
 		return NULL;
 	}
@@ -50,7 +52,7 @@ memStatus *getMemStatus(MemoryManagerADT const restrict memoryManager){
 	return status;
 }
 
-void *freeMemory(MemoryManagerADT const restrict memoryManager, void *const restrict memoryToFree) {
+void *freeMemory(void *const restrict memoryToFree) {
 	// Este memory manager es dummy, no soporta liberación de memoria
 	return NULL;
 }

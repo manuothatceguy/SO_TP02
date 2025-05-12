@@ -21,14 +21,14 @@ typedef struct BuddyBlock {
 
 #define BLOCKS (HEAP_SIZE / BUDDY_MIN_BLOCK_SIZE)
 
-typedef struct MemoryManagerCDT {
+typedef struct MemoryManager {
     void *memoryForMemoryManager;
     void *managedMemory;
     uint64_t memorySize;
     uint64_t usedMemory;
     memStatus status;
     BuddyBlock * blocks[BLOCKS];
-} MemoryManagerCDT;
+} MemoryManager;
 
 uint64_t log2(uint64_t x) {
     uint8_t result = 0;
@@ -39,16 +39,17 @@ uint64_t log2(uint64_t x) {
 }
 
 static inline void initMemoryBlock(BuddyBlock * block, uint8_t level);
-static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level);
-static BuddyBlock * splitBlock(MemoryManagerADT memoryManager, uint8_t sourceLevel, uint8_t targetLevel);
-static inline uint64_t calculateOffset(MemoryManagerADT memoryManager, BuddyBlock * block);
-static inline BuddyBlock * getBuddy(MemoryManagerADT memoryManager, BuddyBlock * block);
+static BuddyBlock * findFreeBlock(uint8_t level);
+static BuddyBlock * splitBlock(uint8_t sourceLevel, uint8_t targetLevel);
+static inline uint64_t calculateOffset(BuddyBlock * block);
+static inline BuddyBlock * getBuddy(BuddyBlock * block);
+static MemoryManager * memoryManager = NULL;
 
-MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager, void *const restrict managedMemory, uint64_t memorySize) {
-    MemoryManagerADT memoryManager = (MemoryManagerADT) memoryForMemoryManager;
-    memoryManager->memoryForMemoryManager = memoryForMemoryManager;
-    memoryManager->managedMemory = managedMemory;
-    memoryManager->memorySize = memorySize;
+void createMemoryManager() {
+    memoryManager = (MemoryManager *) MEMORY_MANAGER_ADDRESS;
+    memoryManager->memoryForMemoryManager = (void *) MEMORY_MANAGER_ADDRESS;
+    memoryManager->managedMemory = (void *) HEAP_START_ADDRESS;
+    memoryManager->memorySize = HEAP_SIZE;
     memoryManager->usedMemory = 0;
 
     // init
@@ -60,21 +61,20 @@ MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager
     uint8_t maxLevel = log2(memorySize);
     BuddyBlock* rootBlock = (BuddyBlock*)((char*)memoryManager + sizeof(MemoryManagerCDT));
     initMemoryBlock(rootBlock, maxLevel);
-    memoryManager->blocks[maxLevel] = rootBlock;|
-    
-    return memoryManager;
+    memoryManager->blocks[maxLevel] = rootBlock;
 }
 
-void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate) {
-    
+void *allocMemory(const size_t memoryToAllocate) {
+    if(memoryManager == NULL) {
+        return NULL; // tenes que tener un memory manager creado, sino no anda.
+    }
     uint64_t size = memoryToAllocate;
     if (size < BUDDY_MIN_BLOCK_SIZE) {
         size = BUDDY_MIN_BLOCK_SIZE;
     }
-    
-    
+
     uint8_t level = memoryToLevel(size);
-    
+
     if (level >= BLOCKS) {
         return NULL; // Tamaño demasiado grande
     }
@@ -94,7 +94,7 @@ void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t me
     return (void*)((char*)memoryManager->managedMemory + offset);
 }
 
-static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level) {
+static BuddyBlock * findFreeBlock(uint8_t level) {
     // Buscar en el nivel actual
     if (memoryManager->blocks[level] != NULL) {
         BuddyBlock* block = memoryManager->blocks[level];
@@ -121,7 +121,7 @@ static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level)
     return NULL; // No hay bloques disponibles
 }
 
-static BuddyBlock * splitBlock(MemoryManagerADT memoryManager, uint8_t sourceLevel, uint8_t targetLevel) {
+static BuddyBlock * splitBlock(uint8_t sourceLevel, uint8_t targetLevel) {
     if (sourceLevel <= targetLevel) {
         return NULL; // No se puede dividir a un nivel mayor o igual
     }
@@ -160,13 +160,13 @@ static BuddyBlock * splitBlock(MemoryManagerADT memoryManager, uint8_t sourceLev
     return splitBlock(memoryManager, newLevel, targetLevel);
 }
 
-static inline uint64_t calculateOffset(MemoryManagerADT memoryManager, BuddyBlock * block) {
+static inline uint64_t calculateOffset(BuddyBlock * block) {
     // Calcular el offset del bloque en la memoria gestionada
     return (uint64_t)((char*)block - (char*)memoryManager->memoryForMemoryManager);
 }
 
-void freeMemory(MemoryManagerADT const restrict memoryManager, void *const restrict address) {
-    if (address == NULL) {
+void freeMemory(void *const restrict address) {
+    if (address == NULL || memoryManager == NULL) {
         return;
     }
     
@@ -212,7 +212,7 @@ void freeMemory(MemoryManagerADT const restrict memoryManager, void *const restr
     mergeBlocks(memoryManager, block);
 }
 
-static void mergeBlocks(MemoryManagerADT memoryManager, BuddyBlock* block) {
+static void mergeBlocks(BuddyBlock* block) {
     if (block->level == 0 || block->blockState != FREE) {
         return;
     }
@@ -259,7 +259,7 @@ static void mergeBlocks(MemoryManagerADT memoryManager, BuddyBlock* block) {
     }
 }
 
-static inline BuddyBlock* getBuddy(MemoryManagerADT memoryManager, BuddyBlock* block) {
+static inline BuddyBlock* getBuddy(BuddyBlock* block) {
     // Calcular la dirección del buddy
     uint64_t blockAddr = (uint64_t)block;
     uint64_t buddyAddr = blockAddr ^ (1ULL << block->level);

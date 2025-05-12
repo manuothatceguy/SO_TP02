@@ -10,6 +10,7 @@
 #include <keyboardDriver.h>
 #include <memoryManager.h>
 #include <defs.h>
+#include <processLinkedList.h>
 
 #define WHITE 0x00FFFFFF
 
@@ -54,14 +55,6 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-
-void printSlow(char * str, uint32_t color, uint64_t pause){
-	for(int i = 0; str[i]; i++){
-		putChar(str[i], color);
-		wait_ticks(pause);
-	}
-}
-
 int main(){	
 	
 	load_idt();
@@ -69,21 +62,17 @@ int main(){
 	fontSizeUp(2);
 	printStr(" TP 2 SO \n", WHITE);
 	fontSizeDown(2);
-	
-	printStr("\nConfigurando\n\n", WHITE);
-	printSlow("    1- La IDT ya fue cargada\n", WHITE, 30);
 	wait_ticks(40);
-	printSlow("    2- Cargando la shell",WHITE, 30);
-	printSlow("...",WHITE,1000);
+
 	
 	clear_buffer();
 
 	// MEMORY MANAGER
+	createMemoryManager();
+	//ProcessLinkedPtr processList = createProcessLinkedList();
+	//addProcess(processList, NULL); // en vez de null deberia estar el proceso idle!!
+	//initScheduler(processList);
 
-	MemoryManagerADT memoryManager = createMemoryManager(
-		(void*)MEMORY_MANAGER_ADDRESS, // 0x50000 (dirección que según el manual de Pure64 está vacía)	
-		(void*)HEAP_START_ADDRESS, // dirección de inicio del heap (arbitrario)
-		HEAP_SIZE); // tamaño del heap (para un bibliotecario con muchos libros...)
 
 	// reemplazar por tickeo forzado para usar el scheduler
 	((EntryPoint)sampleCodeModuleAddress)(); // Llamada al userland

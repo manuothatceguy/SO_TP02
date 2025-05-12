@@ -25,4 +25,6 @@
 #define HEAP_START_ADDRESS 0x600000 // dirección de inicio del heap
 #define HEAP_END_ADDRESS 0xFFFFFFFFFFFFFFFF  // fin de la memoria --> fin del heap 
 #define HEAP_SIZE (HEAP_END_ADDRESS - HEAP_START_ADDRESS) // tamaño del heap
+
+#define NULL (void *)0
 #endif
