@@ -9,6 +9,7 @@
 #include <stdarg.h>
 #include <memoryManager.h>
 #include <defs.h>
+#include <scheduler.h>
 
 
 #define CANT_REGS 19
@@ -95,7 +96,7 @@ static uint64_t syscall_create_process(char *name, uint64_t argc, char *argv[]){
 // }
 
 static uint64_t syscall_getpid(){
-    return 0; // IMPLEMENTAR
+    return getCurrentPid();
 }
 
 static uint64_t syscall_kill(uint64_t pid){
@@ -111,15 +112,11 @@ static uint64_t syscall_unblock(uint64_t pid){
 }
 
 static uint64_t syscall_allocMemory(uint64_t size) {
-    
-    MemoryManagerADT memoryManager = (MemoryManagerADT)MEMORY_MANAGER_ADDRESS;
-    return (uint64_t)allocMemory(memoryManager, size);
+    return (uint64_t)allocMemory( size);
 }
 
 static uint64_t syscall_freeMemory(uint64_t address) {
-    
-    MemoryManagerADT memoryManager = (MemoryManagerADT)MEMORY_MANAGER_ADDRESS;
-    freeMemory(memoryManager, (void*)address);
+    freeMemory((void*)address);
     return 0;
 }
 

@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define STACK_SIZE 4096 
+#define NAME_MAX_LENGTH 32  
+
 typedef enum {
     READY,
     RUNNING,
@@ -31,9 +34,9 @@ typedef struct Registers {
     uint64_t rflags; // Flags Register
     uint64_t rsp; // Stack Pointer
     uint64_t ss;  // Stack Segment    
-};
+} Registers;
 
-typedef struct Registers * Registers;
+typedef Registers* RegistersPtr;
 
 typedef int pid_t;
 
@@ -42,7 +45,11 @@ typedef struct PCB {
     pid_t parentPid;
     int priority; 
     ProcessState state; 
-    Registers registers; // GPRs
+    uint64_t rsp;
+    uint64_t base;
+    uint64_t rip;
+    RegistersPtr registers; // GPRs
+    char name[NAME_MAX_LENGTH];
 } PCB;
 
 #endif // PCB_H
