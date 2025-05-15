@@ -48,3 +48,13 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 
 	return destination;
 }
+
+char * strncpy(char * destination, const char * source, uint64_t length)
+{
+    uint64_t i;
+    for (i = 0; i < length && source[i] != '\0'; i++)
+        destination[i] = source[i];
+    for (; i < length; i++)
+        destination[i] = '\0';
+    return destination;
+}

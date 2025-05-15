@@ -3,7 +3,7 @@
 #include <defs.h>
 #include <memoryManager.h>
 #include <pcb.h>
-#include <string.h>
+#include <lib.h>
 
 #define QUANTUM 10
 
