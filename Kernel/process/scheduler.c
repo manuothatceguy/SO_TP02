@@ -19,6 +19,14 @@ void initScheduler(ProcessLinkedPtr list) {
 }
 
 pid_t createProcess(char* name, void(*function)(void*),uint64_t argc, char **arg, uint8_t priority) {
+    if (name == NULL || function == NULL) {
+        return -1;
+    }
+
+    if (argc > 0 && arg == NULL) {
+        return -1;
+    }
+
     PCB* process = allocMemory(sizeof(PCB));
     if (process == NULL) {
         return -1; 
@@ -67,4 +75,21 @@ uint64_t schedule(uint64_t rsp){
     quantum--;
     return rsp;
     */
+}
+
+uint64_t blockProcess (pid_t pid) {
+    PCB* process = getProcess(processes, pid);
+    if (process == NULL) {
+        return -1;
+    }
+    process->state = BLOCKED;
+    
+    if (pid == getCurrentPid()) { // si el proceso bloqueado es el actual se renuncia al cpu con interrupción 
+        yield(); 
+    }
+    return 0; 
+}
+
+void yield() {
+    callTimerTick();
 }

@@ -5,6 +5,8 @@ EXTERN rsp_aux
 GLOBAL outb
 GLOBAL inb
 GLOBAL regs
+GLOBAL callTimerTick
+
 section .text
 	
 cpuVendor:
@@ -129,7 +131,11 @@ inb:
     movzx eax, al
 	mov rsp, rbp
 	pop rbp        
-    ret                    
+    ret     
+
+callTimerTick:
+	int 20h
+	ret               
 
 section .bss
 regs resq 19 ; 19 x 8 bytes 

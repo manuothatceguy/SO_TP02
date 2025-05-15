@@ -9,5 +9,6 @@ ProcessLinkedPtr createProcessLinkedList();
 void addProcess(ProcessLinkedPtr list, PCB *process);
 void removeProcess(ProcessLinkedPtr list, PCB *process);
 void freeProcessLinkedList(ProcessLinkedPtr list);
+PCB* getProcess(ProcessLinkedPtr list, pid_t pid)
 PCB* getNextProcess(ProcessLinkedPtr list);
 #endif // PROCESS_LINKED_LIST_H

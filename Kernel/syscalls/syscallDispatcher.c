@@ -86,8 +86,8 @@ static uint64_t syscall_wait(uint64_t ticks){
     return ticks;
 }
 
-static uint64_t syscall_create_process(char *name, uint64_t argc, char *argv[]){
-    return 0; // IMPLEMENTAR
+pid_t syscall_create_process(char* name, void(*function)(void*),uint64_t argc, char **arg, uint8_t priority){
+    return createProcess(name, function, argc, arg, priority);
 }
 
 //  No se si la necesitamos
@@ -95,7 +95,7 @@ static uint64_t syscall_create_process(char *name, uint64_t argc, char *argv[]){
     
 // }
 
-static uint64_t syscall_getpid(){
+pid_t syscall_getpid(){
     return getCurrentPid();
 }
 
@@ -103,8 +103,8 @@ static uint64_t syscall_kill(uint64_t pid){
     return 0; // IMPLEMENTAR
 }
 
-static uint64_t syscall_block(uint64_t pid){
-    return 0; // IMPLEMENTAR
+pid_t syscall_block(uint64_t pid){
+    return blockProcess(pid);
 }
 
 static uint64_t syscall_unblock(uint64_t pid){
