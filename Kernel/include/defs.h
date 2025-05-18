@@ -26,5 +26,5 @@
 #define HEAP_END_ADDRESS 0xFFFFFFFFFFFFFFFF  // fin de la memoria --> fin del heap 
 #define HEAP_SIZE (HEAP_END_ADDRESS - HEAP_START_ADDRESS) // tamaño del heap
 
-#define NULL (void *)0
+//#define NULL (void *)0
 #endif
