@@ -112,9 +112,9 @@ _irq00Handler: ; basado en "interesting_handler de la práctica"
 	pushState
 	call timer_handler
 
-	;mov rdi, rsp
-	;call schedule ; Llama al scheduler
-	;mov rsp, rax 
+	mov rdi, rsp
+	call schedule ; Llama al scheduler
+	mov rsp, rax 
 
 	mov al, 20h
 	out 20h, al ; EOI

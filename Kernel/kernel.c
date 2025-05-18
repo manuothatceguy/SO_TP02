@@ -78,14 +78,15 @@ int main(){
 	// MEMORY MANAGER
 	createMemoryManager();
 	ProcessLinkedPtr processList = createProcessLinkedList();
-	createProcess("idle", &idle, 0, NULL, -1);
-	createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
 	initScheduler(processList);
+	//createProcess("idle", &idle, 0, NULL, -1);
+	createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
+	
 
 
 	// reemplazar por tickeo forzado para usar el scheduler
-	((EntryPoint)sampleCodeModuleAddress)(); // Llamada al userland
-	clearScreen(0);
+	//((EntryPoint)sampleCodeModuleAddress)(); // Llamada al userland
+	//clearScreen(0);
 	
 	return 0;
 }
