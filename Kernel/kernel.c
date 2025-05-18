@@ -10,7 +10,9 @@
 #include <keyboardDriver.h>
 #include <memoryManager.h>
 #include <defs.h>
-#include <processLinkedList.h>
+#include <process.h>
+#include <scheduler.h>
+#include <interrupts.h>
 
 #define WHITE 0x00FFFFFF
 
@@ -51,8 +53,14 @@ void * initializeKernelBinary()
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-	clearBSS(&bss, &endOfKernel - &bss);
+	clearBSS(&bss, (uint64_t)(&endOfKernel) - (uint64_t)(&bss));
 	return getStackBase();
+}
+
+void idle(){
+	while(1){
+		_hlt();
+	}
 }
 
 int main(){	
@@ -69,9 +77,10 @@ int main(){
 
 	// MEMORY MANAGER
 	createMemoryManager();
-	//ProcessLinkedPtr processList = createProcessLinkedList();
-	//addProcess(processList, NULL); // en vez de null deberia estar el proceso idle!!
-	//initScheduler(processList);
+	ProcessLinkedPtr processList = createProcessLinkedList();
+	createProcess("idle", &idle, 0, NULL, -1);
+	createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
+	initScheduler(processList);
 
 
 	// reemplazar por tickeo forzado para usar el scheduler

@@ -2,15 +2,18 @@
 #define SCHEDULER_H
 
 #include <stdint.h>
-#include <processLinkedList.h>
+#include <process.h>
 #include <pcb.h>
+#include <defs.h>
 
 uint64_t schedule(uint64_t rsp);
 void initScheduler(ProcessLinkedPtr list);
-pid_t createProcess(char* name, void(*function)(void*),uint64_t argc, char **arg, uint8_t priority);
+pid_t createProcess(char* name, fnptr function,uint64_t argc, char **arg, uint8_t priority);
 pid_t getCurrentPid();
 uint64_t blockProcess (pid_t pid);
 void yield();
+uint64_t unblockProcess(pid_t pid);
+uint64_t kill(pid_t pid);
 // ... 
 
 #endif // SCHEDULER_H

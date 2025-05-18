@@ -90,17 +90,18 @@ pid_t syscall_create_process(char* name, void(*function)(void*),uint64_t argc, c
     return createProcess(name, function, argc, arg, priority);
 }
 
-//  No se si la necesitamos
-//static uint64_t syscall_exit(){ //Finaliza el proceso que llama a esta syscall.
-    
-// }
+static uint64_t syscall_exit(){ //Finaliza el proceso que llama a esta syscall.
+    kill(getCurrentPid());
+    yield();
+    return 0; // No se llega a ejecutar
+}
 
 pid_t syscall_getpid(){
     return getCurrentPid();
 }
 
 static uint64_t syscall_kill(uint64_t pid){
-    return 0; // IMPLEMENTAR
+    return kill(pid);
 }
 
 pid_t syscall_block(uint64_t pid){
@@ -108,7 +109,7 @@ pid_t syscall_block(uint64_t pid){
 }
 
 static uint64_t syscall_unblock(uint64_t pid){
-    return 0; // IMPLEMENTAR
+    return unblockProcess(pid);
 }
 
 static uint64_t syscall_allocMemory(uint64_t size) {
@@ -138,7 +139,7 @@ uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2
         (syscall_fn)syscall_allocMemory,
         (syscall_fn)syscall_freeMemory,
         (syscall_fn)syscall_create_process,
-        //(syscall_fn)syscall_exit,
+        (syscall_fn)syscall_exit,
         (syscall_fn)syscall_getpid,
         (syscall_fn)syscall_kill,
         (syscall_fn)syscall_block,

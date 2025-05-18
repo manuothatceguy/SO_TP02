@@ -1,6 +1,5 @@
 #include <clock.h>
 #include <lib.h>
-#include <naiveConsole.h>
 #include <stdint.h>
 #include <textModule.h> 
 #include <interrupts.h>
