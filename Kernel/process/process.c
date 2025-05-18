@@ -1,29 +1,116 @@
-/*
-#include <memoryManager.h>
 #include <process.h>
-#include <stdlib.h> // Para usar free
+#include <pcb.h>
+#include <memoryManager.h>
 
-void initProcess(Process *process, uint16_t pid, uint16_t parentPid, Code program, char **args, char *name, uint8_t priority, int16_t fileDescriptors[]) {
-    process->pid = pid;
-    process->parentPid = parentPid;
-    process->program = program;
-    process->args = args;
-    process->name = name;
-    process->priority = priority;
+// lista doblemente encadenada circular
+typedef struct ProcessNode {
+    PCB *process;
+    struct ProcessNode *next;
+    struct ProcessNode *prev;
+} ProcessNode;
 
-    //TODO: MEMEMORY MANAGING de todo lo que conlleva el programa porque un gran poder conlleva una gran responsabilidad
-    process->stackBase = allocMemory(NULL, TAMAÑO);
-	process->args = allocArguments(args);  
-	process->name = allocMemory(strlen(name) + 1);
-    // TODO Copiar los descriptores de archivo
-    
+typedef struct ProcessList {
+    ProcessNode* current; // puntero al nodo cabeza
+    uint64_t numProcesses; // cantidad de procesos en la lista
+} ProcessList;
+
+ProcessLinkedPtr createProcessLinkedList(){
+    ProcessLinkedPtr list = (ProcessLinkedPtr)allocMemory(sizeof(ProcessList));
+    if (list == NULL) {
+        return NULL; 
+    }
+    list->current = NULL;
+    list->numProcesses = 0;
+    return list;
 }
 
-void freeProcess(Process *process) {
-   
+void addProcess(ProcessLinkedPtr list, PCB *process){
+    if (list == NULL || process == NULL) {
+        return;
+    }
+    ProcessNode *newNode = (ProcessNode *)allocMemory(sizeof(ProcessNode));
+    if (newNode == NULL) {
+        return;
+    }
+    newNode->process = process;
+    newNode->next = NULL;
+    newNode->prev = NULL;
+    if (list->current == NULL) {
+        list->current = newNode;
+        list->current->next = newNode;
+        list->current->prev = newNode;
+    } else { // la política es: agrego al final, siempre.
+        list->current->prev->next = newNode;
+        newNode->prev = list->current->prev;
+        newNode->next = list->current;
+        list->current->prev = newNode;
+    }
 }
 
-void closeFileDescriptors(Process *process) {
-
+void removeProcess(ProcessLinkedPtr list, PCB *process){
+    if (list == NULL || process == NULL) {
+        return;
+    }
+    ProcessNode *current = list->current;
+    while (current != NULL) {
+        if (current->process == process) {
+            current->prev->next = current->next;
+            current->next->prev = current->prev;
+            freeMemory(current);
+            return;
+        }
+        current = current->next;
+    }
 }
-*/
+
+void freeProcessLinkedList(ProcessLinkedPtr list){
+    if (list == NULL) {
+        return;
+    }
+    ProcessNode *current = list->current;
+    while (current != NULL) {
+        ProcessNode *temp = current;
+        current = current->next;
+        freeMemory(temp);
+    }
+    freeMemory(list);
+}
+
+PCB* getProcess(ProcessLinkedPtr list, pid_t pid){
+    if (list == NULL) {
+        return NULL;
+    }
+    ProcessNode *current = list->current;
+    while (current != NULL) {
+        if (current->process->pid == pid) {
+            return current->process;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+PCB* getNextProcess(ProcessLinkedPtr list){
+    if (list == NULL) {
+        return NULL;
+    }
+    if (list->current == NULL) {
+        return NULL;
+    }
+    PCB *process = list->current->process;
+    list->current = list->current->next;
+    if((list->current->process->pid == 0) || (list->current->process->state == BLOCKED)) { // idle cuando no debe o bloqueado
+        list->current = list->current->next;
+    }
+    return process;
+}
+
+PCB* getCurrentProcess(ProcessLinkedPtr list){
+    if (list == NULL) {
+        return NULL;
+    }
+    if (list->current == NULL) {
+        return NULL;
+    }
+    return list->current->process;
+}

@@ -1,27 +1,20 @@
-/*
-#ifndef _PROCESS_H
-#define _PROCESS_H
+#ifndef PROCESS_H
+#define PROCESS_H
 
-#include <stdint.h>
+#include <pcb.h>
 
-typedef struct Process { // PCB
-	uint16_t pid;             
-	uint16_t parentPid;
-	Code program;                
-	char **args;                 
-	char *name;                  
-	uint8_t priority;         
-	int16_t fileDescriptors[10]; // Descriptores de archivo TAMAÑO A CHEQUEAR
+typedef struct ProcessList *ProcessLinkedPtr;
 
-    void *stackBase; // MemoryBlock
-	void *stackPos;
-    
-} Process;
+ProcessLinkedPtr createProcessLinkedList();
+void addProcess(ProcessLinkedPtr list, PCB *process);
+void removeProcess(ProcessLinkedPtr list, PCB *process);
+void freeProcessLinkedList(ProcessLinkedPtr list);
+PCB* getProcess(ProcessLinkedPtr list, pid_t pid);
+PCB* getNextProcess(ProcessLinkedPtr list);
+PCB* getCurrentProcess(ProcessLinkedPtr list);
 
-typedef int (*Code)(int argc, char **args); // Puntero a la función del programa
+// asm
+uint64_t processStackFrame(uint64_t base, uint64_t rip, uint64_t argc, char **arg);
 
-void initProcess(Process *process, uint16_t pid, uint16_t parentPid, Code program, char **args, char *name, uint8_t priority, int16_t fileDescriptors[]);
-void freeProcess(Process *process);
-void closeFileDescriptors(Process *process);
-#endif
-*/
+
+#endif // PROCESS_H
