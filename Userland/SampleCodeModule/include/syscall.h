@@ -26,6 +26,7 @@ uint64_t syscall_getpid();
 uint64_t syscall_kill(uint64_t pid);
 uint64_t syscall_block(uint64_t pid);
 uint64_t syscall_unblock(uint64_t pid);
+int8_t syscall_changePrio(uint64_t pid, int8_t newPrio);
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 int64_t my_getpid();

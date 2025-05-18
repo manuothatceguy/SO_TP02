@@ -14,6 +14,7 @@ uint64_t blockProcess (pid_t pid);
 void yield();
 uint64_t unblockProcess(pid_t pid);
 uint64_t kill(pid_t pid);
+int8_t changePrio(pid_t pid, int8_t newPrio);
 // ... 
 
 #endif // SCHEDULER_H
