@@ -1,6 +1,7 @@
 #include <scheduler.h>
 #include <defs.h>
 #include <memoryManager.h>
+#include <interrupts.h>
 #include <pcb.h>
 #include <lib.h>
 
@@ -23,16 +24,21 @@ void initScheduler(ProcessLinkedPtr list) {
 }
 
 pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority) {
+    _cli(); // Disable interrupts to make the function atomic
+    
     if (name == NULL || function == NULL) {
+        _sti(); // Re-enable interrupts before returning
         return -1;
     }
 
     if (argc > 0 && arg == NULL) {
+        _sti(); // Re-enable interrupts before returning
         return -1;
     }
 
     PCB* process = allocMemory(sizeof(PCB));
     if (process == NULL) {
+        _sti(); // Re-enable interrupts before returning
         return -1; 
     }
 
@@ -48,19 +54,21 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
     process->state = READY;
     readyProcesses++;
     
-
     process->priority = priority;
     process->base = (uint64_t)allocMemory(STACK_SIZE);
 
     if ((void *)process->base == NULL) {
         freeMemory(process); 
+        _sti(); // Re-enable interrupts before returning
         return -1;
     }
     process->base += STACK_SIZE;
 
     process->rip = (uint64_t)function;
-    process->rsp = processStackFrame(process->base, process->rip, argc, arg); // HACER 
+    process->rsp = processStackFrame(process->base, process->rip, argc, arg);
     addProcess(processes, process);
+    
+    _sti(); // Re-enable interrupts before returning
     return process->pid;
 }
 
@@ -69,22 +77,39 @@ pid_t getCurrentPid() {
 } 
 
 uint64_t schedule(uint64_t rsp){
-    if(processes == NULL || quantum-- > 0 ) {
-        return rsp; 
+    if(processes == NULL) {
+        return rsp;
+    }
+
+    if(quantum > 0) {
+        quantum--;
+        return rsp;
     }
     
-    if (quantum == 0) {
-        PCB* currentProcess = getCurrentProcess(processes); 
-        currentProcess->rsp = rsp; 
-        currentProcess->state = READY; // cambiar el estado del proceso actual a listo
+    // Quantum expired, need to switch processes
+    PCB* currentProcess = getCurrentProcess(processes);
+    if(currentProcess != NULL) {
+        currentProcess->rsp = rsp;
+        currentProcess->state = READY;
         readyProcesses++;
-        currentProcess = getNextProcess(processes);
-        quantum = calculateQuantum(currentProcess->priority); 
-        currentProcess->state = RUNNING;
-        readyProcesses--;
-        return currentProcess->rsp;
     }
-    return rsp;
+
+    PCB* nextProcess = getNextProcess(processes);
+    if(nextProcess == NULL) {
+        // No ready processes, keep current process
+        if(currentProcess != NULL) {
+            currentProcess->state = RUNNING;
+            readyProcesses--;
+        }
+        quantum = calculateQuantum(currentProcess != NULL ? currentProcess->priority : 0);
+        return rsp;
+    }
+
+    // Switch to next process
+    nextProcess->state = RUNNING;
+    readyProcesses--;
+    quantum = calculateQuantum(nextProcess->priority);
+    return nextProcess->rsp;
 }
 
 uint64_t blockProcess (pid_t pid) {
@@ -105,11 +130,39 @@ void yield() {
 }
 
 uint64_t unblockProcess(pid_t pid){
-    return 0; //HACER
+    PCB* process = getProcess(processes, pid);
+    if (process == NULL || process->state != BLOCKED) {
+        return -1;
+    }
+    process->state = READY;
+    readyProcesses++;
+    return 0;
 }
 
 uint64_t kill(pid_t pid){
-    return 0; //hacer
+    if (pid == 0) { // Can't kill idle process
+        return -1;
+    }
+    
+    PCB* process = getProcess(processes, pid);
+    if (process == NULL) {
+        return -1;
+    }
+
+    // Free process resources
+    if (process->base != 0) {
+        freeMemory((void*)(process->base - STACK_SIZE));
+    }
+    
+    // Remove process from list
+    removeProcess(processes, pid);
+    
+    // If killing current process, force a reschedule
+    if (pid == currentPid) {
+        yield();
+    }
+    
+    return 0;
 }
 
 int8_t changePrio(pid_t pid, int8_t newPrio){
