@@ -63,6 +63,13 @@ void idle(){
 	}
 }
 
+void feDeVida(){
+	while(1) {
+		printStr("Fe de vida\n", WHITE);
+		wait_ticks(40);
+	}
+}
+
 int main(){	
 	
 	load_idt();
@@ -81,8 +88,7 @@ int main(){
 	initScheduler(processList);
 	//createProcess("idle", &idle, 0, NULL, -1);
 	createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
-	
-
+	_irq00Handler();
 
 	// reemplazar por tickeo forzado para usar el scheduler
 	//((EntryPoint)sampleCodeModuleAddress)(); // Llamada al userland
