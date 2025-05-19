@@ -24,12 +24,14 @@ processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
     push 0      ; r10
     push 0      ; r9
     push 0      ; r8
-    push 0      ; rbp ??
+    push 0      ; rbp
     push rdx    ; rdi: primer parámetro
     push rcx    ; rsi: segundo parámetro
     push 0      ; rdx
     push 0      ; rcx
     push 0      ; rbx
     push 0      ; rax
+    mov rax, rsp  ; Save the final stack pointer in rax
     mov rsp, rbp
     pop rbp
+    ret          ; Return the stack pointer
