@@ -9,8 +9,14 @@
 #define QUANTUM 100
 #define MAX_PRIORITY 5 // agregar a limitaciones
 #define MIN_PRIORITY 0
+#define IDLE_PRIORITY -1
+
+extern void wrapper();
 
 uint64_t calculateQuantum(uint8_t priority) {
+    if (priority == IDLE_PRIORITY) {
+        return QUANTUM;  // Minimum quantum for idle
+    }
     return QUANTUM * (MAX_PRIORITY - priority + 1);
 }
 
@@ -43,8 +49,8 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
         return -1; 
     }
 
-    if(priority < MIN_PRIORITY){
-        priority = MIN_PRIORITY;
+    if(priority < IDLE_PRIORITY){
+        priority = IDLE_PRIORITY;
     } else if(priority > MAX_PRIORITY){
         priority = MAX_PRIORITY;
     }
@@ -65,8 +71,8 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
     }
     process->base += STACK_SIZE;
 
-    process->rip = (uint64_t)function;
-    process->rsp = processStackFrame(process->base, process->rip, argc, arg);
+    process->rip = (uint64_t)wrapper;
+    process->rsp = processStackFrame(process->base, (uint64_t)function, argc, (uint64_t)arg);
     addProcess(processes, process);
     printStr("Creating process...\n", 0x00FFFFFF);   
     _sti(); // Re-enable interrupts before returning
@@ -83,7 +89,6 @@ uint64_t schedule(uint64_t rsp){
     }
 
     if(quantum > 0) {
-        printStr("Quantum remaining...\n", 0x00FFFFFF);
         quantum--;
         return rsp;
     }
@@ -94,22 +99,31 @@ uint64_t schedule(uint64_t rsp){
         currentProcess->rsp = rsp;
         currentProcess->state = READY;
         readyProcesses++;
+        printStr("Current process set to READY: ", 0x00FFFFFF);
+        printStr(currentProcess->name, 0x00FFFFFF);
+        printStr("\n", 0x00FFFFFF);
     }
 
     PCB* nextProcess = getNextProcess(processes);
     if(nextProcess == NULL) {
+        printStr("No next process found, keeping current\n", 0x00FFFFFF);
         // No ready processes, keep current process
         if(currentProcess != NULL) {
             currentProcess->state = RUNNING;
             readyProcesses--;
+            currentPid = currentProcess->pid;
         }
-        quantum = calculateQuantum(currentProcess != NULL ? currentProcess->priority : 0);
+        quantum = calculateQuantum(currentProcess != NULL ? currentProcess->priority : MIN_PRIORITY);
         return rsp;
     }
 
     // Switch to next process
+    printStr("Switching to process: ", 0x00FFFFFF);
+    printStr(nextProcess->name, 0x00FFFFFF);
+    printStr("\n", 0x00FFFFFF);
     nextProcess->state = RUNNING;
     readyProcesses--;
+    currentPid = nextProcess->pid;
     quantum = calculateQuantum(nextProcess->priority);
     return nextProcess->rsp;
 }

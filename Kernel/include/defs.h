@@ -26,5 +26,5 @@
 #define HEAP_SIZE (HEAP_END_ADDRESS - HEAP_START_ADDRESS) // tamaño del heap
 
 //#define NULL (void *)0
-typedef void (*fnptr)(void *); 
+typedef void (*fnptr)(uint64_t argc, char **argv); 
 #endif

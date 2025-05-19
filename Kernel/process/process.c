@@ -91,18 +91,29 @@ PCB* getProcess(ProcessLinkedPtr list, pid_t pid){
 }
 
 PCB* getNextProcess(ProcessLinkedPtr list){
-    if (list == NULL) {
+    if (list == NULL || list->current == NULL) {
         return NULL;
     }
-    if (list->current == NULL) {
-        return NULL;
+
+    ProcessNode* start = list->current;
+    ProcessNode* current = list->current->next;
+    
+    // Buscar el siguiente proceso listo que no sea idle
+    while (current != start) {
+        if (current->process->state == READY && current->process->pid != 0) {
+            list->current = current;
+            return current->process;
+        }
+        current = current->next;
     }
-    PCB *process = list->current->process;
-    list->current = list->current->next;
-    if((list->current->process->pid == 0) || (list->current->process->state == BLOCKED)) { // idle cuando no debe o bloqueado
-        list->current = list->current->next;
+    
+    // Si no hay otros procesos listos, retornar idle
+    if (start->process->pid == 0) {
+        list->current = start;
+        return start->process;
     }
-    return process;
+    
+    return NULL;
 }
 
 PCB* getCurrentProcess(ProcessLinkedPtr list){

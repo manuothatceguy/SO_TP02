@@ -57,13 +57,14 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-void idle(){
+void idle(uint64_t argc, char **argv) {
 	while(1){
 		_hlt();
 	}
 }
 
-void feDeVida(){
+void feDeVida(uint64_t argc, char **argv) {
+	printStr("Entrando a feDeVida\n", WHITE);
 	while(1) {
 		printStr("Fe de vida\n", WHITE);
 		wait_ticks(40);
@@ -71,15 +72,10 @@ void feDeVida(){
 }
 
 int main(){	
-	
-	load_idt();
-	setup_timer(18);
 	fontSizeUp(2);
 	printStr(" TP 2 SO \n", WHITE);
 	fontSizeDown(2);
-	wait_ticks(40);
 
-	
 	clear_buffer();
 
 	// MEMORY MANAGER
@@ -89,9 +85,13 @@ int main(){
 	createProcess("idle", &idle, 0, NULL, -1);
 	createProcess("feDeVida", (void*)feDeVida, 0, NULL, 0);
 	createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
-	// reemplazar por tickeo forzado para usar el scheduler
-	//((EntryPoint)sampleCodeModuleAddress)(); // Llamada al userland
-	//clearScreen(0);
+
+	// Ahora sí, habilita interrupciones y timer
+	load_idt();
+	setup_timer(18);
+
+	wait_ticks(40); // <-- Ahora sí puedes usarlo
+
 	while(1) {
 		_hlt();
 	}

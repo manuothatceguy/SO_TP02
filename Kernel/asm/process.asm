@@ -1,9 +1,13 @@
+GLOBAL wrapper
 GLOBAL processStackFrame
 GLOBAL idle
 
 wrapper:
-    call rsi 
-    mov rax, 16 ; syscall exit
+    pop rdi    ; argc
+    pop rsi    ; argv
+    pop rax    ; función real
+    call rax   ; rdi=argc, rsi=argv
+    mov rax, 16
     int 80h
 
 processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
@@ -26,10 +30,10 @@ processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
     push 0      ; r8
     push 0      ; rbp
     push 0      ; rbp
-    push rdx    ; rdi: primer parámetro
-    push rcx    ; rsi: segundo parámetro
     push 0      ; rdx
-    push 0      ; rcx
+    push rcx    ; argv
+    push rdx    ; argc
+    push rsi    ; función real
     push 0      ; rbx
     push 0      ; rax
     mov rax, rsp; para retornar
