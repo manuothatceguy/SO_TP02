@@ -164,3 +164,17 @@ uint64_t kill(pid_t pid){
     
     return 0;
 }
+
+int8_t changePrio(pid_t pid, int8_t newPrio){
+    PCB* process = getProcess(processes, pid);
+    if (process == NULL) {
+        return -1;
+    }
+    if (newPrio < MIN_PRIORITY) {
+        newPrio = MIN_PRIORITY;
+    } else if (newPrio > MAX_PRIORITY) {
+        newPrio = MAX_PRIORITY;
+    }
+    process->priority = newPrio;
+    return newPrio;
+}

@@ -29,7 +29,8 @@ enum syscall_number {
     GETPID,
     KILL,
     BLOCK,
-    UNBLOCK
+    UNBLOCK,
+    CHANGE_PRIO
 };
 
 uint64_t syscall_read(char * buff, uint64_t len){
@@ -106,6 +107,10 @@ uint64_t syscall_block(uint64_t pid) {
 
 uint64_t syscall_unblock(uint64_t pid) {
     return syscall(UNBLOCK, pid, 0, 0);
+}
+
+int8_t syscall_changePrio(uint64_t pid, int8_t newPrio) {
+    return syscall(CHANGE_PRIO, pid, newPrio, 0);
 }
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
