@@ -115,10 +115,10 @@ _irq00Handler: ; basado en "interesting_handler de la práctica"
 	mov rdi, rsp
 	call schedule ; Llama al scheduler
 	mov rsp, rax 
-
+	sti
 	mov al, 20h
 	out 20h, al ; EOI
-	sti
+	
 	popState
 	iretq
 
