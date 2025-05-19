@@ -13,6 +13,7 @@ all: tests $(MODULE)
 
 $(MODULE): $(OBJECTS) $(OBJECTS_ASM) $(TEST_OBJECTS)
 	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld _loader.c $(OBJECTS) $(OBJECTS_ASM) $(TEST_OBJECTS) -o ../$(MODULE) -I $(INCLUDE)
+	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld -Wl,--oformat=elf64-x86-64 _loader.c $(OBJECTS) $(OBJECTS_ASM) $(TEST_OBJECTS) -o ../0000-sampleCodeModule.elf -I $(INCLUDE)
 
 tests:
 	cd tests && make all

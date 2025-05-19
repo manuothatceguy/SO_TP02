@@ -109,17 +109,18 @@ picSlaveMask:
 
 ;8254 Timer (Timer Tick)
 _irq00Handler: ; basado en "interesting_handler de la práctica"
+	cli
 	pushState
 	call timer_handler
-	cli
+	
 	mov rdi, rsp
 	call schedule ; Llama al scheduler
 	mov rsp, rax 
-	sti
 	mov al, 20h
 	out 20h, al ; EOI
 	
 	popState
+	sti
 	iretq
 
 ;Keyboard

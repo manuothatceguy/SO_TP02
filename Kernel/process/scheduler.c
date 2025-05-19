@@ -4,8 +4,9 @@
 #include <interrupts.h>
 #include <pcb.h>
 #include <lib.h>
+#include <textModule.h>
 
-#define QUANTUM 10
+#define QUANTUM 100
 #define MAX_PRIORITY 5 // agregar a limitaciones
 #define MIN_PRIORITY 0
 
@@ -67,7 +68,7 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, process->rip, argc, arg);
     addProcess(processes, process);
-    
+    printStr("Creating process...\n", 0x00FFFFFF);   
     _sti(); // Re-enable interrupts before returning
     return process->pid;
 }
@@ -82,10 +83,11 @@ uint64_t schedule(uint64_t rsp){
     }
 
     if(quantum > 0) {
+        printStr("Quantum remaining...\n", 0x00FFFFFF);
         quantum--;
         return rsp;
     }
-    
+    printStr("Quantum expired, switching processes...\n", 0x00FFFFFF);
     // Quantum expired, need to switch processes
     PCB* currentProcess = getCurrentProcess(processes);
     if(currentProcess != NULL) {

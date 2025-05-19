@@ -5,7 +5,7 @@ sudo chmod a+x ./Image/*
 DEBUG=""
 if [ "$1" == "-d" ]
 then
-    DEBUG="-s -S"
+    DEBUG="-s -S -d int"
 fi
 
 ## MACOS
