@@ -82,20 +82,14 @@ int main(){
 	createMemoryManager();
 	ProcessLinkedPtr processList = createProcessLinkedList();
 	initScheduler(processList);
-	createProcess("idle", &idle, 0, NULL, -1);
+	//createProcess("idle", &idle, 0, NULL, -1);
 	//createProcess("feDeVida", (void*)feDeVida, 0, NULL, 0);
 	//createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
 	createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
 
 	// Ahora sí, habilita interrupciones y timer
 	load_idt();
-	setup_timer(18);
 
-	wait_ticks(40); // <-- Ahora sí puedes usarlo
-
-	while(1) {
-		_hlt();
-	}
 	return 0;
 }
 

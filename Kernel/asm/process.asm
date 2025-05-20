@@ -2,7 +2,7 @@ GLOBAL wrapper
 GLOBAL processStackFrame
 
 wrapper:
-    call rax   ; rdi=argc, rsi=argv
+    call r8
     mov rax, 16
     int 80h
 
@@ -23,14 +23,14 @@ processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
     push 0      ; r11
     push 0      ; r10
     push 0      ; r9
-    push 0      ; r8
+    push rsi    ; r8
     push 0      ; rbp
     push rdx    ; rdi
     push rcx    ; rsi
     push 0      ; rdx
     push 0      ; rcx
     push 0      ; rbx
-    push rsi    ; rax
+    push 0      ; rax
     mov rax, rsp; para retornar
     mov rsp, rbp
     pop rbp

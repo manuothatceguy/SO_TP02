@@ -6,7 +6,7 @@
 #include <lib.h>
 #include <textModule.h>
 
-#define QUANTUM 10
+#define QUANTUM 100
 #define MAX_PRIORITY 5 // agregar a limitaciones
 #define MIN_PRIORITY 0
 #define IDLE_PRIORITY -1
@@ -24,7 +24,7 @@ static ProcessLinkedPtr processes = NULL;
 static pid_t currentPid = -1;   
 static pid_t nextFreePid = 0; // 0 es el idle!
 static uint64_t readyProcesses = 0; // cantidad de procesos listos
-static uint64_t quantum = 0;    
+static uint64_t quantum = 10;    
 
 void initScheduler(ProcessLinkedPtr list) {
     processes = list;
@@ -106,17 +106,8 @@ uint64_t schedule(uint64_t rsp){
     }
 
     PCB* nextProcess = getNextProcess(processes);
-    if(nextProcess == NULL) {
-        printStr("No next process found, keeping current\n", 0x00FFFFFF);
-        // No ready processes, keep current process
-        if(currentProcess != NULL) {
-            currentProcess->state = RUNNING;
-            readyProcesses--;
-            currentPid = currentProcess->pid;
-        }
-        quantum = calculateQuantum(currentProcess != NULL ? currentProcess->priority : MIN_PRIORITY);
-        return rsp;
-    }
+    quantum = calculateQuantum(currentProcess != NULL ? currentProcess->priority : MIN_PRIORITY);
+    return rsp;
 
     // Switch to next process
     printStr("Switching to process: ", 0x00FFFFFF);

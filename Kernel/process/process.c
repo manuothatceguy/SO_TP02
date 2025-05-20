@@ -33,8 +33,7 @@ void addProcess(ProcessLinkedPtr list, PCB *process){
         return;
     }
     newNode->process = process;
-    newNode->next = NULL;
-    newNode->prev = NULL;
+    newNode->next = list->current;
     if (list->current == NULL) {
         list->current = newNode;
         list->current->next = newNode;
@@ -42,7 +41,6 @@ void addProcess(ProcessLinkedPtr list, PCB *process){
     } else { // la política es: agrego al final, siempre.
         list->current->prev->next = newNode;
         newNode->prev = list->current->prev;
-        newNode->next = list->current;
         list->current->prev = newNode;
     }
     list->numProcesses++;
@@ -106,41 +104,12 @@ PCB* getProcess(ProcessLinkedPtr list, pid_t pid){
 }
 
 PCB* getNextProcess(ProcessLinkedPtr list){
-if (list == NULL || list->current == NULL || list->numProcesses == 0) {
-    return NULL;
-}
-
-    // Guarda el proceso actual
-    ProcessNode* start = list->current;
-    
-    // Primero, intenta avanzar al siguiente proceso
-    ProcessNode* current = list->current->next;
-    
-    // Da una vuelta completa
-    do {
-        if (current->process->state == READY && current->process->pid != 0) {
-            list->current = current;
-            return current->process;
-        }
-        current = current->next;
-    } while (current != start);
-    
-    // Si volvimos al principio, comprobamos el proceso actual
-    if (start->process->state == READY) {
-        return start->process;  // Mantenemos el mismo proceso
+    if (list == NULL || list->current == NULL || list->numProcesses == 0) {
+        return NULL;
     }
-    
-    // Si todo falla, intentamos con idle
-    current = list->current;
-    do {
-        if (current->process->pid == 0 && current->process->state == READY) {
-            list->current = current;
-            return current->process;
-        }
-        current = current->next;
-    } while (current != start);
-    
-    return NULL;  // No hay nada que ejecutar
+    PCB* process = list->current->process;
+    list->current = list->current->next;
+    return process;
 }
 
 PCB* getCurrentProcess(ProcessLinkedPtr list){
