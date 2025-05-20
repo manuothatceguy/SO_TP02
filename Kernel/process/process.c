@@ -45,22 +45,37 @@ void addProcess(ProcessLinkedPtr list, PCB *process){
         newNode->next = list->current;
         list->current->prev = newNode;
     }
+    list->numProcesses++;
 }
 
-void removeProcess(ProcessLinkedPtr list, PCB *process){
-    if (list == NULL || process == NULL) {
+void removeProcess(ProcessLinkedPtr list, pid_t pid) {
+    if (list == NULL || list->current == NULL) {
         return;
     }
-    ProcessNode *current = list->current;
-    while (current != NULL) {
-        if (current->process == process) {
-            current->prev->next = current->next;
-            current->next->prev = current->prev;
+    
+    ProcessNode *start = list->current;
+    ProcessNode *current = start;
+    
+    do {
+        if (current->process->pid == pid) {
+            // Manejo especial si es el único nodo
+            if (current->next == current) {
+                list->current = NULL;
+            } else {
+                current->prev->next = current->next;
+                current->next->prev = current->prev;
+                if (list->current == current) {
+                    list->current = current->next;
+                }
+            }
+            
             freeMemory(current);
+            list->numProcesses--;
             return;
         }
+        
         current = current->next;
-    }
+    } while (current != start);
 }
 
 void freeProcessLinkedList(ProcessLinkedPtr list){
@@ -91,29 +106,41 @@ PCB* getProcess(ProcessLinkedPtr list, pid_t pid){
 }
 
 PCB* getNextProcess(ProcessLinkedPtr list){
-    if (list == NULL || list->current == NULL) {
-        return NULL;
-    }
+if (list == NULL || list->current == NULL || list->numProcesses == 0) {
+    return NULL;
+}
 
+    // Guarda el proceso actual
     ProcessNode* start = list->current;
+    
+    // Primero, intenta avanzar al siguiente proceso
     ProcessNode* current = list->current->next;
     
-    // Buscar el siguiente proceso listo que no sea idle
-    while (current != start) {
+    // Da una vuelta completa
+    do {
         if (current->process->state == READY && current->process->pid != 0) {
             list->current = current;
             return current->process;
         }
         current = current->next;
+    } while (current != start);
+    
+    // Si volvimos al principio, comprobamos el proceso actual
+    if (start->process->state == READY) {
+        return start->process;  // Mantenemos el mismo proceso
     }
     
-    // Si no hay otros procesos listos, retornar idle
-    if (start->process->pid == 0) {
-        list->current = start;
-        return start->process;
-    }
+    // Si todo falla, intentamos con idle
+    current = list->current;
+    do {
+        if (current->process->pid == 0 && current->process->state == READY) {
+            list->current = current;
+            return current->process;
+        }
+        current = current->next;
+    } while (current != start);
     
-    return NULL;
+    return NULL;  // No hay nada que ejecutar
 }
 
 PCB* getCurrentProcess(ProcessLinkedPtr list){

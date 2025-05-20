@@ -1,11 +1,7 @@
 GLOBAL wrapper
 GLOBAL processStackFrame
-GLOBAL idle
 
 wrapper:
-    push rdi    ; argc
-    push rsi    ; argv
-    push rax    ; función real
     call rax   ; rdi=argc, rsi=argv
     mov rax, 16
     int 80h
@@ -19,7 +15,7 @@ processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
     push rdi    ; stack vacío
     push 0x202  ; rflags
     push 0x8    ; cs
-    push rsi    ; rip
+    push wrapper; rip
     push 0      ; r15
     push 0      ; r14
     push 0      ; r13
@@ -34,7 +30,7 @@ processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
     push 0      ; rdx
     push 0      ; rcx
     push 0      ; rbx
-    push 0      ; rax
+    push rsi    ; rax
     mov rax, rsp; para retornar
     mov rsp, rbp
     pop rbp

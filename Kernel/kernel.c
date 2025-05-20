@@ -83,7 +83,8 @@ int main(){
 	ProcessLinkedPtr processList = createProcessLinkedList();
 	initScheduler(processList);
 	createProcess("idle", &idle, 0, NULL, -1);
-	createProcess("feDeVida", (void*)feDeVida, 0, NULL, 0);
+	//createProcess("feDeVida", (void*)feDeVida, 0, NULL, 0);
+	//createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
 	createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
 
 	// Ahora sí, habilita interrupciones y timer

@@ -7,7 +7,7 @@ typedef struct ProcessList *ProcessLinkedPtr;
 
 ProcessLinkedPtr createProcessLinkedList();
 void addProcess(ProcessLinkedPtr list, PCB *process);
-void removeProcess(ProcessLinkedPtr list, PCB *process);
+void removeProcess(ProcessLinkedPtr list, pid_t pid);
 void freeProcessLinkedList(ProcessLinkedPtr list);
 PCB* getProcess(ProcessLinkedPtr list, pid_t pid);
 PCB* getNextProcess(ProcessLinkedPtr list);
