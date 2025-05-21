@@ -86,8 +86,8 @@ static uint64_t syscall_wait(uint64_t ticks){
     return ticks;
 }
 
-pid_t syscall_create_process(char* name, fnptr function, char **argv, uint8_t priority){
-    return createProcess(name, function, argv, priority);
+pid_t syscall_create_process(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority){
+    return createProcess(name, function, argc, arg, priority);
 }
 
 static uint64_t syscall_exit(){ // mata al proceso que llama a la syscall
@@ -123,9 +123,9 @@ static int8_t syscall_changePrio(uint64_t pid, int8_t newPrio) {
     return changePrio(pid, newPrio);
 }
 
-// static PCB* syscall_getProcessInfo(uint64_t *cantProcesses) {
-//     return getProcessInfo(cantProcesses);
-// }
+static PCB* syscall_getProcessInfo(uint64_t *cantProcesses) {
+    return getProcessInfo(cantProcesses);
+}
 
 uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){
     if(syscall_number > CANT_SYSCALLS) return 0;
@@ -150,8 +150,8 @@ uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2
         (syscall_fn)syscall_kill,
         (syscall_fn)syscall_block,
         (syscall_fn)syscall_unblock,
-        (syscall_fn)syscall_changePrio
-        //(syscall_fn)syscall_getProcessInfo
+        (syscall_fn)syscall_changePrio,
+        (syscall_fn)syscall_getProcessInfo
     };
     return syscalls[syscall_number](arg1, arg2, arg3);
 }
