@@ -84,7 +84,7 @@ int main(){
 	initScheduler(processList);
 	//createProcess("idle", &idle, 0, NULL, -1);
 	//createProcess("feDeVida", (void*)feDeVida, 0, NULL, 0);
-	createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
+	createProcess("shell", (void*)sampleCodeModuleAddress, NULL, 0);
 
 	load_idt();
 
