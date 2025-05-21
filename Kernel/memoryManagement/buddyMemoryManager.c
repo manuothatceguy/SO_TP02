@@ -66,9 +66,9 @@ void createMemoryManager() {
 }
 
 void *allocMemory(const size_t memoryToAllocate) {
-    if(memoryManager == NULL) {
-        return NULL; // tenes que tener un memory manager creado, sino no anda.
-    }
+    if( memoryManager == NULL  || memoryToAllocate == 0 || memoryManager->usedMemory + memoryToAllocate > memoryManager->memorySize ){
+		return NULL; // tenes que tener un memory manager creado, sino no anda.
+	}
     uint64_t size = memoryToAllocate;
     if (size < BUDDY_MIN_BLOCK_SIZE) {
         size = BUDDY_MIN_BLOCK_SIZE;
