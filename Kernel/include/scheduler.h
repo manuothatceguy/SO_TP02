@@ -6,13 +6,19 @@
 #include <pcb.h>
 #include <defs.h>
 
-uint64_t schedule(uint64_t rsp);
-void initScheduler(ProcessLinkedPtr list);
-pid_t createProcess(char* name, fnptr function,uint64_t argc, char **arg, uint8_t priority);
+
+void initScheduler();
+
 pid_t getCurrentPid();
-uint64_t blockProcess (pid_t pid);
-void yield();
+
+uint64_t schedule(uint64_t rsp);
+
+pid_t createProcess(char* name, fnptr function, char **argv, uint8_t priority);
+
+uint64_t blockProcess(pid_t pid);
 uint64_t unblockProcess(pid_t pid);
+
+void yield();
 uint64_t kill(pid_t pid);
 int8_t changePrio(pid_t pid, int8_t newPrio);
 // ... 

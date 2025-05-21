@@ -86,8 +86,8 @@ static uint64_t syscall_wait(uint64_t ticks){
     return ticks;
 }
 
-pid_t syscall_create_process(char* name, void(*function)(void*),uint64_t argc, char **arg, uint8_t priority){
-    return createProcess(name, function, argc, arg, priority);
+pid_t syscall_create_process(char* name, fnptr function, char **argv, uint8_t priority){
+    return createProcess(name, function, argv, priority);
 }
 
 static uint64_t syscall_exit(){ // mata al proceso que llama a la syscall
@@ -147,7 +147,6 @@ uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2
         (syscall_fn)syscall_block,
         (syscall_fn)syscall_unblock,
         (syscall_fn)syscall_changePrio,
-
     };
     return syscalls[syscall_number](arg1, arg2, arg3);
 }
