@@ -6,8 +6,8 @@
 
 typedef struct MemoryManager {
 	char *nextAddress;
-	uint64_t used;
-	uint64_t total;
+	uint32_t used;
+	uint32_t total;
 	memStatus status;
 } MemoryManager;
 
