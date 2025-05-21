@@ -121,3 +121,10 @@ PCB* getCurrentProcess(ProcessLinkedPtr list){
     }
     return list->current->process;
 }
+
+uint64_t getProcessCount(ProcessLinkedPtr list) {
+    if (list == NULL) {
+        return 0;
+    }
+    return list->numProcesses;
+}

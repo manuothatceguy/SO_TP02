@@ -15,6 +15,9 @@ void yield();
 uint64_t unblockProcess(pid_t pid);
 uint64_t kill(pid_t pid);
 int8_t changePrio(pid_t pid, int8_t newPrio);
+
+PCB* getProcessInfo(uint64_t *cantProcesses);
+int16_t copyProcess(PCB *dest, PCB *src);
 // ... 
 
 #endif // SCHEDULER_H

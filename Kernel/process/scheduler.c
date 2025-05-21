@@ -5,6 +5,7 @@
 #include <pcb.h>
 #include <lib.h>
 #include <textModule.h>
+#include <syscall.h>
 
 #define QUANTUM 10
 #define MAX_PRIORITY 5 // agregar a limitaciones
@@ -183,4 +184,46 @@ int8_t changePrio(pid_t pid, int8_t newPrio){
     }
     process->priority = newPrio;
     return newPrio;
+}
+
+
+PCB* getProcessInfo(uint64_t *cantProcesses){
+    if ( processes == NULL) {
+        *cantProcesses = 0;
+        return NULL;
+    }
+    
+    uint64_t count = getProcessCount(processes);
+
+    PCB* processInfo = allocMemory(sizeof(PCB) * count);
+    if (processInfo == NULL) {
+        *cantProcesses = 0;
+        return NULL;
+    }
+
+    PCB* currentProcess = getCurrentProcess(processes);
+    
+    for (int i = 0; i < count ; i++) {
+        if ( copyProcess(&processInfo[i], currentProcess) == -1) {
+            freeMemory(processInfo[i].name);
+            freeMemory(processInfo);
+            *cantProcesses = 0;
+            return NULL; // Memory allocation failed
+        }
+        currentProcess = getNextProcess(processes);
+    }
+    *cantProcesses = count;
+    return processInfo;
+}
+
+int16_t copyProcess(PCB *dest, PCB *src) {
+    dest->pid = src->pid;
+    dest->parentPid = src->parentPid;
+    dest->priority = src->priority;
+    dest->state = src->state;
+    dest->rsp = src->rsp;
+    dest->base = src->base;
+    dest->rip = src->rip;
+	strncpy(dest->name, src->name, NAME_MAX_LENGTH);
+    return 0;
 }

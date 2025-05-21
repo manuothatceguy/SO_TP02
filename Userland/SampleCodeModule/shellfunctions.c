@@ -37,7 +37,8 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - test_mm <max_memory>: test de gestion de memoria\n"
                 "    - test_processes <max_processes>: test de procesos\n"
                 "    - test_prio: test de prioridades\n"
-                "    - test_sync: test de sincronizacion\n";
+                "    - test_sync: test de sincronizacion\n"
+                "    - ps: muestra los procesos con su informacion\n";
 
 void showTime(){
     uint64_t time[] = {
@@ -248,5 +249,57 @@ void handle_test_sync(char * arg) {
         printf("Test de sincronizacion fallo con codigo: %d\n", result);
     }
 }
-  
 
+static void printProcessInfo(PCB processInfo) {
+    printf("NAME: %s\n", processInfo.name);
+    printf("PID: %d\n", (int) processInfo.pid);
+    printf("Parent PID: %d\n", (int) processInfo.parentPid);
+
+    const char* state;
+    switch(processInfo.state) {
+        case READY:
+            state = "READY";
+            break;
+        case RUNNING:
+            state = "RUNNING";
+            break;
+        case BLOCKED:
+            state = "BLOCKED";
+            break;
+        case EXITED:
+            state = "EXITED";
+            break;
+        default:
+            state = "UNKNOWN";
+            break;
+    }
+
+    printf("Priority: %d | RSP: 0x%x | RBP: 0x%x | RIP: 0x%x | State = %s\n", 
+           (int) processInfo.priority,
+           (unsigned int) processInfo.rsp, 
+           (unsigned int) processInfo.base,
+           (unsigned int) processInfo.rip, 
+           state);
+}
+  
+void handle_ps(char * arg){
+    uint64_t cantProcesses; 
+
+    PCB *processInfo = syscall_getProcessInfo(&cantProcesses);
+
+    if (cantProcesses == 0 || processInfo == NULL) {
+        printf("No se encontraron procesos.\n");
+        return;
+    }
+    
+    for (int i = 0; i < cantProcesses; i++) {
+        printProcessInfo(processInfo[i]);
+    }
+
+    for (int i = 0; i < cantProcesses; i++) {
+        syscall_freeMemory(processInfo[i].name);
+    }
+
+    syscall_freeMemory(processInfo);
+
+}
