@@ -1,6 +1,7 @@
 #include <process.h>
 #include <pcb.h>
 #include <memoryManager.h>
+#include <lib.h>
  
 static pid_t nextFreePid = 0; 
 
@@ -28,9 +29,9 @@ ProcessListADT createProcessLinkedList(){
     return list;
 }
 
-static inline ProcessList* insertIntoList(ProcessNode *list, ProcessNode *newNode) {
+static inline ProcessNode* insertIntoList(ProcessNode *list, ProcessNode *newNode) {
     if (newNode == NULL) {
-        return;
+        return list;
     }
     if(list == NULL) {
         newNode->next = newNode;
@@ -41,13 +42,9 @@ static inline ProcessList* insertIntoList(ProcessNode *list, ProcessNode *newNod
     newNode->prev = list;
     list->next->prev = newNode;
     list->next = newNode;
+    return list;
 }
 
-
-/**
- * si tengo | x | -> | y | -> | z | en la lista y quiero "y"
- * entonces retorno | y | y me queda | x | -> | z | en la lista
- */
 static inline ProcessNode* pickFromList(ProcessNode* list, pid_t pid, ProcessNode** returnNode) {
     if (list == NULL) {
         return NULL;
@@ -98,8 +95,8 @@ pid_t createReadyProcess(ProcessListADT list, char* name, fnptr function, char *
 
     uint64_t argc = countArgs(argv);
 
-    PCB* process = allocMemory(sizeof(PCB));
-    if (process == NULL) {
+    PCB* newProcess = allocMemory(sizeof(PCB));
+    if (newProcess == NULL) {
         return -1; 
     }
 
@@ -109,21 +106,28 @@ pid_t createReadyProcess(ProcessListADT list, char* name, fnptr function, char *
         priority = MAX_PRIORITY;
     }
 
-    strncpy(process->name, name, NAME_MAX_LENGTH);
-    process->pid = nextFreePid++;
-    process->parentPid = list->running ? list->running->pid : 0;
-    process->priority = priority;
-    process->base = (uint64_t)allocMemory(STACK_SIZE);
+    strncpy(newProcess->name, name, NAME_MAX_LENGTH);
+    newProcess->pid = nextFreePid++;
+    newProcess->parentPid = list->running ? list->running->pid : 0;
+    newProcess->priority = priority;
+    newProcess->base = (uint64_t)allocMemory(STACK_SIZE);
 
-    if ((void *)process->base == NULL) {
-        freeMemory(process); 
+    if ((void *)newProcess->base == NULL) {
+        freeMemory(newProcess);
         return -1;
     }
 
-    process->base += STACK_SIZE;
-    process->rsp = processStackFrame(process->base + STACK_SIZE, (uint64_t)function, argc, (uint64_t)argv);
-    list->ready = insertIntoList(list->ready, process);
-    return process->pid;
+    newProcess->base += STACK_SIZE;
+    newProcess->rsp = processStackFrame(newProcess->base + STACK_SIZE, (uint64_t)function, argc, argv);
+    ProcessNode *newProcessNode = (ProcessNode *)allocMemory(sizeof(ProcessNode));
+    if (newProcessNode == NULL) {
+        freeMemory((void*)newProcess->base);
+        freeMemory(newProcess);
+        return -1; 
+    }
+    newProcessNode->process = newProcess;
+    list->ready = insertIntoList(list->ready, newProcessNode);
+    return newProcess->pid;
 }
 
 pid_t readyToBlocked(ProcessListADT list, pid_t pid){
@@ -131,7 +135,7 @@ pid_t readyToBlocked(ProcessListADT list, pid_t pid){
         return -1;
     }
     ProcessNode *blockedNode;
-    list = pickFromList(list->ready, pid, &blockedNode);
+    list->ready = pickFromList(list->ready, pid, &blockedNode);
     if (blockedNode == NULL) {
         return -1; // no se encontro el proceso
     }
@@ -144,7 +148,7 @@ pid_t blockedToReady(ProcessListADT list, pid_t pid){
         return -1;
     }
     ProcessNode *unblockedNode;
-    list = pickFromList(list->blocked, pid, &unblockedNode);
+    list->blocked = pickFromList(list->blocked, pid, &unblockedNode);
     if (unblockedNode == NULL) {
         return -1; // no se encontro el proceso
     }
@@ -157,10 +161,10 @@ PCB* getRunningProcess(ProcessListADT list){
 }
 
 PCB* getNextProcess(ProcessListADT list){
-    PCB* nextProcess;
+    ProcessNode* nextProcess;
     list->ready = pickFromList(list->ready, -2, &nextProcess);
-    list->running = nextProcess;
-    return nextProcess;
+    list->running = nextProcess->process;
+    return nextProcess->process;
 }
 
 static inline PCB* getProcess(ProcessNode* list, pid_t pid){
@@ -194,11 +198,11 @@ int8_t changePriority(ProcessListADT list, pid_t pid, uint8_t newPrio){
     } else if (newPrio > MAX_PRIORITY) {
         newPrio = MAX_PRIORITY; 
     }
-    ProcessNode *processNode;
-    processNode = getProcess(list->ready, pid) ? processNode : getProcess(list->blocked, pid);
+    PCB *processNode = getProcess(list->ready, pid);
+    processNode = processNode ? processNode : getProcess(list->blocked, pid);
     if (processNode == NULL) {
         return -1; // no se encontro el proceso
     }
-    processNode->process->priority = newPrio;
+    processNode->priority = newPrio;
     return 0;
 }

@@ -17,6 +17,7 @@ pid_t blockedToReady(ProcessListADT list, pid_t pid);
 PCB* getRunningProcess(ProcessListADT list); // no avanza la lista
 PCB* getNextProcess(ProcessListADT list); // avanza la lista y retorna el siguiente
 int8_t changePriority(ProcessListADT list, pid_t pid, uint8_t newPrio);
+
 /* repensar
 void removeProcess(ProcessListADT list, pid_t pid);
 void freeProcessLinkedList(ProcessListADT list);
