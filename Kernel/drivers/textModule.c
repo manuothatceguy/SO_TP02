@@ -262,19 +262,4 @@ void moveScreenUpIfFull() {
         y_pos -= scroll_amount;
     }
 }
-
-void printInt(uint64_t value, uint32_t color) {
-    char buffer[21]; // Suficiente para uint64_t
-    int i = 20;
-    buffer[i--] = '\0';
-    if (value == 0) {
-        buffer[i--] = '0';
-    } else {
-        while (value > 0 && i >= 0) {
-            buffer[i--] = '0' + (value % 10);
-            value /= 10;
-        }
-    }
-    printStr(&buffer[i + 1], color);
-}
     

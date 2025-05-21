@@ -22,8 +22,8 @@
 
 #define MEMORY_MANAGER_ADDRESS 0x50000LL                  // aprovechando espacio vacío de la memoria
 #define HEAP_START_ADDRESS 0x600000LL                     // dirección de inicio del heap
-#define HEAP_SIZE (16 * 1024 * 1024) // 16MB
-#define HEAP_END_ADDRESS   (HEAP_START_ADDRESS + HEAP_SIZE) // fin del heap
+#define HEAP_END_ADDRESS   0xFFFFFFFFFFFFFFFFLL           // fin de la memoria --> fin del heap 
+#define HEAP_SIZE (HEAP_END_ADDRESS - HEAP_START_ADDRESS) // tamaño del heap
 
 //#define NULL (void *)0
 typedef void (*fnptr)(uint64_t argc, char **argv); 

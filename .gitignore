@@ -19,3 +19,7 @@ Kernel/kernel.elf
 Userland/0000-sampleCodeModule.elf
 .tgdbinit
 .gdbinit
+
+# gdb
+.gdbinit
+.tgdbinit
