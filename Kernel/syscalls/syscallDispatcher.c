@@ -86,7 +86,7 @@ static uint64_t syscall_wait(uint64_t ticks){
     return ticks;
 }
 
-pid_t syscall_create_process(char* name, void(*function)(void*),uint64_t argc, char **arg, uint8_t priority){
+pid_t syscall_create_process(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority){
     return createProcess(name, function, argc, arg, priority);
 }
 

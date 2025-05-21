@@ -18,7 +18,7 @@ $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
 
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include $(MM) -c $< -o $@
 
 %.o : %.asm drivers/keyboardDriver.o drivers/time.o process/scheduler.o
 	$(ASM) $(ASMFLAGS) $< -o $@

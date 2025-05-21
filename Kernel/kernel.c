@@ -88,9 +88,9 @@ int main(){
 
 	load_idt();
 
-	while (1) {
-		_hlt();
-	}
+	// while (1) {
+	// 	_hlt();
+	// }
 	return 0;
 }
 
