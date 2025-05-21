@@ -19,4 +19,6 @@ uint64_t fontSizeDown(uint64_t decrease);
 
 void moveScreenUpIfFull();
 
+void printInt(uint64_t value, uint32_t color);
+
 #endif // TEXTMODULE_H
