@@ -17,3 +17,5 @@
 .gdb_history
 Kernel/kernel.elf
 Userland/0000-sampleCodeModule.elf
+.tgdbinit
+.gdbinit

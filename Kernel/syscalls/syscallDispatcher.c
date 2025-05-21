@@ -86,14 +86,13 @@ static uint64_t syscall_wait(uint64_t ticks){
     return ticks;
 }
 
-pid_t syscall_create_process(char* name, void(*function)(void*),uint64_t argc, char **arg, uint8_t priority){
+pid_t syscall_create_process(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority){
     return createProcess(name, function, argc, arg, priority);
 }
 
-static uint64_t syscall_exit(){ //Finaliza el proceso que llama a esta syscall.
+static uint64_t syscall_exit(){ // mata al proceso que llama a la syscall
     kill(getCurrentPid());
-    yield();
-    return 0; // No se llega a ejecutar
+    return 0; // no deberia ejecutarse
 }
 
 pid_t syscall_getpid(){
