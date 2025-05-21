@@ -20,5 +20,6 @@ void handle_test_mm(char * arg);
 void handle_test_processes(char * arg);
 void handle_test_prio(char * arg);
 void handle_test_sync(char * arg);
+void handle_ps(char * arg);
 
 #endif //SHELL_FUNCTIONS_H

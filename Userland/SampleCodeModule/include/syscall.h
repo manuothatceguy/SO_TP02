@@ -3,9 +3,31 @@
 
 #include <stdint.h>
 
+#define NAME_MAX_LENGTH 32 
+
 typedef struct Point2D {
     uint64_t x, y;
 } Point2D;
+
+typedef enum {
+    READY,
+    RUNNING,
+    BLOCKED,
+    EXITED
+} ProcessState;
+
+typedef int pid_t;
+
+typedef struct PCB {
+    pid_t pid; 
+    pid_t parentPid;
+    uint8_t priority; 
+    ProcessState state; 
+    uint64_t rsp;
+    uint64_t base;
+    uint64_t rip;
+    char name[NAME_MAX_LENGTH];
+} PCB;
 
 uint64_t syscall_read(char *buff, uint64_t len);
 uint64_t syscall_write(uint64_t fd, char *buff, uint64_t len);
@@ -27,6 +49,7 @@ uint64_t syscall_kill(uint64_t pid);
 uint64_t syscall_block(uint64_t pid);
 uint64_t syscall_unblock(uint64_t pid);
 int8_t syscall_changePrio(uint64_t pid, int8_t newPrio);
+PCB *syscall_getProcessInfo(uint64_t *cantProcesses);
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 int64_t my_getpid();

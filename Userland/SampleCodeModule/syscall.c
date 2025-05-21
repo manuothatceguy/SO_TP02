@@ -30,7 +30,8 @@ enum syscall_number {
     KILL,
     BLOCK,
     UNBLOCK,
-    CHANGE_PRIO
+    CHANGE_PRIO,
+    GET_PROCESS_INFO
 };
 
 uint64_t syscall_read(char * buff, uint64_t len){
@@ -111,6 +112,10 @@ uint64_t syscall_unblock(uint64_t pid) {
 
 int8_t syscall_changePrio(uint64_t pid, int8_t newPrio) {
     return syscall(CHANGE_PRIO, pid, newPrio, 0);
+}
+
+PCB *syscall_getProcessInfo(uint64_t *cantProcesses) {
+    return (PCB *)syscall(GET_PROCESS_INFO, (uint64_t)cantProcesses, 0, 0);
 }
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests

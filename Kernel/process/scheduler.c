@@ -5,6 +5,7 @@
 #include <pcb.h>
 #include <lib.h>
 #include <textModule.h>
+#include <syscall.h>
 
 #define QUANTUM 10
 

@@ -5,13 +5,18 @@
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
-enum State { RUNNING,
-             BLOCKED,
-             KILLED };
+//enum State { RUNNING,
+//             BLOCKED,
+//             KILLED };
+
+//typedef struct P_rq {
+//  int32_t pid;
+//  enum State state;
+//} p_rq;
 
 typedef struct P_rq {
   int32_t pid;
-  enum State state;
+  ProcessState state;
 } p_rq;
 
 int64_t test_processes(uint64_t argc, char *argv[]) {
@@ -57,7 +62,8 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
                 printf("test_processes: ERROR killing process\n");
                 return -1;
               }
-              p_rqs[rq].state = KILLED;
+              //p_rqs[rq].state = KILLED;
+              p_rqs[rq].state = EXITED;
               alive--;
             }
             break;
