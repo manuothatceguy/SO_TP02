@@ -80,7 +80,7 @@ int main(){
 
 	// MEMORY MANAGER
 	createMemoryManager();
-	ProcessLinkedPtr processList = createProcessLinkedList();
+	ProcessListADT processList = createProcessLinkedList();
 	initScheduler(processList);
 	//createProcess("idle", &idle, 0, NULL, -1);
 	//createProcess("feDeVida", (void*)feDeVida, 0, NULL, 0);
