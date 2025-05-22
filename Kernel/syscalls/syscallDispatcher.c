@@ -20,6 +20,7 @@ extern uint64_t regs[CANT_REGS];
 typedef struct Point2D {
     uint64_t x, y;
 } Point2D;
+
 typedef uint64_t (*syscall_fn)(uint64_t rbx, uint64_t rcx, uint64_t rdx);
 
 
@@ -86,8 +87,8 @@ static uint64_t syscall_wait(uint64_t ticks){
     return ticks;
 }
 
-pid_t syscall_create_process(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority){
-    return createProcess(name, function, argc, arg, priority);
+pid_t syscall_create_process(ProcessCreationParams* params) {
+    return createProcess(params->name, params->function, params->argc, params->arg, params->priority);
 }
 
 static uint64_t syscall_exit(){ // mata al proceso que llama a la syscall

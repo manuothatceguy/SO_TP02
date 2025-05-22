@@ -5,6 +5,8 @@
 
 #define NAME_MAX_LENGTH 32 
 
+typedef void (*fnptr)(uint64_t argc, char **argv);
+
 typedef struct Point2D {
     uint64_t x, y;
 } Point2D;
@@ -43,7 +45,7 @@ uint64_t syscall_getWidth();
 uint64_t syscall_wait(uint64_t ticks);
 void *syscall_allocMemory(uint64_t size);
 void syscall_freeMemory(void *address);
-uint64_t syscall_create_process(char *name, uint64_t argc, char *argv[]);
+uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority);
 uint64_t syscall_getpid();
 uint64_t syscall_kill(uint64_t pid);
 uint64_t syscall_block(uint64_t pid);

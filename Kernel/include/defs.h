@@ -5,6 +5,7 @@
 #ifndef _defs_
 #define _defs_
 
+#include <stdint.h>
 
 /* Flags para derechos de acceso de los segmentos */
 #define ACS_PRESENT     0x80            /* segmento presente en memoria */
@@ -27,4 +28,13 @@
 
 //#define NULL (void *)0
 typedef void (*fnptr)(uint64_t argc, char **argv); 
+
+typedef struct ProcessCreationParams {
+    char* name;
+    fnptr function;
+    uint64_t argc;
+    char** arg;
+    uint8_t priority;
+} ProcessCreationParams;
+
 #endif

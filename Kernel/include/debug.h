@@ -12,14 +12,14 @@
 // Debug print macro that only prints if DEBUG_MODE is enabled
 #define DEBUG_PRINT(msg, color) do { \
     if (DEBUG_MODE) { \
-        printStr(msg, color); \
+        printStr(msg, 0x00ADD8E6); \
     } \
 } while(0)
 
 // Debug print integer macro that only prints if DEBUG_MODE is enabled
 #define DEBUG_PRINT_INT(num, color) do { \
     if (DEBUG_MODE) { \
-        printInt(num, color); \
+        printInt(num, 0x00ADD8E6); \
     } \
 } while(0)
 

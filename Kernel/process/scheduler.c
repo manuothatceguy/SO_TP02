@@ -74,7 +74,7 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
     process->base += STACK_SIZE;
 
     process->rip = (uint64_t)wrapper;
-    process->rsp = processStackFrame(process->base + STACK_SIZE, (uint64_t)function, argc, (uint64_t)arg);
+    process->rsp = processStackFrame(process->base + STACK_SIZE, (uint64_t)function, argc, arg);
      
     addProcess(processes, process);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   

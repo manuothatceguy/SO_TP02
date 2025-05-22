@@ -89,9 +89,25 @@ void *syscall_allocMemory(uint64_t size) {
 void syscall_freeMemory(void *address) {
     syscall(FREE_MEMORY, (uint64_t)address, 0, 0);
 }
+   
+typedef struct ProcessCreationParams {
+    char* name;
+    fnptr function;
+    uint64_t argc;
+    char** arg;
+    uint8_t priority;
+} ProcessCreationParams;
 
-uint64_t syscall_create_process(char *name, uint64_t argc, char *argv[]) {
-    return syscall(CREATE_PROCESS, (uint64_t)name, argc, (uint64_t)argv);
+
+uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority) {
+    ProcessCreationParams params = {
+        .name = name,
+        .function = function,
+        .argc = argc,
+        .arg = argv,
+        .priority = priority
+    };
+    return syscall(CREATE_PROCESS, (uint64_t)&params, 0, 0);
 }
 
 uint64_t syscall_getpid() {
