@@ -1,6 +1,7 @@
 #include <process.h>
 #include <pcb.h>
 #include <memoryManager.h>
+#include <debug.h>
 
 // lista doblemente encadenada circular
 typedef struct ProcessNode {

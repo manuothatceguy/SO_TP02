@@ -3,6 +3,7 @@
 #include <defs.h>
 #include <stdint.h>
 #include <textModule.h>
+#include <debug.h>
 
 #define BUDDY_MIN_BLOCK_SIZE 8 // 2^3 = 8 bytes
 #define MAX_LEVEL 32  // Maximum level for buddy system
@@ -78,82 +79,82 @@ void createMemoryManager() {
     memoryManager->blocks[maxLevel] = rootBlock;
 
     // Prints de depuración
-    printStr("[createMemoryManager] Bloque raíz en nivel: ", 0x00FFFFFF);
-    printInt(maxLevel, 0x00FFFFFF);
-    printStr(" dirección: ", 0x00FFFFFF);
-    printInt((uint64_t)rootBlock, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
-    printStr("[createMemoryManager] Estado inicial de blocks: ", 0x00FFFFFF);
+    DEBUG_PRINT("[createMemoryManager] Bloque raíz en nivel: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(maxLevel, DEBUG_COLOR);
+    DEBUG_PRINT(" dirección: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT((uint64_t)rootBlock, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
+    DEBUG_PRINT("[createMemoryManager] Estado inicial de blocks: ", DEBUG_COLOR);
     for (int i = 0; i < BLOCKS; i++) {
         if (memoryManager->blocks[i] != NULL) {
-            printStr("[", 0x00FFFFFF);
-            printInt(i, 0x00FFFFFF);
-            printStr(":L]", 0x00FFFFFF);
+            DEBUG_PRINT("[", DEBUG_COLOR);
+            DEBUG_PRINT_INT(i, DEBUG_COLOR);
+            DEBUG_PRINT(":L]", DEBUG_COLOR);
         }
     }
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
 }
 
 void *allocMemory(const size_t memoryToAllocate) {
     if(memoryManager == NULL || memoryManager->status != BUDDY_OK) {
-        printStr("No se ha creado un memory manager o hay un error\n", 0x00FFFFFF);
+        DEBUG_PRINT("No se ha creado un memory manager o hay un error\n", DEBUG_COLOR);
         return NULL;
     }
 
     // Sumar el tamaño del header
     uint64_t size = memoryToAllocate + sizeof(BuddyBlock);
-    printStr("[allocMemory] Tamaño solicitado: ", 0x00FFFFFF);
-    printInt(memoryToAllocate, 0x00FFFFFF);
-    printStr(" + header = ", 0x00FFFFFF);
-    printInt(size, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("[allocMemory] Tamaño solicitado: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(memoryToAllocate, DEBUG_COLOR);
+    DEBUG_PRINT(" + header = ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(size, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
 
     if (size < BUDDY_MIN_BLOCK_SIZE) {
-        printStr("El tamaño mínimo de bloque es 8 bytes\n", 0x00FFFFFF);
+        DEBUG_PRINT("El tamaño mínimo de bloque es 8 bytes\n", DEBUG_COLOR);
         size = BUDDY_MIN_BLOCK_SIZE;
     }
 
     // Ajustar a la siguiente potencia de 2
     if ((size & (size - 1)) != 0) {
-        printStr("El tamaño debe ser una potencia de 2\n", 0x00FFFFFF);
+        DEBUG_PRINT("El tamaño debe ser una potencia de 2\n", DEBUG_COLOR);
         size = 1ULL << (log2(size) + 1);
     }
-    printStr("[allocMemory] Tamaño ajustado: ", 0x00FFFFFF);
-    printInt(size, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("[allocMemory] Tamaño ajustado: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(size, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
 
     uint8_t level = memoryToLevel(size);
-    printStr("[allocMemory] Nivel calculado: ", 0x00FFFFFF);
-    printInt(level, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("[allocMemory] Nivel calculado: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(level, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
 
     // Mostrar el estado del array blocks
-    printStr("[allocMemory] Estado de blocks: ", 0x00FFFFFF);
+    DEBUG_PRINT("[allocMemory] Estado de blocks: ", DEBUG_COLOR);
     for (int i = 0; i < BLOCKS; i++) {
         if (memoryManager->blocks[i] != NULL) {
-            printStr("[", 0x00FFFFFF);
-            printInt(i, 0x00FFFFFF);
-            printStr(":L]", 0x00FFFFFF);
+            DEBUG_PRINT("[", DEBUG_COLOR);
+            DEBUG_PRINT_INT(i, DEBUG_COLOR);
+            DEBUG_PRINT(":L]", DEBUG_COLOR);
         }
     }
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
 
     if (level >= BLOCKS) {
         memoryManager->status = BUDDY_ERROR;
-        printStr("Tamaño de bloque demasiado grande\n", 0x00FFFFFF);
+        DEBUG_PRINT("Tamaño de bloque demasiado grande\n", DEBUG_COLOR);
         return NULL; // Tamaño demasiado grande
     }
     
     // Buscar un bloque libre del tamaño adecuado
     BuddyBlock* block = findFreeBlock(memoryManager, level);
     if (block == NULL) {
-        printStr("No hay bloques libres disponibles\n", 0x00FFFFFF);
+        DEBUG_PRINT("No hay bloques libres disponibles\n", DEBUG_COLOR);
         return NULL; // No hay memoria disponible
     }
     
     // Marcar el bloque como asignado
     block->blockState = ALLOCATED;
-    printStr("Bloque asignado\n", 0x00FFFFFF);
+    DEBUG_PRINT("Bloque asignado\n", DEBUG_COLOR);
     
     // Calcular y retornar la dirección de memoria después del header
     memoryManager->usedMemory += (1ULL << block->level);
@@ -161,25 +162,25 @@ void *allocMemory(const size_t memoryToAllocate) {
 }
 
 static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level) {
-    printStr("[findFreeBlock] Buscando nivel: ", 0x00FFFFFF);
-    printInt(level, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("[findFreeBlock] Buscando nivel: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(level, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
     
     // Buscar en el nivel actual
     if (memoryManager->blocks[level] != NULL) {
-        printStr("[findFreeBlock] Bloque encontrado en el nivel actual\n", 0x00FFFFFF);
+        DEBUG_PRINT("[findFreeBlock] Bloque encontrado en el nivel actual\n", DEBUG_COLOR);
         BuddyBlock* block = memoryManager->blocks[level];
         
         // Verificar que el bloque esté realmente libre
         if (block->blockState != FREE) {
-            printStr("[findFreeBlock] El bloque no está libre\n", 0x00FFFFFF);
+            DEBUG_PRINT("[findFreeBlock] El bloque no está libre\n", DEBUG_COLOR);
             return NULL;
         }
         
         // Quitar de la lista de libres
         memoryManager->blocks[level] = block->next;
         if (block->next) {
-            printStr("[findFreeBlock] Bloque siguiente encontrado\n", 0x00FFFFFF);
+            DEBUG_PRINT("[findFreeBlock] Bloque siguiente encontrado\n", DEBUG_COLOR);
             block->next->prev = NULL;
         }
         
@@ -192,9 +193,9 @@ static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level)
     for (uint8_t i = level + 1; i < BLOCKS; i++) {
         BuddyBlock* block = memoryManager->blocks[i];
         if (block != NULL) {
-            printStr("[findFreeBlock] Dividiendo bloque de nivel superior: ", 0x00FFFFFF);
-            printInt(i, 0x00FFFFFF);
-            printStr("\n", 0x00FFFFFF);
+            DEBUG_PRINT("[findFreeBlock] Dividiendo bloque de nivel superior: ", DEBUG_COLOR);
+            DEBUG_PRINT_INT(i, DEBUG_COLOR);
+            DEBUG_PRINT("\n", DEBUG_COLOR);
             
             // Remover el bloque del nivel superior
             memoryManager->blocks[i] = block->next;
@@ -218,19 +219,19 @@ static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level)
         }
     }
     
-    printStr("[findFreeBlock] No hay bloques libres disponibles\n", 0x00FFFFFF);
+    DEBUG_PRINT("[findFreeBlock] No hay bloques libres disponibles\n", DEBUG_COLOR);
     return NULL; // No hay bloques disponibles
 }
 
 static BuddyBlock* splitBlockToLevel(MemoryManagerADT memoryManager, BuddyBlock* block, uint8_t currentLevel, uint8_t targetLevel) {
-    printStr("[splitBlockToLevel] Dividiendo bloque de nivel ", 0x00FFFFFF);
-    printInt(currentLevel, 0x00FFFFFF);
-    printStr(" a nivel ", 0x00FFFFFF);
-    printInt(targetLevel, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("[splitBlockToLevel] Dividiendo bloque de nivel ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(currentLevel, DEBUG_COLOR);
+    DEBUG_PRINT(" a nivel ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(targetLevel, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
     
     if (currentLevel <= targetLevel) {
-        printStr("[splitBlockToLevel] Ya estamos en el nivel objetivo o inferior\n", 0x00FFFFFF);
+        DEBUG_PRINT("[splitBlockToLevel] Ya estamos en el nivel objetivo o inferior\n", DEBUG_COLOR);
         return (currentLevel == targetLevel) ? block : NULL;
     }
     
@@ -266,20 +267,20 @@ static BuddyBlock* splitBlockToLevel(MemoryManagerADT memoryManager, BuddyBlock*
 }
 
 static BuddyBlock * splitBlock(MemoryManagerADT memoryManager, uint8_t sourceLevel, uint8_t targetLevel) {
-    printStr("[splitBlock] INICIO: de nivel ", 0x00FFFFFF);
-    printInt(sourceLevel, 0x00FFFFFF);
-    printStr(" a nivel ", 0x00FFFFFF);
-    printInt(targetLevel, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("[splitBlock] INICIO: de nivel ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(sourceLevel, DEBUG_COLOR);
+    DEBUG_PRINT(" a nivel ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(targetLevel, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
     if (sourceLevel <= targetLevel) {
-        printStr("[splitBlock] No se puede dividir a un nivel mayor o igual\n", 0x00FFFFFF);
+        DEBUG_PRINT("[splitBlock] No se puede dividir a un nivel mayor o igual\n", DEBUG_COLOR);
         return NULL; // No se puede dividir a un nivel mayor o igual
     }
 
     // Obtener un bloque libre del nivel sourceLevel
     BuddyBlock* block = memoryManager->blocks[sourceLevel];
     if (block == NULL) {
-        printStr("[splitBlock] No se pudo encontrar un bloque libre\n", 0x00FFFFFF);
+        DEBUG_PRINT("[splitBlock] No se pudo encontrar un bloque libre\n", DEBUG_COLOR);
         return NULL;
     }
     // Eliminar el bloque de la lista de libres antes de dividir
@@ -290,9 +291,9 @@ static BuddyBlock * splitBlock(MemoryManagerADT memoryManager, uint8_t sourceLev
     block->next = NULL;
     block->prev = NULL;
 
-    printStr("[splitBlock] Dividiendo bloque en dirección: ", 0x00FFFFFF);
-    printInt((uint64_t)block, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("[splitBlock] Dividiendo bloque en dirección: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT((uint64_t)block, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
 
     block->blockState = SPLIT;
 
@@ -311,23 +312,23 @@ static BuddyBlock * splitBlock(MemoryManagerADT memoryManager, uint8_t sourceLev
     // Añadir el bloque derecho a la lista de libres de su nivel
     rightChild->next = memoryManager->blocks[newLevel];
     if (memoryManager->blocks[newLevel]) {
-        printStr("[splitBlock] Bloque derecho añadido a la lista de libres\n", 0x00FFFFFF);
+        DEBUG_PRINT("[splitBlock] Bloque derecho añadido a la lista de libres\n", DEBUG_COLOR);
         memoryManager->blocks[newLevel]->prev = rightChild;
     }
     memoryManager->blocks[newLevel] = rightChild;
-    printStr("[splitBlock] Estado de blocks tras split: ", 0x00FFFFFF);
+    DEBUG_PRINT("[splitBlock] Estado de blocks tras split: ", DEBUG_COLOR);
     for (int i = 0; i < BLOCKS; i++) {
         if (memoryManager->blocks[i] != NULL) {
-            printStr("[", 0x00FFFFFF);
-            printInt(i, 0x00FFFFFF);
-            printStr(":L]", 0x00FFFFFF);
+            DEBUG_PRINT("[", DEBUG_COLOR);
+            DEBUG_PRINT_INT(i, DEBUG_COLOR);
+            DEBUG_PRINT(":L]", DEBUG_COLOR);
         }
     }
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
 
     // Si hemos llegado al nivel objetivo, devolver el bloque izquierdo
     if (newLevel == targetLevel) {
-        printStr("[splitBlock] Bloque izquierdo devuelto\n", 0x00FFFFFF);
+        DEBUG_PRINT("[splitBlock] Bloque izquierdo devuelto\n", DEBUG_COLOR);
         return leftChild;
     }
 
@@ -342,7 +343,7 @@ static inline uint64_t calculateOffset(MemoryManagerADT memoryManager, BuddyBloc
 
 void *freeMemory(void *const restrict address) {
     if (address == NULL || memoryManager == NULL || memoryManager->status != BUDDY_OK) {
-        printStr("Dirección inválida o memory manager no creado\n", 0x00FFFFFF);
+        DEBUG_PRINT("Dirección inválida o memory manager no creado\n", DEBUG_COLOR);
         return NULL;
     }
 
@@ -352,7 +353,7 @@ void *freeMemory(void *const restrict address) {
     // Validar el bloque
     if (block->blockState != ALLOCATED) {
         memoryManager->status = BUDDY_ERROR;
-        printStr("Bloque no encontrado o no asignado\n", 0x00FFFFFF);
+        DEBUG_PRINT("Bloque no encontrado o no asignado\n", DEBUG_COLOR);
         return NULL; // Dirección inválida o bloque no asignado
     }
 
@@ -362,7 +363,7 @@ void *freeMemory(void *const restrict address) {
     // Añadir el bloque a la lista de libres de su nivel
     block->next = memoryManager->blocks[block->level];
     if (memoryManager->blocks[block->level]) {
-        printStr("Bloque añadido a la lista de libres\n", 0x00FFFFFF);
+        DEBUG_PRINT("Bloque añadido a la lista de libres\n", DEBUG_COLOR);
         memoryManager->blocks[block->level]->prev = block;
     }
     memoryManager->blocks[block->level] = block;
@@ -378,7 +379,7 @@ void *freeMemory(void *const restrict address) {
 
 static BuddyBlock* getBuddy(MemoryManagerADT memoryManager, BuddyBlock* block) {
     if (block == NULL || block->level >= BLOCKS) {
-        printStr("Bloque inválido o nivel fuera de rango\n", 0x00FFFFFF);
+        DEBUG_PRINT("Bloque inválido o nivel fuera de rango\n", DEBUG_COLOR);
         return NULL;
     }
     
@@ -389,7 +390,7 @@ static BuddyBlock* getBuddy(MemoryManagerADT memoryManager, BuddyBlock* block) {
     // Verify buddy is within managed memory
     if (buddyAddr < (uint64_t)memoryManager->managedMemory || 
         buddyAddr >= (uint64_t)memoryManager->managedMemory + memoryManager->memorySize) {
-        printStr("Buddy fuera de rango\n", 0x00FFFFFF);
+        DEBUG_PRINT("Buddy fuera de rango\n", DEBUG_COLOR);
         return NULL;
     }
     
@@ -398,7 +399,7 @@ static BuddyBlock* getBuddy(MemoryManagerADT memoryManager, BuddyBlock* block) {
 
 static void mergeBlocks(MemoryManagerADT memoryManager, BuddyBlock* block) {
     if (block == NULL || block->level >= BLOCKS || block->blockState != FREE) {
-        printStr("Bloque inválido o no libre\n", 0x00FFFFFF);
+        DEBUG_PRINT("Bloque inválido o no libre\n", DEBUG_COLOR);
         return;
     }
     
@@ -409,26 +410,26 @@ static void mergeBlocks(MemoryManagerADT memoryManager, BuddyBlock* block) {
     if (buddy != NULL && buddy->blockState == FREE && buddy->level == block->level) {
         // Quitar ambos bloques de la lista de libres
         if (buddy->prev) {
-            printStr("Bloque buddy encontrado\n", 0x00FFFFFF);
+            DEBUG_PRINT("Bloque buddy encontrado\n", DEBUG_COLOR);
             buddy->prev->next = buddy->next;
         } else {
-            printStr("Bloque buddy es el primero\n", 0x00FFFFFF);
+            DEBUG_PRINT("Bloque buddy es el primero\n", DEBUG_COLOR);
             memoryManager->blocks[buddy->level] = buddy->next;
         }
         if (buddy->next) {
-            printStr("Bloque buddy siguiente encontrado\n", 0x00FFFFFF);
+            DEBUG_PRINT("Bloque buddy siguiente encontrado\n", DEBUG_COLOR);
             buddy->next->prev = buddy->prev;
         }
         
         if (block->prev) {
-            printStr("Bloque anterior encontrado\n", 0x00FFFFFF);
+            DEBUG_PRINT("Bloque anterior encontrado\n", DEBUG_COLOR);
             block->prev->next = block->next;
         } else {
-            printStr("Bloque anterior es el primero\n", 0x00FFFFFF);
+            DEBUG_PRINT("Bloque anterior es el primero\n", DEBUG_COLOR);
             memoryManager->blocks[block->level] = block->next;
         }
         if (block->next) {
-            printStr("Bloque siguiente encontrado\n", 0x00FFFFFF);
+            DEBUG_PRINT("Bloque siguiente encontrado\n", DEBUG_COLOR);
             block->next->prev = block->prev;
         }
         
@@ -441,10 +442,10 @@ static void mergeBlocks(MemoryManagerADT memoryManager, BuddyBlock* block) {
         // Añadir el padre a la lista de libres
         parent->next = memoryManager->blocks[parent->level];
         if (memoryManager->blocks[parent->level]) {
-            printStr("Bloque padre añadido a la lista de libres\n", 0x00FFFFFF);
+            DEBUG_PRINT("Bloque padre añadido a la lista de libres\n", DEBUG_COLOR);
             memoryManager->blocks[parent->level]->prev = parent;
         }
-        printStr("Bloque padre añadido a la lista de libres\n", 0x00FFFFFF);
+        DEBUG_PRINT("Bloque padre añadido a la lista de libres\n", DEBUG_COLOR);
         memoryManager->blocks[parent->level] = parent;
         
         // Intentar fusionar recursivamente
@@ -453,7 +454,7 @@ static void mergeBlocks(MemoryManagerADT memoryManager, BuddyBlock* block) {
 }
 
 static inline void initMemoryBlock(BuddyBlock * block, uint8_t level) {
-    printStr("Inicializando bloque de memoria\n", 0x00FFFFFF);
+    DEBUG_PRINT("Inicializando bloque de memoria\n", DEBUG_COLOR);
     block->level = level;
     block->blockState = FREE;
     block->next = NULL;

@@ -6,6 +6,7 @@
 #include <lib.h>
 #include <textModule.h>
 #include <syscall.h>
+#include <debug.h>
 
 #define QUANTUM 10
 #define MAX_PRIORITY 5 // agregar a limitaciones
@@ -76,7 +77,7 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
     process->rsp = processStackFrame(process->base + STACK_SIZE, (uint64_t)function, argc, (uint64_t)arg);
      
     addProcess(processes, process);
-    printStr("Creating process...\n", 0x00FFFFFF);   
+    DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
     _sti(); // Re-enable interrupts before returning
     return process->pid;
 }
@@ -94,24 +95,24 @@ uint64_t schedule(uint64_t rsp){
         quantum--;
         return rsp;
     }
-    printStr("Quantum expired, switching processes...\n", 0x00FFFFFF);
+    DEBUG_PRINT("Quantum expired, switching processes...\n", 0x00FFFFFF);
     // Quantum expired, need to switch processes
     PCB* currentProcess = getCurrentProcess(processes);
     if(currentProcess != NULL) {
         currentProcess->rsp = rsp;
         currentProcess->state = READY;
         readyProcesses++;
-        printStr("Current process set to READY: ", 0x00FFFFFF);
-        printStr(currentProcess->name, 0x00FFFFFF);
-        printStr("\n", 0x00FFFFFF);
+        DEBUG_PRINT("Current process set to READY: ", 0x00FFFFFF);
+        DEBUG_PRINT(currentProcess->name, 0x00FFFFFF);
+        DEBUG_PRINT("\n", 0x00FFFFFF);
     }
 
     PCB* nextProcess = getNextProcess(processes);
 
     // Switch to next process
-    printStr("Switching to process: ", 0x00FFFFFF);
-    printStr(nextProcess->name, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("Switching to process: ", 0x00FFFFFF);
+    DEBUG_PRINT(nextProcess->name, 0x00FFFFFF);
+    DEBUG_PRINT("\n", 0x00FFFFFF);
     nextProcess->state = RUNNING;
     readyProcesses--;
     currentPid = nextProcess->pid;
