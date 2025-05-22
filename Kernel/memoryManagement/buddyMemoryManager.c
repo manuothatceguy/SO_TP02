@@ -37,6 +37,7 @@ static inline uint64_t calculateOffset(MemoryManagerADT memoryManager, BuddyBloc
 static inline uint8_t memoryToLevel(uint64_t memoryToAllocate);
 static BuddyBlock* getBuddy(MemoryManagerADT memoryManager, BuddyBlock* block);
 static void mergeBlocks(MemoryManagerADT memoryManager, BuddyBlock* block);
+static BuddyBlock* splitBlockToLevel(MemoryManagerADT memoryManager, BuddyBlock* block, uint8_t currentLevel, uint8_t targetLevel);
 
 static MemoryManager * memoryManager = NULL;
 
@@ -163,6 +164,7 @@ static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level)
     printStr("[findFreeBlock] Buscando nivel: ", 0x00FFFFFF);
     printInt(level, 0x00FFFFFF);
     printStr("\n", 0x00FFFFFF);
+    
     // Buscar en el nivel actual
     if (memoryManager->blocks[level] != NULL) {
         printStr("[findFreeBlock] Bloque encontrado en el nivel actual\n", 0x00FFFFFF);
@@ -186,18 +188,81 @@ static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level)
         return block;
     }
     
-    // Si no hay bloques en este nivel, dividir uno de nivel superior
+    // Si no hay bloques en este nivel, intentar encontrar un bloque en un nivel superior
     for (uint8_t i = level + 1; i < BLOCKS; i++) {
-        if (memoryManager->blocks[i] != NULL) {
+        BuddyBlock* block = memoryManager->blocks[i];
+        if (block != NULL) {
             printStr("[findFreeBlock] Dividiendo bloque de nivel superior: ", 0x00FFFFFF);
             printInt(i, 0x00FFFFFF);
             printStr("\n", 0x00FFFFFF);
-            // Dividir bloque y retornar uno de los hijos
-            return splitBlock(memoryManager, i, level);
+            
+            // Remover el bloque del nivel superior
+            memoryManager->blocks[i] = block->next;
+            if (block->next) {
+                block->next->prev = NULL;
+            }
+            block->next = NULL;
+            block->prev = NULL;
+            
+            // Asegurarse de que cada nivel de split añada correctamente ambos bloques
+            BuddyBlock* result = splitBlockToLevel(memoryManager, block, i, level);
+            if (result != NULL) {
+                return result;
+            }
+            // Si el split falló, devolver el bloque original a la lista de libres
+            block->next = memoryManager->blocks[i];
+            if (memoryManager->blocks[i]) {
+                memoryManager->blocks[i]->prev = block;
+            }
+            memoryManager->blocks[i] = block;
         }
     }
+    
     printStr("[findFreeBlock] No hay bloques libres disponibles\n", 0x00FFFFFF);
     return NULL; // No hay bloques disponibles
+}
+
+static BuddyBlock* splitBlockToLevel(MemoryManagerADT memoryManager, BuddyBlock* block, uint8_t currentLevel, uint8_t targetLevel) {
+    printStr("[splitBlockToLevel] Dividiendo bloque de nivel ", 0x00FFFFFF);
+    printInt(currentLevel, 0x00FFFFFF);
+    printStr(" a nivel ", 0x00FFFFFF);
+    printInt(targetLevel, 0x00FFFFFF);
+    printStr("\n", 0x00FFFFFF);
+    
+    if (currentLevel <= targetLevel) {
+        printStr("[splitBlockToLevel] Ya estamos en el nivel objetivo o inferior\n", 0x00FFFFFF);
+        return (currentLevel == targetLevel) ? block : NULL;
+    }
+    
+    // Mark block as split
+    block->blockState = SPLIT;
+    
+    // Calculate new level and child size
+    uint8_t newLevel = currentLevel - 1;
+    uint64_t childSize = (1ULL << newLevel);
+    
+    // Calculate positions for children
+    BuddyBlock* leftChild = block;
+    BuddyBlock* rightChild = (BuddyBlock*)((char*)block + childSize);
+    
+    // Initialize children
+    initMemoryBlock(leftChild, newLevel);
+    initMemoryBlock(rightChild, newLevel);
+    
+    // Add right child to free list
+    rightChild->next = memoryManager->blocks[newLevel];
+    if (memoryManager->blocks[newLevel]) {
+        memoryManager->blocks[newLevel]->prev = rightChild;
+    }
+    memoryManager->blocks[newLevel] = rightChild;
+    
+    // If we reached target level, return left child
+    if (newLevel == targetLevel) {
+        return leftChild;
+    }
+    
+    // Otherwise, continue splitting left child
+    return splitBlockToLevel(memoryManager, leftChild, newLevel, targetLevel);
 }
 
 static BuddyBlock * splitBlock(MemoryManagerADT memoryManager, uint8_t sourceLevel, uint8_t targetLevel) {
