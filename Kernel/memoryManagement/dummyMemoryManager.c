@@ -8,7 +8,6 @@ typedef struct MemoryManager {
 	char *nextAddress;
 	uint32_t used;
 	uint32_t total;
-	memStatus status;
 } MemoryManager;
 
 static MemoryManager *memoryManager = NULL;
@@ -20,10 +19,6 @@ void createMemoryManager() {
 	memoryManager->used = 0;
 	memoryManager->total = HEAP_SIZE;
 
-	memoryManager->status.totalMemory = HEAP_SIZE;
-	memoryManager->status.freeMemory = HEAP_SIZE;
-	memoryManager->status.usedMemory = 0;
-
 }
 
 void *allocMemory(const size_t memoryToAllocate) {
@@ -34,27 +29,23 @@ void *allocMemory(const size_t memoryToAllocate) {
 	char *allocation = memoryManager->nextAddress;
 
 	memoryManager->nextAddress += memoryToAllocate;
-	memoryManager->status.freeMemory -= memoryToAllocate;
-	memoryManager->status.usedMemory += memoryToAllocate;
-	
+
 	return (void *) allocation;
-}
-
-memStatus *getMemStatus(){
-	memStatus *status = allocMemory(sizeof(memStatus));
-	if ( status == NULL ){
-		return NULL;
-	}
-	status->totalMemory = memoryManager->status.totalMemory;
-	status->usedMemory = memoryManager->status.usedMemory;
-	status->freeMemory = memoryManager->status.freeMemory;
-
-	return status;
 }
 
 void *freeMemory(void *const restrict memoryToFree) {
 	// Este memory manager es dummy, no soporta liberación de memoria
 	return NULL;
+}
+
+
+void getMemoryInfo(memInfo *info) {
+    if (info == NULL) {
+        return;
+    }
+    info->total = memoryManager->total;
+    info->used = memoryManager->used;
+    info->free = info->total - info->used;
 }
 
 #endif

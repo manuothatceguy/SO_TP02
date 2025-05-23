@@ -104,6 +104,21 @@ uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
                     }
                     break;
                 }
+                case 'l': {
+                    if (format[i+1] == 'u') {
+                        i++; // avanzamos para saltar 'u'
+                        unsigned long long num = va_arg(args, unsigned long long); // uint64_t es esto
+                        char str[32];
+                        uintToBase(num, str, 10);
+                        for (int j = 0; str[j] != 0; j++, k++) {
+                            output[k] = str[j];
+                        }
+                    } else {
+                        // Si no es 'u', simplemente imprimí 'l'
+                        output[k++] = 'l';
+                    }
+                    break;
+                }
                 default:
                     break;
             }

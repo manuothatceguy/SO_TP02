@@ -10,10 +10,13 @@
 #include <memoryManager.h>
 #include <defs.h>
 #include <scheduler.h>
+#include <shared_structs.h>
+#include <debug.h>
+#include <stdio.h>
 
 
 #define CANT_REGS 19
-#define CANT_SYSCALLS 20
+#define CANT_SYSCALLS 23
 
 extern uint64_t regs[CANT_REGS];
 
@@ -128,6 +131,26 @@ static PCB* syscall_getProcessInfo(uint64_t *cantProcesses) {
     return getProcessInfo(cantProcesses);
 }
 
+static int64_t syscall_memInfo(memInfo *user_ptr){
+    if (user_ptr == NULL){
+        return -1;
+    }
+    memInfo temp;
+    getMemoryInfo(&temp);
+    printStr("[KERNEL] temp.total:", 0x00ADD8E6);
+    printInt(temp.total, 0x00ADD8E6);
+    printStr(" temp.used:", 0x00ADD8E6);
+    printInt(temp.used, 0x00ADD8E6);
+    printStr(" temp.free:", 0x00ADD8E6);
+    printInt(temp.free, 0x00ADD8E6);
+    printStr("\n", 0x00ADD8E6);
+    user_ptr->total = temp.total;
+    user_ptr->used  = temp.used;
+    user_ptr->free  = temp.free;
+
+    return 0;
+}
+
 uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){
     if(syscall_number > CANT_SYSCALLS) return 0;
     syscall_fn syscalls[] = {0,
@@ -146,13 +169,14 @@ uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2
         (syscall_fn)syscall_allocMemory,
         (syscall_fn)syscall_freeMemory,
         (syscall_fn)syscall_create_process,
-        (syscall_fn)syscall_exit,
         (syscall_fn)syscall_getpid,
         (syscall_fn)syscall_kill,
         (syscall_fn)syscall_block,
         (syscall_fn)syscall_unblock,
         (syscall_fn)syscall_changePrio,
-        (syscall_fn)syscall_getProcessInfo
+        (syscall_fn)syscall_getProcessInfo,
+        (syscall_fn)syscall_memInfo,
+        (syscall_fn)syscall_exit
     };
     return syscalls[syscall_number](arg1, arg2, arg3);
 }

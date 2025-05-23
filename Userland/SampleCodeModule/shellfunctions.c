@@ -1,7 +1,8 @@
-#include <shellfunctions.h>
-#include <syscall.h>
+#include "shellfunctions.h"
+#include "syscall.h"
 #include <stdlib.h>
 #include <test_functions.h>
+#include <shared_structs.h>
 
 #define CANT_REGISTERS 19
 
@@ -38,7 +39,8 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - test_processes <max_processes>: test de procesos\n"
                 "    - test_prio: test de prioridades\n"
                 "    - test_sync: test de sincronizacion\n"
-                "    - ps: muestra los procesos con su informacion\n";
+                "    - ps: muestra los procesos con su informacion\n"
+                "    - memInfo: imprime estado de la memoria\n";
 
 void showTime(){
     uint64_t time[] = {
@@ -110,10 +112,20 @@ void handle_clear(char * arg){
     syscall_clearScreen();
 }
 
-// void handle_mem_status(char * arg) {
-//     printf("Estado de memoria:\n");
-//     syscall_memStatus();
-// }
+void handle_mem_info(char * arg) {
+    printf("Estado de memoria:\n");
+
+    memInfo info;
+    if (syscall_memInfo(&info) == -1) {
+        printf("Error al obtener el estado de memoria\n");
+        return;
+    }
+    
+    printf("Memoria total: %lu bytes\n", info.total);
+    printf("Memoria usada: %lu bytes\n", info.used);
+    printf("Memoria libre: %lu bytes\n", info.free);
+    return;
+}
 
 void handle_test_mm(char * arg) {
     if (arg == NULL || arg[0] == '\0') {

@@ -469,4 +469,13 @@ static inline uint8_t memoryToLevel(uint64_t memoryToAllocate) {
     return level;
 }
 
+void getMemoryInfo(memInfo *info) {
+    if (info == NULL) {
+        return;
+    }
+    info->total = memoryManager->memorySize;
+    info->used = memoryManager->usedMemory;
+    info->free = info->total - info->used;
+}
+
 #endif

@@ -1,5 +1,6 @@
 #include <syscall.h>
 #include <stdint.h>
+#include <shared_structs.h>
    
 /*
  * @brief Realiza una interrupción 0x80 (SYSCALL)
@@ -31,7 +32,9 @@ enum syscall_number {
     BLOCK,
     UNBLOCK,
     CHANGE_PRIO,
-    GET_PROCESS_INFO
+    GET_PROCESS_INFO,
+    MEM_INFO,
+    EXIT
 };
 
 uint64_t syscall_read(char * buff, uint64_t len){
@@ -132,6 +135,10 @@ int8_t syscall_changePrio(uint64_t pid, int8_t newPrio) {
 
 PCB *syscall_getProcessInfo(uint64_t *cantProcesses) {
     return (PCB *)syscall(GET_PROCESS_INFO, (uint64_t)cantProcesses, 0, 0);
+}
+
+int64_t syscall_memInfo(memInfo *info) {
+    return syscall(MEM_INFO, (uint64_t)info, 0, 0);
 }
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests

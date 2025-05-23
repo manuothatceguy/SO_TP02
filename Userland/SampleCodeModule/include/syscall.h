@@ -2,6 +2,7 @@
 #define SYSCALL_H
 
 #include <stdint.h>
+#include "../../../SharedLibraries/shared_structs.h"
 
 #define NAME_MAX_LENGTH 32 
 
@@ -52,6 +53,7 @@ uint64_t syscall_block(uint64_t pid);
 uint64_t syscall_unblock(uint64_t pid);
 int8_t syscall_changePrio(uint64_t pid, int8_t newPrio);
 PCB *syscall_getProcessInfo(uint64_t *cantProcesses);
+int64_t syscall_memInfo(memInfo *info);
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 int64_t my_getpid();

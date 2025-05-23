@@ -5,17 +5,11 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-
-typedef struct memStatus
-{
-    uint64_t totalMemory;
-    uint64_t freeMemory;
-    uint64_t usedMemory;
-} memStatus;
+#include "../../SharedLibraries/shared_structs.h"
 
 
 void createMemoryManager();
 void *allocMemory(const size_t memoryToAllocate);
 void *freeMemory(void *const restrict memoryToFree);
-memStatus *getMemStatus();
+void getMemoryInfo(memInfo *info);
 #endif

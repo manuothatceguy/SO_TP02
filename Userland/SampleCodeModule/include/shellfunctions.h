@@ -21,5 +21,6 @@ void handle_test_processes(char * arg);
 void handle_test_prio(char * arg);
 void handle_test_sync(char * arg);
 void handle_ps(char * arg);
+void handle_mem_info(char * arg);
 
 #endif //SHELL_FUNCTIONS_H

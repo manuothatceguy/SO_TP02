@@ -1,7 +1,7 @@
-#include <shellfunctions.h>
-#include <shell.h>
+#include "shellfunctions.h"
+#include "shell.h"
 #include <stdlib.h>
-#include <syscall.h>
+#include "syscall.h"
 #include <stdint.h>
 
 #define FALSE 0
@@ -10,7 +10,7 @@
 #define MAX_ECHO 1000
 #define MAX_USERNAME_LENGTH 16
 #define PROMPT "%s$>"
-#define CANT_INSTRUCTIONS 16
+#define CANT_INSTRUCTIONS 17
 uint64_t curr = 0;
 
 typedef enum {
@@ -28,6 +28,7 @@ typedef enum {
     TEST_PRIO,
     TEST_SYNC,
     PS,
+    MEM_INFO,
     EXIT
 } instructions;
 
@@ -45,6 +46,7 @@ static char * inst_list[] = {"help",
                                             "test_prio",
                                             "test_sync",
                                             "ps",
+                                            "memInfo",
                                             "exit"
                                             };
 
@@ -62,7 +64,8 @@ void (*instruction_handlers[CANT_INSTRUCTIONS-1])(char *) = {
     handle_test_processes,
     handle_test_prio,
     handle_test_sync,
-    handle_ps
+    handle_ps,
+    handle_mem_info,
 };
 
 int verifyInstruction(char * instruction){
