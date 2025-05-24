@@ -6,7 +6,6 @@
 
 #define NAME_MAX_LENGTH 32 
 
-typedef void (*fnptr)(uint64_t argc, char **argv);
 
 typedef struct Point2D {
     uint64_t x, y;

@@ -5,6 +5,7 @@
 #include <process.h>
 #include <pcb.h>
 #include <defs.h>
+#include <shared_structs.h>
 
 uint64_t schedule(uint64_t rsp);
 void initScheduler(ProcessLinkedPtr list);

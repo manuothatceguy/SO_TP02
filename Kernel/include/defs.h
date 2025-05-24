@@ -27,14 +27,5 @@
 #define HEAP_END_ADDRESS   (HEAP_START_ADDRESS + HEAP_SIZE) // fin del heap
 
 //#define NULL (void *)0
-typedef void (*fnptr)(uint64_t argc, char **argv); 
-
-typedef struct ProcessCreationParams {
-    char* name;
-    fnptr function;
-    uint64_t argc;
-    char** arg;
-    uint8_t priority;
-} ProcessCreationParams;
 
 #endif
