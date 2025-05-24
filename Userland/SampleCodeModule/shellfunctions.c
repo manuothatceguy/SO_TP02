@@ -121,9 +121,9 @@ void handle_mem_info(char * arg) {
         return;
     }
     
-    printf("Memoria total: %lu bytes\n", info.total);
-    printf("Memoria usada: %lu bytes\n", info.used);
-    printf("Memoria libre: %lu bytes\n", info.free);
+    printf("Memoria total: %d bytes\n", info.total);
+    printf("Memoria usada: %d bytes\n", info.used);
+    printf("Memoria libre: %d bytes\n", info.free);
     return;
 }
 

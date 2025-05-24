@@ -29,7 +29,8 @@ void *allocMemory(const size_t memoryToAllocate) {
 	char *allocation = memoryManager->nextAddress;
 
 	memoryManager->nextAddress += memoryToAllocate;
-
+	memoryManager->used += memoryToAllocate;
+	
 	return (void *) allocation;
 }
 
