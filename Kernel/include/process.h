@@ -1,7 +1,10 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include <pcb.h>
+//#include <pcb.h>
+#include <shared_structs.h>
+
+#define STACK_SIZE 4096 
 
 typedef struct ProcessList *ProcessLinkedPtr;
 

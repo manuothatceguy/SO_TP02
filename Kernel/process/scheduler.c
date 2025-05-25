@@ -2,7 +2,8 @@
 #include <defs.h>
 #include <memoryManager.h>
 #include <interrupts.h>
-#include <pcb.h>
+//#include <pcb.h>
+#include <shared_structs.h>
 #include <lib.h>
 #include <textModule.h>
 #include <syscall.h>

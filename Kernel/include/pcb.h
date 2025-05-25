@@ -5,7 +5,7 @@
 
 #define STACK_SIZE 4096 
 #define NAME_MAX_LENGTH 32  
-
+/*
 typedef enum {
     READY,
     RUNNING,
@@ -25,5 +25,5 @@ typedef struct PCB {
     uint64_t rip;
     char name[NAME_MAX_LENGTH];
 } PCB;
-
+*/
 #endif // PCB_H
