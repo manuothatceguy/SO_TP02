@@ -59,7 +59,13 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
 
     strncpy(process->name, name, NAME_MAX_LENGTH);
     process->pid = nextFreePid++;
-    process->parentPid = currentPid;
+
+    if (currentPid == -1) {
+        process->parentPid = -1; 
+    } else {
+        process->parentPid = currentPid;
+    }
+
     process->state = READY;
     readyProcesses++;
     
@@ -202,17 +208,23 @@ PCB* getProcessInfo(uint64_t *cantProcesses){
         return NULL;
     }
 
-    PCB* currentProcess = getCurrentProcess(processes);
+    int found = 0;
+    pid_t pid = 0; 
     
-    for (int i = 0; i < count ; i++) {
-        if ( copyProcess(&processInfo[i], currentProcess) == -1) {
-            freeMemory(processInfo[i].name);
-            freeMemory(processInfo);
-            *cantProcesses = 0;
-            return NULL; // Memory allocation failed
-        }
-        currentProcess = getNextProcess(processes);
+    while (found < count) {
+        PCB* process = getProcess(processes, pid);
+        if (process != NULL) {
+
+            if (copyProcess(&processInfo[found], process) == -1) {
+                freeMemory(processInfo);
+                *cantProcesses = 0;
+                return NULL;
+            }
+            found++;
+        } 
+        pid++;
     }
+
     *cantProcesses = count;
     return processInfo;
 }
@@ -225,6 +237,9 @@ int16_t copyProcess(PCB *dest, PCB *src) {
     dest->rsp = src->rsp;
     dest->base = src->base;
     dest->rip = src->rip;
+
 	strncpy(dest->name, src->name, NAME_MAX_LENGTH);
+	dest->name[NAME_MAX_LENGTH - 1] = '\0'; 
+
     return 0;
 }

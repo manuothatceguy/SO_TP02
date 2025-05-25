@@ -275,35 +275,29 @@ void handle_test_sync(char * arg) {
 }
 
 static void printProcessInfo(PCB processInfo) {
-    printf("NAME: %s\n", processInfo.name);
-    printf("PID: %d\n", (int) processInfo.pid);
-    printf("Parent PID: %d\n", (int) processInfo.parentPid);
-
     const char* state;
     switch(processInfo.state) {
-        case READY:
-            state = "READY";
-            break;
-        case RUNNING:
-            state = "RUNNING";
-            break;
-        case BLOCKED:
-            state = "BLOCKED";
-            break;
-        case EXITED:
-            state = "EXITED";
-            break;
-        default:
-            state = "UNKNOWN";
-            break;
+        case READY:   state = "READY";   break;
+        case RUNNING: state = "RUNNING"; break;
+        case BLOCKED: state = "BLOCKED"; break;
+        case EXITED:  state = "EXITED";  break;
+        default:      state = "UNKNOWN"; break;
     }
 
-    printf("Priority: %d | RSP: 0x%x | RBP: 0x%x | RIP: 0x%x | State = %s\n", 
-           (int) processInfo.priority,
-           (unsigned int) processInfo.rsp, 
-           (unsigned int) processInfo.base,
-           (unsigned int) processInfo.rip, 
-           state);
+    printf("\n");
+    printf("Name        : %s\n", processInfo.name);
+    printf("PID         : %d\n", (int) processInfo.pid);
+    
+    if (processInfo.parentPid == -1)
+        printf("Parent PID  : (none)\n");
+    else
+        printf("Parent PID  : %d\n", (int) processInfo.parentPid);
+
+    printf("Priority    : %d\n", (int) processInfo.priority);
+    printf("RSP         : 0x%x\n", (unsigned int) processInfo.rsp);
+    printf("RBP         : 0x%x\n", (unsigned int) processInfo.base);
+    printf("RIP         : 0x%x\n", (unsigned int) processInfo.rip);
+    printf("State       : %s\n", state);
 }
   
 void handle_ps(char * arg){
@@ -320,10 +314,6 @@ void handle_ps(char * arg){
         printProcessInfo(processInfo[i]);
     }
 
-    for (int i = 0; i < cantProcesses; i++) {
-        syscall_freeMemory(processInfo[i].name);
-    }
-
+    // Solo liberamos el array de PCBs, no los campos individuales
     syscall_freeMemory(processInfo);
-
 }
