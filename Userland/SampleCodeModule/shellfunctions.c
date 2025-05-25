@@ -151,11 +151,14 @@ void handle_test_mm(char * arg) {
     
     printf("Iniciando test de gestion de memoria...\n");
     char *argv[] = { arg, NULL };
-    int result = test_mm(1, argv);
-    if (result == 0) {
-        printf("Test de gestion de memoria completado exitosamente\n");
+    
+    // Crear un nuevo proceso para ejecutar el test
+    pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, 1, argv, 1);
+    
+    if (pid < 0) {
+        printf("Error al crear el proceso de test\n");
     } else {
-        printf("Test de gestion de memoria fallo con codigo: %d\n", result);
+        printf("Proceso de test creado con PID: %d\n", pid);
     }
 }
 
@@ -183,22 +186,28 @@ void handle_test_processes(char * arg) {
     
     printf("Iniciando test de procesos...\n");
     char *argv[] = { arg, NULL };
-    int result = test_processes(1, argv);
-    if (result == 0) {
-        printf("Test de procesos completado exitosamente\n");
+    
+    // Crear un nuevo proceso para ejecutar el test
+    pid_t pid = syscall_create_process("test_processes", (fnptr)test_processes, 1, argv, 1);
+    
+    if (pid < 0) {
+        printf("Error al crear el proceso de test\n");
     } else {
-        printf("Test de procesos fallo con codigo: %d\n", result);
+        printf("Proceso de test creado con PID: %d\n", pid);
     }
 }
 
 void handle_test_prio(char * arg) {
     printf("Iniciando test de prioridades...\n");
     char *argv[] = { NULL };
-    int result = test_prio(0, argv);
-    if (result == 0) {
-        printf("Test de prioridades completado exitosamente\n");
+    
+    // Crear un nuevo proceso para ejecutar el test
+    pid_t pid = syscall_create_process("test_prio", (fnptr)test_prio, 0, argv, 1);
+    
+    if (pid < 0) {
+        printf("Error al crear el proceso de test\n");
     } else {
-        printf("Test de prioridades fallo con codigo: %d\n", result);
+        printf("Proceso de test creado con PID: %d\n", pid);
     }
 }
 
@@ -254,11 +263,14 @@ void handle_test_sync(char * arg) {
     
     printf("Iniciando test de sincronizacion...\n");
     char *argv[] = { iterations, processes, NULL };
-    int result = test_sync(2, argv);
-    if (result == 0) {
-        printf("Test de sincronizacion completado exitosamente\n");
+    
+    // Crear un nuevo proceso para ejecutar el test
+    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, 2, argv, 1);
+    
+    if (pid < 0) {
+        printf("Error al crear el proceso de test\n");
     } else {
-        printf("Test de sincronizacion fallo con codigo: %d\n", result);
+        printf("Proceso de test creado con PID: %d\n", pid);
     }
 }
 

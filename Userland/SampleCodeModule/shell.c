@@ -9,7 +9,7 @@
 #define BUFFER_SPACE 1000
 #define MAX_ECHO 1000
 #define MAX_USERNAME_LENGTH 16
-#define PROMPT "%s$>"
+#define PROMPT "%s$> "
 #define CANT_INSTRUCTIONS 17
 uint64_t curr = 0;
 
