@@ -108,9 +108,9 @@ PCB* getNextProcess(ProcessLinkedPtr list){
     if (list == NULL || list->current == NULL || list->numProcesses == 0) {
         return NULL;
     }
-    PCB* process = list->current->process;
-    list->current = list->current->next;
-    return process;
+    ProcessNode* current = list->current;
+    list->current = current->next;
+    return list->current->process;
 }
 
 PCB* getCurrentProcess(ProcessLinkedPtr list){
