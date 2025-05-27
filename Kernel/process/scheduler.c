@@ -13,6 +13,8 @@
 #define MIN_PRIORITY 0
 #define IDLE_PRIORITY -1
 
+static char first = 1;
+
 extern void wrapper();
 
 uint64_t calculateQuantum(uint8_t priority) {
@@ -32,22 +34,22 @@ void initScheduler(ProcessLinkedPtr list) {
     processes = list;
 }
 
-pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority) {
-    _cli(); // Disable interrupts to make the function atomic
+pid_t createProcess(char* name, uint64_t function, uint64_t argc, char **arg, uint8_t priority) {
+    //_cli(); // Disable interrupts to make the function atomic
     
     if (name == NULL || function == NULL) {
-        _sti(); // Re-enable interrupts before returning
+      //  _sti(); // Re-enable interrupts before returning
         return -1;
     }
 
     if (argc > 0 && arg == NULL) {
-        _sti(); // Re-enable interrupts before returning
+        //_sti(); // Re-enable interrupts before returning
         return -1;
     }
 
     PCB* process = allocMemory(sizeof(PCB));
     if (process == NULL) {
-        _sti(); // Re-enable interrupts before returning
+        //_sti(); // Re-enable interrupts before returning
         return -1; 
     }
 
@@ -74,17 +76,17 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
 
     if ((void *)process->base == NULL) {
         freeMemory(process); 
-        _sti(); // Re-enable interrupts before returning
+        //_sti(); // Re-enable interrupts before returning
         return -1;
     }
     process->base += STACK_SIZE;
 
-    process->rip = (uint64_t)wrapper;
-    process->rsp = processStackFrame(process->base + STACK_SIZE, (uint64_t)function, argc, arg);
+    process->rip = (uint64_t)function;
+    process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
      
     addProcess(processes, process);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
-    _sti(); // Re-enable interrupts before returning
+    //_sti(); // Re-enable interrupts before returning
     return process->pid;
 }
 
@@ -93,7 +95,8 @@ pid_t getCurrentPid() {
 } 
 
 uint64_t schedule(uint64_t rsp){
-    if(processes == NULL) {
+    PCB* currentProcess = getCurrentProcess(processes);
+    if(currentProcess == NULL) {
         return rsp;
     }
 
@@ -103,9 +106,13 @@ uint64_t schedule(uint64_t rsp){
     }
     DEBUG_PRINT("Quantum expired, switching processes...\n", 0x00FFFFFF);
     // Quantum expired, need to switch processes
-    PCB* currentProcess = getCurrentProcess(processes);
+
     if(currentProcess != NULL) {
-        currentProcess->rsp = rsp;
+        if(!first){
+            currentProcess->rsp = rsp;
+        } else {
+            first = 0;
+        }
         currentProcess->state = READY;
         readyProcesses++;
         DEBUG_PRINT("Current process set to READY: ", 0x00FFFFFF);

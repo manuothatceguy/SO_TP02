@@ -88,9 +88,12 @@ int main(){
 
 	load_idt();
 
-	// while (1) {
-	// 	_hlt();
-	// }
+	while (1) {
+		_hlt();
+	}
+
+	printStr("DEATH ZONE\n", WHITE);
+	// This point should never be reached
 	return 0;
 }
 

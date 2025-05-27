@@ -54,7 +54,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       if (mm_rqs[i].address)
         if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
           printf("test_mm ERROR\n");
-          return -1;
+          syscall_exit();
         }
 
     // Free
@@ -62,4 +62,5 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       if (mm_rqs[i].address)
         syscall_freeMemory(mm_rqs[i].address);
   }
+  syscall_exit();
 }

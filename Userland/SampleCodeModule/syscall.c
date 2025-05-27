@@ -132,6 +132,10 @@ int64_t syscall_memInfo(memInfo *info) {
     return syscall(MEM_INFO, (uint64_t)info, 0, 0);
 }
 
+void syscall_exit() {
+    syscall(16, 0, 0, 0);
+}
+
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
 int64_t my_getpid() {

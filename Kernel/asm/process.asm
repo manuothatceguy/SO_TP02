@@ -15,7 +15,7 @@ processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
     push rdi    ; stack vacío
     push 0x202  ; rflags
     push 0x8    ; cs
-    push wrapper; rip
+    push rsi    ; rip
     push 0      ; r15
     push 0      ; r14
     push 0      ; r13
