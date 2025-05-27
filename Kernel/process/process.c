@@ -1,5 +1,6 @@
 #include <process.h>
-#include <pcb.h>
+//#include <pcb.h>
+#include <shared_structs.h>
 #include <memoryManager.h>
 #include <debug.h>
 

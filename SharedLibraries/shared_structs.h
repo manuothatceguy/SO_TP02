@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define NAME_MAX_LENGTH 32  
+
 typedef struct memInfo {
     uint64_t total;
     uint64_t used;
@@ -18,5 +20,26 @@ typedef struct ProcessCreationParams {
     char** arg;
     uint8_t priority;
 } ProcessCreationParams;
+
+typedef enum {
+    READY,
+    RUNNING,
+    BLOCKED,
+    EXITED
+} ProcessState;
+
+typedef int pid_t;
+
+typedef struct PCB {
+    pid_t pid; 
+    pid_t parentPid;
+    uint8_t priority; 
+    ProcessState state; 
+    uint64_t rsp;
+    uint64_t base;
+    uint64_t rip;
+    char name[NAME_MAX_LENGTH];
+} PCB;
+
 
 #endif 
