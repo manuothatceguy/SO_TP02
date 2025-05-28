@@ -39,7 +39,6 @@ wrapper:
     ; rdi = función de usuario
     ; rsi = argv
     ; argc ya viene en rdx (lo pasó processStackFrame)
-
     call r8
 
 .hang:
