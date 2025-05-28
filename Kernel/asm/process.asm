@@ -40,16 +40,7 @@ wrapper:
     ; rsi = argv
     ; argc ya viene en rdx (lo pasó processStackFrame)
 
-    push rdi            ; guardamos dirección de función de usuario
-    push rsi            ; guardamos argv
-
-    call prepare_user_stack
-
-    ; recuperar argumentos para jump_to_user_mode
-    pop rsi             ; argv
-    pop rdi             ; función de usuario
-
-    call jump_to_user_mode
+    call r8
 
 .hang:
     hlt
@@ -64,7 +55,7 @@ processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
     push rdi    ; stack vacío
     push 0x202  ; rflags
     push 0x8    ; cs
-    push rsi    ; rip
+    push wrapper    ; rip
     push 0      ; r15
     push 0      ; r14
     push 0      ; r13

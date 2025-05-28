@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 #include <stdint.h>
+#include <test_functions.h>
 
 void showTime();
 void showRegisters();

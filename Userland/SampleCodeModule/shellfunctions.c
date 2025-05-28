@@ -1,5 +1,5 @@
 #include "shellfunctions.h"
-#include "syscall.h"
+#include <syscall.h>
 #include <stdlib.h>
 #include <test_functions.h>
 #include <shared_structs.h>
@@ -8,6 +8,8 @@
 
 extern void div_zero();
 extern void invalid_opcode();
+
+//uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority);
 
 char *months[] = {
     "Enero",
@@ -152,11 +154,10 @@ void handle_test_mm(char * arg) {
     printf("Iniciando test de gestion de memoria...\n");
     char *argv[] = { arg, NULL };
 
-    printf("Direccion de test_mm: %x\n", (fnptr)test_mm);
-    
+    printf("Direccion de test_mm: %p\n", (uint64_t*)test_mm);
     // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, 1, argv, 1);
-    
+    pid_t pid = syscall_create_process("test_mm", (uint64_t*)test_mm, 1, argv, 1);
+
     if (pid < 0) {
         printf("Error al crear el proceso de test\n");
     } else {

@@ -9,10 +9,10 @@ all: $(UTIL) $(OBJECTS)
 	cp $(OBJECTS) $(UTIL) ../
 
 %.o: %.c $(UTIL)
-	$(GCC) $(GCCFLAGS) -I$(INCLUDE) -c $< -o $@
+	$(GCC) $(GCCFLAGS) -g -I$(INCLUDE) -c $< -o $@
 
 $(UTIL): test_util.c
-	$(GCC) $(GCCFLAGS) -I$(INCLUDE) -c $< -o $@
+	$(GCC) $(GCCFLAGS) -g -I$(INCLUDE) -c $< -o $@
 
 clean:
 	rm -rf asm/*.o *.o

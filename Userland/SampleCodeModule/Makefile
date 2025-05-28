@@ -19,7 +19,7 @@ tests:
 	cd tests && make all
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I$(INCLUDE) -I../../SharedLibraries -c $< -o $@
+	$(GCC) $(GCCFLAGS) -g -I./include -I../../SharedLibraries -c $< -o $@
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@

@@ -58,6 +58,11 @@ void intToHex(int n, char * buff){
     return;
 }
 
+void uint64ToHex(uint64_t n, char * buff){
+    uintToBase(n, buff, 16);
+    return;
+}
+
 int strcmp(const char *s1, const char *s2){
     while(*s1 && *s2 && *s1 == *s2){
         s1++;
@@ -99,6 +104,17 @@ uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
                     int num = va_arg(args, int);
                     char str[MAX_INT_LENGTH]; 
                     intToHex(num, str);
+                    for(int j = 0; str[j] != 0; j++, k++){
+                        output[k] = str[j];
+                    }
+                    break;
+                }
+                case 'p':{
+                    uint64_t ptr = va_arg(args, uint64_t);
+                    char str[20]; // Enough space for 64-bit hex + "0x" + null terminator
+                    output[k++] = '0';
+                    output[k++] = 'x';
+                    uint64ToHex(ptr, str);
                     for(int j = 0; str[j] != 0; j++, k++){
                         output[k] = str[j];
                     }
