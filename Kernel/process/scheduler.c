@@ -16,7 +16,7 @@
 
 static char first = 1;
 
-extern void wrapper();
+extern void wrapper(uint64_t function, char **argv);
 
 uint64_t calculateQuantum(uint8_t priority) {
     if (priority == IDLE_PRIORITY) {
@@ -31,11 +31,14 @@ static pid_t nextFreePid = 0; // 0 es el idle!
 static uint64_t readyProcesses = 0; // cantidad de procesos listos
 static uint64_t quantum = 0;    
 
+// Global variable for user stack top
+uint64_t user_stack_top;
+
 void initScheduler(ProcessLinkedPtr list) {
     processes = list;
 }
 
-pid_t createProcess(char* name, uint64_t function, uint64_t argc, char **arg, uint8_t priority) {
+pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority) {
     //_cli(); // Disable interrupts to make the function atomic
     
     if (name == NULL || function == NULL) {
@@ -81,6 +84,25 @@ pid_t createProcess(char* name, uint64_t function, uint64_t argc, char **arg, ui
         return -1;
     }
     process->base += STACK_SIZE;
+
+    // // stack de usuario
+    // void* user_stack = allocMemory(USER_STACK_SIZE);
+    // if (user_stack == NULL) {
+    //     freeMemory(process);
+    //     return -1;
+    // }
+    // user_stack_top = (uint64_t)user_stack + USER_STACK_SIZE;
+
+    // process->rip = (uint64_t)wrapper;
+
+    // char *wrapper_args[] = {
+    //     (char *)function, // rdi
+    //     (char *)arg       // rsi
+    // };
+
+    // // rdx = argc ya está en el stack
+    // process->rsp = processStackFrame(process->base, (uint64_t)wrapper, 2, wrapper_args);
+     
 
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
@@ -250,4 +272,8 @@ int16_t copyProcess(PCB *dest, PCB *src) {
 	dest->name[NAME_MAX_LENGTH - 1] = '\0'; 
 
     return 0;
+}
+
+int32_t killCurrentProcess(int32_t retValue) {
+	return kill(retValue);
 }

@@ -15,6 +15,7 @@
 #include <interrupts.h>
 
 #define WHITE 0x00FFFFFF
+#define RED 0x000000FF
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -63,12 +64,20 @@ void idle(uint64_t argc, char **argv) {
 	}
 }
 
-void feDeVida(uint64_t argc, char **argv) {
-	printStr("Entrando a feDeVida\n", WHITE);
+int feDeVida(uint64_t argc, char **argv) {
 	while(1) {
-		printStr("Fe de vida\n", WHITE);
+		printStr("se me jijean\n", WHITE);
 		wait_ticks(40);
 	}
+	return 0;
+}
+
+int feDeVida2(uint64_t argc, char **argv) {
+	while(1) {
+		printStr("los jolines\n", WHITE);
+		wait_ticks(40);
+	}
+	return 0;
 }
 
 int main(){	
@@ -83,8 +92,9 @@ int main(){
 	ProcessLinkedPtr processList = createProcessLinkedList();
 	initScheduler(processList);
 	//createProcess("idle", &idle, 0, NULL, -1);
-	//createProcess("feDeVida", (void*)feDeVida, 0, NULL, 0);
-	createProcess("shell", (void*)sampleCodeModuleAddress, 0, NULL, 0);
+	createProcess("feDeVida",(fnptr) feDeVida, 0, NULL, 1);
+	createProcess("feDeVida2", (fnptr) feDeVida2, 0, NULL, 1);
+	createProcess("shell", (fnptr) sampleCodeModuleAddress, 0, NULL, 0);
 
 	load_idt();
 
@@ -92,7 +102,7 @@ int main(){
 		_hlt();
 	}
 
-	printStr("DEATH ZONE\n", WHITE);
+	printStr("DEATH ZONE\n", RED);
 	// This point should never be reached
 	return 0;
 }

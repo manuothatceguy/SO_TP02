@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include "../../SharedLibraries/shared_structs.h"
 
+#define BLOCK_SIZE 64
 
 void createMemoryManager();
 void *allocMemory(const size_t memoryToAllocate);

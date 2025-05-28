@@ -91,7 +91,7 @@ static uint64_t syscall_wait(uint64_t ticks){
 }
 
 pid_t syscall_create_process(ProcessCreationParams* params) {
-    return createProcess(params->name, params->function, params->argc, params->arg, params->priority);
+    return createProcess(params->name, (fnptr)params->function, params->argc, params->arg, params->priority);
 }
 
 static uint64_t syscall_exit(){ // mata al proceso que llama a la syscall

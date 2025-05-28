@@ -1,4 +1,6 @@
 #ifndef BUDDY
+#ifndef BITMAP
+
 #include <memoryManager.h>
 #include <defs.h>
 
@@ -49,4 +51,5 @@ void getMemoryInfo(memInfo *info) {
     info->free = info->total - info->used;
 }
 
+#endif
 #endif

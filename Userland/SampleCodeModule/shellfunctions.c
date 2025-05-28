@@ -152,10 +152,10 @@ void handle_test_mm(char * arg) {
     printf("Iniciando test de gestion de memoria...\n");
     char *argv[] = { arg, NULL };
 
-    printf("Direccion de test_mm: %x\n", (uint64_t)test_mm);
+    printf("Direccion de test_mm: %x\n", (fnptr)test_mm);
     
     // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("test_mm", (uint64_t)test_mm, 1, argv, 1);
+    pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, 1, argv, 1);
     
     if (pid < 0) {
         printf("Error al crear el proceso de test\n");

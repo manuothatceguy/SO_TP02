@@ -1,10 +1,59 @@
 GLOBAL wrapper
 GLOBAL processStackFrame
+GLOBAL jump_to_user_mode
+
+EXTERN user_stack_top
+
+; rdi = puntero a función en espacio usuario
+; rsi = argv (pasamos como rdi en modo usuario)
+jump_to_user_mode:
+    ; Configurar segmentos para user mode (0x23 y 0x1B deben estar en GDT)
+    mov ax, 0x23
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    ; preparar stack de usuario
+    mov rax, [user_stack_top]  ; stack superior del usuario
+    and rax, ~0xF              ; alinear a 16 bytes
+
+    ; preparar retorno con iretq
+    push 0x23                  ; SS (user data segment)
+    push rax                   ; RSP (user stack pointer)
+    pushfq                     ; RFLAGS
+    push 0x1B                  ; CS (user code segment)
+    push rdi                   ; RIP (función de usuario)
+
+    ; cargar argv en rdi
+    mov rdi, rsi
+
+    iretq
+
+prepare_user_stack:
+    ; No necesitamos hacer nada aquí ya que el stack de usuario
+    ; ya está configurado en createProcess
+    ret
 
 wrapper:
-    call r8
-    mov rax, 16
-    int 80h
+    ; rdi = función de usuario
+    ; rsi = argv
+    ; argc ya viene en rdx (lo pasó processStackFrame)
+
+    push rdi            ; guardamos dirección de función de usuario
+    push rsi            ; guardamos argv
+
+    call prepare_user_stack
+
+    ; recuperar argumentos para jump_to_user_mode
+    pop rsi             ; argv
+    pop rdi             ; función de usuario
+
+    call jump_to_user_mode
+
+.hang:
+    hlt
+    jmp .hang
 
 processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
     push rbp
