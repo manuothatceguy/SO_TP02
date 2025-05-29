@@ -135,28 +135,28 @@ void handle_test_mm(char * arg) {
         return;
     }
     
-    // Convertir el argumento a número
-    uint64_t max_memory = 0;
-    for (int i = 0; arg[i] != '\0'; i++) {
-        if (arg[i] >= '0' && arg[i] <= '9') {
-            max_memory = max_memory * 10 + (arg[i] - '0');
-        } else {
-            printf("Error: argumento invalido\n");
-            return;
-        }
-    }
+    // // Convertir el argumento a número
+    // uint64_t max_memory = 0;
+    // for (int i = 0; arg[i] != '\0'; i++) {
+    //     if (arg[i] >= '0' && arg[i] <= '9') {
+    //         max_memory = max_memory * 10 + (arg[i] - '0');
+    //     } else {
+    //         printf("Error: argumento invalido\n");
+    //         return;
+    //     }
+    // }
     
-    if (max_memory <= 0) {
-        printf("Error: max_memory debe ser mayor que 0\n");
-        return;
-    }
+    // if (max_memory <= 0) {
+    //     printf("Error: max_memory debe ser mayor que 0\n");
+    //     return;
+    // }
 
     printf("Iniciando test de gestion de memoria...\n");
     char *argv[] = { arg, NULL };
-
+    printf("arg: %s\n", arg);
     printf("Direccion de test_mm: %p\n", (uint64_t*)test_mm);
     // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("test_mm", (uint64_t*)test_mm, 1, argv, 1);
+    pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, 1, argv, 1);
 
     if (pid < 0) {
         printf("Error al crear el proceso de test\n");

@@ -1,6 +1,7 @@
 #include <syscall.h>
 #include <stdint.h>
 #include <shared_structs.h>
+#include <stdlib.h>
    
 /*
  * @brief Realiza una interrupción 0x80 (SYSCALL)
@@ -11,7 +12,7 @@
 extern int64_t syscall(uint64_t code, uint64_t param1, uint64_t param2, uint64_t param3);
 
 enum syscall_number {
-    NULL, 
+    NONE, 
     READ, 
     WRITE, 
     TIME, 
@@ -106,6 +107,15 @@ uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char 
         .arg = argv,
         .priority = priority
     };
+    printf("Process Creation Parameters USERLAND:\n");
+    printf("Name: %s\n", params.name);
+    printf("Function: %p\n", params.function);
+    printf("Argument Count: %d\n", params.argc);
+    printf("Arguments:\n");
+    for (uint64_t i = 0; i < params.argc; i++) {
+        printf("Arg: %s\n", params.arg[i]);
+    }
+    printf("Priority: %d\n", params.priority);
     return syscall(CREATE_PROCESS, (uint64_t)&params, 0, 0);
 }
 

@@ -106,7 +106,6 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
 
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
-     
     addProcess(processes, process);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
     //_sti(); // Re-enable interrupts before returning

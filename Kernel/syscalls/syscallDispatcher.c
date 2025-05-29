@@ -92,6 +92,24 @@ static uint64_t syscall_wait(uint64_t ticks){
 }
 
 pid_t syscall_create_process(ProcessCreationParams* params) {
+    printStr("Process Creation Parameters KERNEL:\n", 0x00FFFFFF);
+    printStr(params->name, 0x00FFFFFF);
+    printStr("\n", 0x00FFFFFF);
+    printStr("Function: ", 0x00FFFFFF);
+    printStr((char*)params->function, 0x00FFFFFF); 
+    printStr("\n", 0x00FFFFFF);
+    printStr("Argument Count: ", 0x00FFFFFF);
+    printInt(params->argc, 0x00FFFFFF);
+    printStr("\n", 0x00FFFFFF);
+    printStr("Arguments:\n", 0x00FFFFFF);
+    for (uint64_t i = 0; i < params->argc; i++) {
+        printStr("Arg: ", 0x00FFFFFF);
+        printStr(params->arg[i], 0x00FFFFFF);
+        printStr("\n", 0x00FFFFFF);
+    }
+    printStr("Priority: ", 0x00FFFFFF);
+    printInt(params->priority, 0x00FFFFFF);
+    printStr("\n", 0x00FFFFFF);
     return createProcess(params->name, (fnptr)params->function, params->argc, params->arg, params->priority);
 }
 

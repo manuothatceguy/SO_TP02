@@ -4,7 +4,7 @@
 #include <defs.h>
 
 // Debug flag - set to 1 to enable debug prints, 0 to disable
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 // Default color for debug prints (light blue)
 #define DEBUG_COLOR 0x00ADD8E6
