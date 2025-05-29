@@ -6,14 +6,14 @@
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
-#define SEM_ID "sem"
+#define SEM_ID 20
 #define TOTAL_PAIR_PROCESSES 2
 
 int64_t global; // shared memory
 
 void slowInc(int64_t *p, int64_t inc) {
   uint64_t aux = *p;
-  my_yield(); // This makes the race condition highly probable
+  syscall_yield(); // This makes the race condition highly probable
   aux += inc;
   *p = aux;
 }
@@ -34,22 +34,24 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     return -1;
 
   if (use_sem)
-    if (!my_sem_open(SEM_ID, 1)) {
+    if (!syscall_sem_open(SEM_ID, 1)) {
       printf("test_sync: ERROR opening semaphore\n");
       return -1;
     }
 
   uint64_t i;
   for (i = 0; i < n; i++) {
-    if (use_sem)
-      my_sem_wait(SEM_ID);
+    if (use_sem) {
+      syscall_sem_wait(SEM_ID);
+    }
     slowInc(&global, inc);
+    
     if (use_sem)
-      my_sem_post(SEM_ID);
+      syscall_sem_post(SEM_ID);
   }
 
   if (use_sem)
-    my_sem_close(SEM_ID);
+    syscall_sem_close(SEM_ID);
 
   return 0;
 }
@@ -67,8 +69,8 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
 
   uint64_t i;
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = my_create_process("my_process_inc", 3, argvDec);
-    pids[i + TOTAL_PAIR_PROCESSES] = my_create_process("my_process_inc", 3, argvInc);
+    pids[i] = syscall_create_process("my_process_inc", &my_process_inc, 3, argvDec, 1);
+    pids[i + TOTAL_PAIR_PROCESSES] = syscall_create_process("my_process_inc", &my_process_inc, 3, argvInc, 1);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {

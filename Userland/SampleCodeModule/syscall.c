@@ -34,7 +34,12 @@ enum syscall_number {
     CHANGE_PRIO,
     GET_PROCESS_INFO,
     MEM_INFO,
-    EXIT
+    EXIT,
+    SEM_OPEN,
+    SEM_WAIT,
+    SEM_POST,
+    SEM_CLOSE,
+    YIELD
 };
 
 uint64_t syscall_read(char * buff, uint64_t len){
@@ -133,9 +138,28 @@ int64_t syscall_memInfo(memInfo *info) {
 }
 
 void syscall_exit() {
-    syscall(16, 0, 0, 0);
+    syscall(EXIT, 0, 0, 0);
 }
 
+int syscall_sem_open(int sem_id, uint64_t initialValue) {
+    return syscall(SEM_OPEN, sem_id, initialValue, 0);
+}
+
+int syscall_sem_wait(int sem_id) {
+    return syscall(SEM_WAIT, sem_id, 0, 0);
+}
+
+int syscall_sem_post(int sem_id) {
+    return syscall(SEM_POST, sem_id, 0, 0);
+}
+
+int syscall_sem_close(int sem_id) {
+    return syscall(SEM_CLOSE, sem_id, 0, 0);
+}
+
+void syscall_yield() {
+    syscall(YIELD, 0, 0, 0);
+}
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
 int64_t my_getpid() {

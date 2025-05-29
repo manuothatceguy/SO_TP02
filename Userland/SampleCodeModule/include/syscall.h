@@ -24,8 +24,14 @@ uint64_t syscall_sizeDownFont(uint64_t decrement);
 uint64_t syscall_getHeight();
 uint64_t syscall_getWidth();
 uint64_t syscall_wait(uint64_t ticks);
+void syscall_exit();
+
+// Mmeoria
 void *syscall_allocMemory(uint64_t size);
 void syscall_freeMemory(void *address);
+int64_t syscall_memInfo(memInfo *info);
+
+//Procesos
 uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority);
 uint64_t syscall_getpid();
 uint64_t syscall_kill(uint64_t pid);
@@ -33,8 +39,13 @@ uint64_t syscall_block(uint64_t pid);
 uint64_t syscall_unblock(uint64_t pid);
 int8_t syscall_changePrio(uint64_t pid, int8_t newPrio);
 PCB *syscall_getProcessInfo(uint64_t *cantProcesses);
-int64_t syscall_memInfo(memInfo *info);
-void syscall_exit();
+void syscall_yield();
+
+// Semáforos
+int syscall_sem_open(int sem_id, uint64_t initialValue);
+int syscall_sem_wait(int sem_id);
+int syscall_sem_post(int sem_id);    
+int syscall_sem_close(int sem_id);
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 int64_t my_getpid();

@@ -13,6 +13,7 @@
 #include <shared_structs.h>
 #include <debug.h>
 #include <stdio.h>
+#include <semaphore.h>	
 
 
 #define CANT_REGS 19
@@ -151,6 +152,38 @@ static int64_t syscall_memInfo(memInfo *user_ptr){
     return 0;
 }
 
+int syscall_sem_open(int sem_id, uint64_t initialValue) {
+    if (sem_id < 0 || sem_id >= NUM_SEMS) {
+        return -1; 
+    }
+    return semInit(sem_id, initialValue);
+}
+
+int syscall_sem_wait(int sem_id) {
+    if (sem_id < 0 || sem_id >= NUM_SEMS) {
+        return -1; 
+    }
+    return semWait(sem_id);
+}
+
+int syscall_sem_post(int sem_id) {
+    if (sem_id < 0 || sem_id >= NUM_SEMS) {
+        return -1; 
+    }
+    return semPost(sem_id);
+}
+
+int syscall_sem_close(int sem_id) {
+    if (sem_id < 0 || sem_id >= NUM_SEMS) {
+        return -1; 
+    }
+    return semClose(sem_id);
+}
+
+void syscall_yield() {
+    yield();
+}
+
 uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){
     if(syscall_number > CANT_SYSCALLS) return 0;
     syscall_fn syscalls[] = {0,
@@ -176,7 +209,12 @@ uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2
         (syscall_fn)syscall_changePrio,
         (syscall_fn)syscall_getProcessInfo,
         (syscall_fn)syscall_memInfo,
-        (syscall_fn)syscall_exit
+        (syscall_fn)syscall_exit,
+        (syscall_fn)syscall_sem_open,
+        (syscall_fn)syscall_sem_wait,
+        (syscall_fn)syscall_sem_post,
+        (syscall_fn)syscall_sem_close,
+        (syscall_fn)syscall_yield
     };
     return syscalls[syscall_number](arg1, arg2, arg3);
 }
