@@ -40,12 +40,14 @@ wrapper:
     ; rsi = argv
     ; argc ya viene en rdx (lo pasó processStackFrame)
     call r8
+    mov rax, 16
+    int 80h
 
 .hang:
     hlt
     jmp .hang
 
-processStackFrame: ; rdi process->base, rsi process->rip, rdx argc, rcx argv
+processStackFrame: ; rdi process->base, rsi process->fnptr, rdx argc, rcx argv
     push rbp
     mov rbp, rsp
     mov rsp, rdi

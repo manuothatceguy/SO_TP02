@@ -2411,6 +2411,40 @@ set dir Kernel:Userland:Userland/sampleCodeModule
 add-symbol-file Kernel/kernel.elf 0x100000
 add-symbol-file Userland/0000-sampleCodeModule.elf 0x400000
 
+define src-prof
+    dashboard -layout source expressions stack variables
+    dashboard source -style height 20
+end
+
+define asm-prof
+    dashboard -layout registers assembly memory stack
+    dashboard registers -style list 'rax rbx rcx rdx rsi rdi rbp rsp r8 r9 r10 r11 r12 r13 r14 r15 rip eflags cs ss ds es fs gs fs_base gs_base k_gs_base cr0 cr2 cr3 cr4 cr8 efer'
+end
+
+define current_process
+    if $rip >= 0x400000
+        echo "En userland\n"
+        # Mostrar info del proceso
+    else
+        echo "En kernel\n"
+    end
+end
+
+define show_heap
+    dashboard memory watch heap_start 256
+    info registers
+end
+
+define custom_layout
+    dashboard -layout memory registers assembly stack
+    dashboard registers -style list 'rax rbx rcx rdx rsi rdi rbp r8 r9 r10 r11 r12 r13 r14 r15 rip cs rflags rsp ss'
+    dashboard memory -style full True
+    dashboard registers -style column-major True
+    dashboard assembly -style height 0
+    dashboard stack -style height 0
+    dashboard source -style highlight-line True
+    dashboard assembly -style highlight-line True
+end
 
 
 #set dashboard enabled on

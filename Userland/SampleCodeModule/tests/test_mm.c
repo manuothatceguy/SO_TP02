@@ -70,5 +70,5 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       if (mm_rqs[i].address)
         syscall_freeMemory(mm_rqs[i].address);
   }
-  syscall_exit();
+  
 }
