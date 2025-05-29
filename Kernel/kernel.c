@@ -85,6 +85,7 @@ int feDeVida2(uint64_t argc, char *argv[]) {
 }
 
 int main(){	
+	_cli();
 	fontSizeUp(2);
 	printStr(" TP 2 SO \n", WHITE);
 	fontSizeDown(2);
@@ -102,7 +103,7 @@ int main(){
 	createProcess("shell", (fnptr) sampleCodeModuleAddress, 0, NULL, 0);
 
 	load_idt();
-
+	_sti();
 	while (1) {
 		_hlt();
 	}

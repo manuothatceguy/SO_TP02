@@ -13,42 +13,43 @@ typedef struct MM_rq {
 } mm_rq;
 
 uint64_t test_mm(uint64_t argc, char *argv[]) {
-  printf("ESTOY VIVO\n");
+  //printf("ESTOY VIVO\n");
   mm_rq mm_rqs[MAX_BLOCKS];
-  printf("test_mm: max_memory = %s\n", argv[0]);
+  //printf("test_mm: max_memory = %s\n", argv[0]);
   uint8_t rq;
   uint32_t total;
   uint64_t max_memory;
 
   if (argc != 1){
-    printf("test_mm: error, se esperaba un argumento (max_memory)\n");
+    //printf("test_mm: error, se esperaba un argumento (max_memory)\n");
     return -1;
   }
   max_memory = satoi(argv[0]);
-  printf("max_memory: %d\n", max_memory);
+  //printf("max_memory: %d\n", max_memory);
   if (max_memory <= 0){
-    printf("test_mm: error, max_memory debe ser un numero positivo\n");
+    printferror("\ntest_mm: error, max_memory debe ser un numero positivo\n");
     return -1;
   }
 
-  char curr = 'a';
-  printf("antes del while 1");
-  while (1) {
+  //char curr = 'a';
+  //printf("antes del while 1");
+  char i = 0;
+  for (; i < 3; i++) {
     rq = 0;
     total = 0;
-    printf("antes del otro while\n");
+    //printf("antes del otro while\n");
     // Request as many blocks as we can
     while (rq < MAX_BLOCKS && total < max_memory) {
-      printf("%c\n", curr);
+      //printf("%c\n", curr);
       mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
-      mm_rqs[rq].address = syscall_allocMemory(mm_rqs[rq].size);
+      mm_rqs[rq].address = malloc(mm_rqs[rq].size);
 
       if (mm_rqs[rq].address) {
         total += mm_rqs[rq].size;
         rq++;
       }
-      curr++;
-      curr = curr % 26 + 'a';
+      //curr++;
+      //curr = curr % 26 + 'a';
     }
 
     // Set
@@ -61,14 +62,15 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address)
         if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
-          printf("test_mm ERROR\n");
-          syscall_exit();
+          printferror("\ntest_mm ERROR\n");
+          free(argv);
         }
 
     // Free
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address)
-        syscall_freeMemory(mm_rqs[i].address);
+        free(mm_rqs[i].address);
   }
-  
+  free((void*)argv);
+  printf("\ntest_mm: finished successfully\n");
 }

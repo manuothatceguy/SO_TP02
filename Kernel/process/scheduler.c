@@ -16,8 +16,6 @@
 
 static char first = 1;
 
-extern void wrapper(uint64_t function, char **argv);
-
 uint64_t calculateQuantum(uint8_t priority) {
     if (priority == IDLE_PRIORITY) {
         return QUANTUM;  // Minimum quantum for idle
@@ -31,29 +29,21 @@ static pid_t nextFreePid = 0; // 0 es el idle!
 static uint64_t readyProcesses = 0; // cantidad de procesos listos
 static uint64_t quantum = 0;    
 
-// Global variable for user stack top
-uint64_t user_stack_top;
-
 void initScheduler(ProcessLinkedPtr list) {
     processes = list;
 }
 
 pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority) {
-    //_cli(); // Disable interrupts to make the function atomic
-    
     if (name == NULL || function == NULL) {
-      //  _sti(); // Re-enable interrupts before returning
         return -1;
     }
 
     if (argc > 0 && arg == NULL) {
-        //_sti(); // Re-enable interrupts before returning
         return -1;
     }
 
     PCB* process = allocMemory(sizeof(PCB));
     if (process == NULL) {
-        //_sti(); // Re-enable interrupts before returning
         return -1; 
     }
 
@@ -80,40 +70,18 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
 
     if ((void *)process->base == NULL) {
         freeMemory(process); 
-        //_sti(); // Re-enable interrupts before returning
         return -1;
     }
     process->base += STACK_SIZE;
-
-    // // stack de usuario
-    // void* user_stack = allocMemory(USER_STACK_SIZE);
-    // if (user_stack == NULL) {
-    //     freeMemory(process);
-    //     return -1;
-    // }
-    // user_stack_top = (uint64_t)user_stack + USER_STACK_SIZE;
-
-    // process->rip = (uint64_t)wrapper;
-
-    // char *wrapper_args[] = {
-    //     (char *)function, // rdi
-    //     (char *)arg       // rsi
-    // };
-
-    // // rdx = argc ya está en el stack
-    // process->rsp = processStackFrame(process->base, (uint64_t)wrapper, 2, wrapper_args);
-     
-
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
     addProcess(processes, process);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
-    //_sti(); // Re-enable interrupts before returning
     return process->pid;
 }
 
 pid_t getCurrentPid() {
-    return currentPid;
+    return getCurrentProcess(processes)->pid;
 } 
 
 uint64_t schedule(uint64_t rsp){
@@ -122,7 +90,7 @@ uint64_t schedule(uint64_t rsp){
         return rsp;
     }
 
-    if(quantum > 0) {
+    if(quantum > 0 && currentProcess->state < BLOCKED) {
         quantum--;
         return rsp;
     }
@@ -189,17 +157,25 @@ uint64_t kill(pid_t pid){
     
     PCB* process = getProcess(processes, pid);
     if (process == NULL) {
+        DEBUG_PRINT("Process not found: ", 0x00FFFFFF);
+        DEBUG_PRINT(pid, 0x00FFFFFF);
+        DEBUG_PRINT("\n", 0x00FFFFFF);
         return -1;
     }
 
     // Free process resources
     if (process->base != 0) {
+        DEBUG_PRINT("Freeing memory for process: ", 0x00FFFFFF);
+        DEBUG_PRINT(process->name, 0x00FFFFFF);
+        DEBUG_PRINT("\n", 0x00FFFFFF);
         freeMemory((void*)(process->base - STACK_SIZE));
     }
-    
-    // Remove process from list
-    removeProcess(processes, pid);
-    
+    blockProcess(pid); // Set process state to BLOCKED before removing it
+    process->state = EXITED; // Set process state to EXITED
+
+    DEBUG_PRINT("Removing process: ", 0x00FFFFFF);
+    DEBUG_PRINT(process->name, 0x00FFFFFF);
+    DEBUG_PRINT("\n", 0x00FFFFFF);
     // If killing current process, force a reschedule
     if (pid == currentPid) {
         yield();

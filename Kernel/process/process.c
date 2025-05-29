@@ -35,14 +35,15 @@ void addProcess(ProcessLinkedPtr list, PCB *process){
         return;
     }
     newNode->process = process;
-    newNode->next = list->current;
+    
     if (list->current == NULL) {
         list->current = newNode;
-        list->current->next = newNode;
-        list->current->prev = newNode;
+        newNode->next = newNode;
+        newNode->prev = newNode;
     } else { // la política es: agrego al final, siempre.
-        list->current->prev->next = newNode;
+        newNode->next = list->current;
         newNode->prev = list->current->prev;
+        list->current->prev->next = newNode;
         list->current->prev = newNode;
     }
     list->numProcesses++;
@@ -69,6 +70,7 @@ void removeProcess(ProcessLinkedPtr list, pid_t pid) {
                 }
             }
             
+            freeMemory(current->process);
             freeMemory(current);
             list->numProcesses--;
             return;
@@ -82,26 +84,37 @@ void freeProcessLinkedList(ProcessLinkedPtr list){
     if (list == NULL) {
         return;
     }
-    ProcessNode *current = list->current;
-    while (current != NULL) {
-        ProcessNode *temp = current;
-        current = current->next;
-        freeMemory(temp);
+    
+    if (list->current != NULL) {
+        ProcessNode *start = list->current;
+        ProcessNode *current = start;
+        
+        do {
+            ProcessNode *temp = current;
+            current = current->next;
+            freeMemory(temp->process);
+            freeMemory(temp);
+        } while (current != start);
     }
+    
     freeMemory(list);
 }
 
 PCB* getProcess(ProcessLinkedPtr list, pid_t pid){
-    if (list == NULL) {
+    if (list == NULL || list->current == NULL) {
         return NULL;
     }
-    ProcessNode *current = list->current;
-    while (current != NULL) {
+    
+    ProcessNode *start = list->current;
+    ProcessNode *current = start;
+    
+    do {
         if (current->process->pid == pid) {
             return current->process;
         }
         current = current->next;
-    }
+    } while (current != start);
+    
     return NULL;
 }
 

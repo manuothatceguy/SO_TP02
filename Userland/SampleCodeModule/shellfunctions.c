@@ -152,7 +152,13 @@ void handle_test_mm(char * arg) {
     // }
 
     printf("Iniciando test de gestion de memoria...\n");
-    char *argv[] = { arg, NULL };
+    char **argv = malloc(2 * sizeof(char*));
+    if (argv == NULL) {
+        printf("Error al asignar memoria para los argumentos\n");
+        return;
+    }
+    argv[0] = arg; // Asignar el argumento
+    argv[1] = NULL; // Terminar el array de argumentos
     printf("arg: %s\n", arg);
     printf("Direccion de test_mm: %p\n", (uint64_t*)test_mm);
     // Crear un nuevo proceso para ejecutar el test

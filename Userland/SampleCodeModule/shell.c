@@ -144,7 +144,7 @@ void shell() {
                 exit = TRUE;
             }
         }
-        free(arg);
+        
     }
     printf("Saliendo de la terminal...\n");
     syscall_wait(2000);
