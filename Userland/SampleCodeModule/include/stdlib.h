@@ -78,4 +78,8 @@ char getChar();
  */
 unsigned int randInt();
 
+void * malloc(uint64_t size);
+
+void free(void *ptr);
+
 #endif // STDLIB_H

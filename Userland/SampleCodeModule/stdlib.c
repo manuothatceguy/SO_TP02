@@ -154,7 +154,6 @@ char getChar(){
     return c;
 }
 
-
 uint64_t readLine(char *buff, uint64_t length) {
     char c;
     int i = 0;
@@ -185,4 +184,18 @@ unsigned long int next = 1;
 unsigned int randInt(){
     next = next * 1103515245 + 12345;
     return (next/65536) % 32768;
+}
+
+void * malloc(uint64_t size) {
+    if (size == 0) return NULL;
+    void *ptr = syscall_allocMemory(size);
+    if (ptr == NULL) {
+        printferror("Error allocating memory of size %llu\n", size);
+    }
+    return ptr;
+}
+
+void free(void *ptr) {
+    if (ptr == NULL) return;
+    syscall_freeMemory((uint64_t)ptr);
 }

@@ -125,10 +125,17 @@ void shell() {
     unsigned int exit = FALSE;
     int instruction;
     syscall_clearScreen();
-
+    char *arg;
     while(!exit){
         printf(PROMPT, username);
-        char arg[BUFFER_SPACE] = {0};
+        arg = (char *)malloc(BUFFER_SPACE * sizeof(char));
+        if(arg == NULL){
+            printferror("Error al asignar memoria para los argumentos.\n");
+            return;
+        }
+        for(int i = 0; i < BUFFER_SPACE; i++) {
+            arg[i] = 0; // Inicializa el buffer de argumentos
+        }
         instruction = getInstruction(arg); // Lee el comando que ingresa el usuario en la shell
         if(instruction != -1){
             if(instruction != EXIT){
@@ -137,6 +144,7 @@ void shell() {
                 exit = TRUE;
             }
         }
+        free(arg);
     }
     printf("Saliendo de la terminal...\n");
     syscall_wait(2000);
