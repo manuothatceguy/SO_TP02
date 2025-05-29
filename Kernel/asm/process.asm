@@ -6,7 +6,7 @@ wrapper:
     ; rsi = argv
     ; argc ya viene en rdx (lo pasó processStackFrame)
     call r8
-    mov rax, 16
+    mov rax, 23
     int 80h
 
 .hang:
