@@ -1,8 +1,8 @@
 #include <stdint.h>
-#include <stdio.h>
 #include <syscall.h>
 #include "test_util.h"
 #include <test_functions.h>
+#include <stdlib.h>
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
@@ -60,19 +60,19 @@ uint64_t test_prio() {
 
   printf("Creando los procesos\n");
 
-  pids[0] = syscall_create_process("print_a", print_a, 0, argv, LOWEST);
+  pids[0] = syscall_create_process("print_a", (fnptr)print_a, 0, argv, LOWEST);
   if( pids[0] < 0) {
     printferror("Error al crear el proceso A\n");
     return -1;
   }
   printf("Proceso A creado con PID: %d\n", (int)pids[0]);
-  pids[1] = syscall_create_process("print_b", print_b, 0, argv, MEDIUM);
+  pids[1] = syscall_create_process("print_b", (fnptr)print_b, 0, argv, MEDIUM);
   if( pids[1] < 0) {
     printferror("Error al crear el proceso B\n");
     return -1;
   }
   printf("Proceso B creado con PID: %d\n", (int)pids[1]);
-  pids[2] = syscall_create_process("print_c", print_c, 0, argv, HIGHEST);
+  pids[2] = syscall_create_process("print_c", (fnptr)print_c, 0, argv, HIGHEST);
   if( pids[2] < 0) {
     printferror("Error al crear el proceso C\n");
     return -1;

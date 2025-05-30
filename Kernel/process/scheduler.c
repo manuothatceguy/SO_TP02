@@ -158,7 +158,7 @@ uint64_t kill(pid_t pid){
     PCB* process = getProcess(processes, pid);
     if (process == NULL) {
         DEBUG_PRINT("Process not found: ", 0x00FFFFFF);
-        DEBUG_PRINT(pid, 0x00FFFFFF);
+        DEBUG_PRINT_INT(pid, 0x00FFFFFF);
         DEBUG_PRINT("\n", 0x00FFFFFF);
         return -1;
     }
