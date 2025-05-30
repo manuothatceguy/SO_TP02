@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
 #include <syscall.h>
 #include "test_util.h"
 #include <test_functions.h>

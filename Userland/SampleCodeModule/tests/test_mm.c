@@ -73,4 +73,5 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
   }
   free((void*)argv);
   printf("\ntest_mm: finished successfully\n");
+  return 0;
 }

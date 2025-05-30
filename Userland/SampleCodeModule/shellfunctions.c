@@ -42,8 +42,8 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - test_prio: test de prioridades\n"
                 "    - test_sync: test de sincronizacion\n"
                 "    - ps: muestra los procesos con su informacion\n"
-                "    - memInfo: imprime estado de la memoria\n";
-
+                "    - memInfo: imprime estado de la memoria\n"
+                "    - loop <time>: ejecuta un bucle por el tiempo especificado\n";
 void showTime(){
     uint64_t time[] = {
         syscall_time(0), // secs
@@ -327,4 +327,37 @@ void handle_ps(char * arg){
 
     // Solo liberamos el array de PCBs, no los campos individuales
     syscall_freeMemory(processInfo);
+}
+
+static void loop(uint64_t argc, char *argv[]) {
+    pid_t pid = syscall_getpid();
+    // Convertir el argumento a número
+    uint32_t time = satoi(argv[0]);
+    
+    if (time <= 0) {
+        printf("Error: time debe ser mayor que 0\n");
+        return;
+    }
+    printf("Proceso loop %d iniciado. Saludando cada %d segundos...\n", pid, time);
+    
+    while(1) {
+        printf("Hola! Soy el proceso %d\n", pid);
+        syscall_wait(time);
+    }
+}
+
+void handle_loop(char * arg) {
+    if (arg == NULL || arg[0] == '\0') {
+        printf("Uso: loop <time>\n");
+        return;
+    }
+    char **argv = malloc(2 * sizeof(char*));
+    argv[0] = arg;
+    argv[1] = NULL;
+    
+    pid_t pid = syscall_create_process("loop", (fnptr)loop, 1, argv, 1);
+
+    if (pid < 0) {
+        printf("Error al crear el proceso de loop\n");
+    }
 }
