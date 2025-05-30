@@ -5,7 +5,6 @@
 #include <scheduler.h>
 #include <shared_structs.h>
 
-
 typedef struct SemaphoreCDT {
     sem_t semaphores[NUM_SEMS];
 } SemaphoreCDT;
@@ -13,6 +12,14 @@ typedef struct SemaphoreCDT {
 SemaphoreADT manager = NULL;
 
 static SemaphoreADT getSemManager();
+
+#define validateid(id) \
+    do{ \
+        if (id < 0 || id >= NUM_SEMS) { \
+            return -1; \
+        } \
+    } while(0) 
+    
 
 SemaphoreADT semManager(){
     manager = (SemaphoreADT)(void*)allocMemory(sizeof(SemaphoreCDT));
@@ -32,9 +39,7 @@ SemaphoreADT semManager(){
 
 
 int semInit (int id, uint32_t value) {
-    if ( id >= NUM_SEMS ) {
-        return -1;
-    }
+    validateid(id);
 
     SemaphoreADT manager = getSemManager();
     if( ! manager->semaphores[id].used ) {
@@ -47,9 +52,7 @@ int semInit (int id, uint32_t value) {
 }
 
 int semOpen (int id) {
-    if (id >=  NUM_SEMS) {
-		return -1;
-	}
+    validateid(id);
     SemaphoreADT manager = getSemManager();
     if ( ! manager->semaphores[id].used == 0 ) {
         return 0;
@@ -58,9 +61,7 @@ int semOpen (int id) {
 }
 
 int semClose(int id) {
-    if (id >= NUM_SEMS) {
-		return -1;
-	}
+    validateid(id);
 	SemaphoreADT manager = getSemManager();
 	if (! manager->semaphores[id].used) {
 		return -1;
