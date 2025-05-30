@@ -36,6 +36,29 @@ static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     for(int i = 0; i < length; i++)
         putChar(buff[i],color); 
     return length;  
+
+
+    /**
+     * Ahora con pipes cambiaría un poco: hay un switch mas picante
+     * 
+     * switch(fd){
+     *   case 0: // stdin
+     *     //escribir en stdin
+     *     break;
+     *   case 1: // stdout
+     *     for(int i = 0; i < length; i++)
+     *       putChar(buff[i],0x00FFFFFF); // blanco
+     *     break;
+     *   case 2: // stderr
+     *     for(int i = 0; i < length; i++)
+     *       putChar(buff[i],0x00FF0000); // rojo
+     *     break;
+     *   default: // pipe
+     *     // escribir en el pipe con pipe_array[fd-3] y usando pipe_write obvio. validar numero de pipe.
+     *     break;
+     * }
+     * 
+     */
 }
 
 static uint64_t syscall_beep(uint64_t freq, uint64_t ticks) {
@@ -64,6 +87,24 @@ static uint64_t syscall_read( char* str,  uint64_t length){
         str[i] = getChar();
     }
     return length > 0 ? length : 0;
+
+    /**
+     * misma idea que en el write pero al revés.
+     * 
+     * switch(fd){
+     *   case 0: // stdin
+     *     for(int i = 0; i < length && length > 0; i++){
+     *       str[i] = getChar(); // pensar que quizás no es más getChar y tratar el stdin como un buffer más pero stdout si como un printeo inmediatamente a menos que querramos hacer buffering, ni idea como implementarlo.
+     *     }
+     *     break;
+     *   case 1: // stdout
+     *     return syscall_write(1, str, length);
+     *   case 2: // stderr
+     *     return syscall_write(2, str, length);
+     *   default: // pipe
+     *     // leer del pipe con pipe_array[fd-3] y usando pipe_read. validar numero de pipe.
+     * }
+     */
 }
 
 static uint64_t syscall_time(uint64_t mod){
