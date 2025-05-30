@@ -2449,7 +2449,7 @@ end
 
 #set dashboard enabled on
 
-dashboard -layout memory source assembly registers stack
+dashboard -layout memory registers assembly source stack variables
 dashboard -style syntax_highlighting 'monokai'
 
 # make sure dashboard output is updated when gdb state changes

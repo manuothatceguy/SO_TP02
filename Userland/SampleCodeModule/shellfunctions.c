@@ -115,6 +115,7 @@ void handle_clear(char * arg){
 }
 
 void handle_mem_info(char * arg) {
+    free(arg);
     printf("Estado de memoria:\n");
 
     memInfo info;
@@ -126,6 +127,7 @@ void handle_mem_info(char * arg) {
     printf("Memoria total: %d bytes\n", info.total);
     printf("Memoria usada: %d bytes\n", info.used);
     printf("Memoria libre: %d bytes\n", info.free);
+    
     return;
 }
 
