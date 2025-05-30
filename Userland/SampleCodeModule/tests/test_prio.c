@@ -10,47 +10,111 @@
 #define WAIT 10000000      // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
 
 #define TOTAL_PROCESSES 3
-#define LOWEST 0  // TODO: Change as required
-#define MEDIUM 1  // TODO: Change as required
-#define HIGHEST 2 // TODO: Change as required
+#define LOWEST 8  // TODO: Change as required
+#define MEDIUM 5  // TODO: Change as required
+#define HIGHEST 0 // TODO: Change as required
 
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
+
+void print_a(){
+  while (1) {
+    printf("A");
+    bussy_wait(MINOR_WAIT);
+  }
+}
+
+void print_b(){
+  while (1) {
+    printf("B");
+    bussy_wait(MINOR_WAIT);
+  }
+}
+
+void print_c(){
+  while (1) {
+    printf("C");
+    bussy_wait(MINOR_WAIT);
+  }
+}
+//uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority);
+
+#define LOOPS 10
+
 uint64_t test_prio() {
+  printf("TEST DE PRIORIDADES\n");
+  printf("Creando %d procesos con diferentes prioridades\n", TOTAL_PROCESSES);
+  
   int64_t pids[TOTAL_PROCESSES];
   char *argv[] = {0};
-  uint64_t i;
 
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    pids[i] = my_create_process("endless_loop_print", 0, argv);
-
-  bussy_wait(WAIT);
-  printf("\nCHANGING PRIORITIES...\n");
-
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_nice(pids[i], prio[i]);
+  printf("Descripcion del test:\n");
+  printf("Se crean %d procesos que imprimen letras A, B y C respectivamente.\n", TOTAL_PROCESSES);
+  printf("Cada proceso tiene una prioridad diferente:\n");
+  printf(" - Proceso A: Prioridad %d (LOWEST)\n", LOWEST);
+  printf(" - Proceso B: Prioridad %d (MEDIUM)\n", MEDIUM);
+  printf(" - Proceso C: Prioridad %d (HIGHEST)\n", HIGHEST);
+  printf("Los procesos A y B deberian imprimir sus letras con menor frecuencia que el proceso C.\n");
 
   bussy_wait(WAIT);
-  printf("\nBLOCKING...\n");
 
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_block(pids[i]);
+  printf("Creando los procesos\n");
 
-  printf("CHANGING PRIORITIES WHILE BLOCKED...\n");
+  pids[0] = syscall_create_process("print_a", print_a, 0, argv, LOWEST);
+  if( pids[0] < 0) {
+    printferror("Error al crear el proceso A\n");
+    return -1;
+  }
+  printf("Proceso A creado con PID: %d\n", (int)pids[0]);
+  pids[1] = syscall_create_process("print_b", print_b, 0, argv, MEDIUM);
+  if( pids[1] < 0) {
+    printferror("Error al crear el proceso B\n");
+    return -1;
+  }
+  printf("Proceso B creado con PID: %d\n", (int)pids[1]);
+  pids[2] = syscall_create_process("print_c", print_c, 0, argv, HIGHEST);
+  if( pids[2] < 0) {
+    printferror("Error al crear el proceso C\n");
+    return -1;
+  }
+  printf("Proceso C creado con PID: %d\n", (int)pids[2]);
+  printf("Los procesos deberian comenzar a imprimir sus letras en la pantalla.\n");
+  
+  // uint64_t i;
 
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_nice(pids[i], MEDIUM);
+  // for (i = 0; i < TOTAL_PROCESSES; i++)
+  //   pids[i] = my_create_process("endless_loop_print", 0, argv);
 
-  printf("UNBLOCKING...\n");
+  for (char i = 0; i < LOOPS; i++){
+    syscall_yield();
+  }
+  
+  //printf("\nCHANGING PRIORITIES...\n");
 
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_unblock(pids[i]);
+  // for (i = 0; i < TOTAL_PROCESSES; i++)
+  //   my_nice(pids[i], prio[i]);
 
-  bussy_wait(WAIT);
-  printf("\nKILLING...\n");
+  // bussy_wait(WAIT);
+  // printf("\nBLOCKING...\n");
 
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_kill(pids[i]);
+  // for (i = 0; i < TOTAL_PROCESSES; i++)
+  //   my_block(pids[i]);
+
+  // printf("CHANGING PRIORITIES WHILE BLOCKED...\n");
+
+  // for (i = 0; i < TOTAL_PROCESSES; i++)
+  //   my_nice(pids[i], MEDIUM);
+
+  // printf("UNBLOCKING...\n");
+
+  // for (i = 0; i < TOTAL_PROCESSES; i++)
+  //   my_unblock(pids[i]);
+
+  // bussy_wait(WAIT);
+  // printf("\nKILLING...\n");
+
+  // for (i = 0; i < TOTAL_PROCESSES; i++)
+  //   my_kill(pids[i]);
   
   return 0;
 }

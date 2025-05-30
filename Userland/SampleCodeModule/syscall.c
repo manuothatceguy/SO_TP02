@@ -107,15 +107,15 @@ uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char 
         .arg = argv,
         .priority = priority
     };
-    printf("Process Creation Parameters USERLAND:\n");
-    printf("Name: %s\n", params.name);
-    printf("Function: %p\n", params.function);
-    printf("Argument Count: %d\n", params.argc);
-    printf("Arguments:\n");
-    for (uint64_t i = 0; i < params.argc; i++) {
-        printf("Arg: %s\n", params.arg[i]);
-    }
-    printf("Priority: %d\n", params.priority);
+    // printf("Process Creation Parameters USERLAND:\n");
+    // printf("Name: %s\n", params.name);
+    // printf("Function: %p\n", params.function);
+    // printf("Argument Count: %d\n", params.argc);
+    // printf("Arguments:\n");
+    // for (uint64_t i = 0; i < params.argc; i++) {
+    //     printf("Arg: %s\n", params.arg[i]);
+    // }
+    // printf("Priority: %d\n", params.priority);
     return syscall(CREATE_PROCESS, (uint64_t)&params, 0, 0);
 }
 
