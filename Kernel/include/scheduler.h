@@ -8,7 +8,7 @@
 #include <shared_structs.h>
 
 uint64_t schedule(uint64_t rsp);
-void initScheduler(ProcessLinkedPtr list);
+void initScheduler(ProcessManagerADT list);
 pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority);
 pid_t getCurrentPid();
 uint64_t blockProcess (pid_t pid);

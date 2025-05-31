@@ -15,12 +15,12 @@ int queueSize(QueueADT queue);
 
 int isQueueEmpty(QueueADT queue);
 
-int isEmptyQueue(QueueADT queue);
-
 void* peekQueue(QueueADT queue);
 
 void clearQueue(QueueADT queue);
 
 void* containsQueue(QueueADT queue, void* data, int (*compare)(void*, void*));
+
+void* removeFromQueue(QueueADT queue, void* data, int (*compare)(void*, void*));
 
 #endif

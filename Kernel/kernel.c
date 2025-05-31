@@ -94,7 +94,7 @@ int main(){
 
 	// MEMORY MANAGER
 	createMemoryManager();
-	ProcessLinkedPtr processList = createProcessLinkedList();
+	ProcessManagerADT processList = createProcessManager();
 	initScheduler(processList);
 	//createProcess("idle", &idle, 0, NULL, -1);
 	//createProcess("feDeVida",(fnptr) feDeVida, 0, NULL, 1);

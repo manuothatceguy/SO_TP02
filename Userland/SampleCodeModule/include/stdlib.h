@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdarg.h>
+#include <syscall.h>
 
 #define NULL (void*) 0
 

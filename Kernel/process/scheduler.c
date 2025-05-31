@@ -23,13 +23,13 @@ uint64_t calculateQuantum(uint8_t priority) {
     return QUANTUM * (MAX_PRIORITY - priority + 1);
 }
 
-static ProcessLinkedPtr processes = NULL;              
+static ProcessManagerADT processes = NULL;              
 static pid_t currentPid = -1;   
 static pid_t nextFreePid = 0; // 0 es el idle!
-static uint64_t readyProcesses = 0; // cantidad de procesos listos
+//static uint64_t readyProcesses = 0; // cantidad de procesos listos
 static uint64_t quantum = 0;    
 
-void initScheduler(ProcessLinkedPtr list) {
+void initScheduler(ProcessManagerADT list) {
     processes = list;
 }
 
@@ -63,7 +63,7 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
     }
 
     process->state = READY;
-    readyProcesses++;
+    //readyProcesses++;
     
     process->priority = priority;
     process->base = (uint64_t)allocMemory(STACK_SIZE);
@@ -81,54 +81,72 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
 }
 
 pid_t getCurrentPid() {
-    return getCurrentProcess(processes)->pid;
-} 
+    PCB* current = getCurrentProcess(processes);
+    return current ? current->pid : -1;
+}
 
 uint64_t schedule(uint64_t rsp){
     PCB* currentProcess = getCurrentProcess(processes);
+    
+    // Si no hay proceso actual, buscar uno
     if(currentProcess == NULL) {
-        return rsp;
-    }
-
-    if(quantum > 0 && currentProcess->state < BLOCKED) {
-        quantum--;
-        return rsp;
-    }
-    DEBUG_PRINT("Quantum expired, switching processes...\n", 0x00FFFFFF);
-    // Quantum expired, need to switch processes
-
-    if(currentProcess != NULL) {
-        if(!first){
-            currentProcess->rsp = rsp;
-        } else {
-            first = 0;
+        PCB* nextProcess = getNextProcess(processes);
+        if (nextProcess == NULL) {
+            return rsp;
         }
-        currentProcess->state = READY;
-        readyProcesses++;
-        DEBUG_PRINT("Current process set to READY: ", 0x00FFFFFF);
-        DEBUG_PRINT(currentProcess->name, 0x00FFFFFF);
-        DEBUG_PRINT("\n", 0x00FFFFFF);
+        nextProcess->state = RUNNING;
+        currentPid = nextProcess->pid;
+        quantum = calculateQuantum(nextProcess->priority);
+        return nextProcess->rsp;
     }
 
-    PCB* nextProcess = getNextProcess(processes);
+    // Si el quantum no expiró, seguir con el mismo proceso
+    if(quantum > 0 && currentProcess->state == RUNNING) {
+        quantum--;
+        return rsp; // MANTENER el RSP actual
+    }
+    
+    // Quantum expiró, hacer context switch
+    DEBUG_PRINT("Quantum expired, switching processes...\n", 0x00FFFFFF);
+    
+    // GUARDAR el contexto del proceso actual
+    if(!first){
+        currentProcess->rsp = rsp; // Guardar RSP actual
+    } else {
+        first = 0;
+    }
+    
+    // Cambiar estado a READY (pero se queda en la cola)
+    if(currentProcess->state == RUNNING) {
+        currentProcess->state = READY;
+    }
 
-    // Switch to next process
+    // Obtener el siguiente proceso
+    PCB* nextProcess = getNextProcess(processes);
+    if (nextProcess == NULL) {
+        DEBUG_PRINT("ERROR: No next process available!\n", 0x00FFFFFF);
+        // Si no hay siguiente proceso, mantener el actual
+        currentProcess->state = RUNNING;
+        return rsp;
+    }
+
+    // Cambiar al siguiente proceso
     DEBUG_PRINT("Switching to process: ", 0x00FFFFFF);
     DEBUG_PRINT(nextProcess->name, 0x00FFFFFF);
     DEBUG_PRINT("\n", 0x00FFFFFF);
+    
     nextProcess->state = RUNNING;
-    readyProcesses--;
     currentPid = nextProcess->pid;
     quantum = calculateQuantum(nextProcess->priority);
+    
+    // RETORNAR el RSP del nuevo proceso
     return nextProcess->rsp;
 }
 
 uint64_t blockProcess (pid_t pid) {
-    PCB* process = getProcess(processes, pid);
-    if (process == NULL || pid == 0) { // no se puede bloquear el idle
+    if(blockProcessQueue(processes, pid) != 0){
         return -1;
     }
-    process->state = BLOCKED;
     if (pid == getCurrentPid()) { // si el proceso bloqueado es el actual se renuncia al cpu con interrupción 
         yield(); 
     }
@@ -146,7 +164,7 @@ uint64_t unblockProcess(pid_t pid){
         return -1;
     }
     process->state = READY;
-    readyProcesses++;
+    //readyProcesses++;
     return 0;
 }
 
@@ -198,14 +216,13 @@ int8_t changePrio(pid_t pid, int8_t newPrio){
     return newPrio;
 }
 
-
 PCB* getProcessInfo(uint64_t *cantProcesses){
     if ( processes == NULL) {
         *cantProcesses = 0;
         return NULL;
     }
     
-    uint64_t count = getProcessCount(processes);
+    uint64_t count = countProcesses(processes);
 
     PCB* processInfo = allocMemory(sizeof(PCB) * count);
     if (processInfo == NULL) {
@@ -216,7 +233,7 @@ PCB* getProcessInfo(uint64_t *cantProcesses){
     int found = 0;
     pid_t pid = 0; 
     
-    while (found < count) {
+    for (uint64_t i = 0; found < count; i++) {
         PCB* process = getProcess(processes, pid);
         if (process != NULL) {
 
@@ -242,10 +259,8 @@ int16_t copyProcess(PCB *dest, PCB *src) {
     dest->rsp = src->rsp;
     dest->base = src->base;
     dest->rip = src->rip;
-
 	strncpy(dest->name, src->name, NAME_MAX_LENGTH);
 	dest->name[NAME_MAX_LENGTH - 1] = '\0'; 
-
     return 0;
 }
 
