@@ -5,6 +5,7 @@
 
 #define MAX_LENGTH 1000
 #define MAX_INT_LENGTH 10
+#define STDIN 0
 #define STDOUT 1
 #define STDERR 2
 
@@ -173,7 +174,7 @@ uint64_t printferror(const char *format, ...){
 
 char getChar(){
     char c;
-    syscall_read(&c,1);
+    syscall_read(STDIN, &c,1);
     return c;
 }
 
@@ -200,7 +201,6 @@ uint64_t readLine(char *buff, uint64_t length) {
     printf("\n");
     return i;
 }
-
 
 unsigned long int next = 1;
 

@@ -13,6 +13,8 @@
 #include <process.h>
 #include <scheduler.h>
 #include <interrupts.h>
+#include <pipes.h>
+#include <semaphore.h>
 
 #define WHITE 0x00FFFFFF
 #define RED 0x000000FF
@@ -96,6 +98,7 @@ int main(){
 	createMemoryManager();
 	ProcessManagerADT processList = createProcessManager();
 	initScheduler(processList);
+	semManager();
 	//createProcess("idle", &idle, 0, NULL, -1);
 	//createProcess("feDeVida",(fnptr) feDeVida, 0, NULL, 1);
 	char *feDeVida2Args[] = {"Hola mundo!\n", NULL};

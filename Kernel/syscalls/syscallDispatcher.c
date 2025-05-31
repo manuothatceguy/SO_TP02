@@ -14,6 +14,8 @@
 #include <debug.h>
 #include <stdio.h>
 #include <semaphore.h>	
+#include <pipes.h>
+#include <interrupts.h>
 
 
 #define CANT_REGS 19
@@ -30,35 +32,30 @@ typedef uint64_t (*syscall_fn)(uint64_t rbx, uint64_t rcx, uint64_t rdx);
 
 static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     if (length < 0) return 1;
-    if (fd > 2 || fd < 0) return 2;
     uint64_t color = (fd == 1 ? 0x00FFFFFF : (fd == 2 ? 0x00FF0000 : 0));
-    if(!color) return 0;
-    for(int i = 0; i < length; i++)
-        putChar(buff[i],color); 
-    return length;  
-
-
-    /**
-     * Ahora con pipes cambiaría un poco: hay un switch mas picante
-     * 
-     * switch(fd){
-     *   case 0: // stdin
-     *     //escribir en stdin
-     *     break;
-     *   case 1: // stdout
-     *     for(int i = 0; i < length; i++)
-     *       putChar(buff[i],0x00FFFFFF); // blanco
-     *     break;
-     *   case 2: // stderr
-     *     for(int i = 0; i < length; i++)
-     *       putChar(buff[i],0x00FF0000); // rojo
-     *     break;
-     *   default: // pipe
-     *     // escribir en el pipe con pipe_array[fd-3] y usando pipe_write obvio. validar numero de pipe.
-     *     break;
-     * }
-     * 
-     */
+    switch(fd){
+      case 0: // stdin
+        return writePipe(0, buff, length);
+        break;
+      case 1: // stdout
+        for(int i = 0; i < length; i++)
+          putChar(buff[i],0x00FFFFFF); // blanco
+        return length; // no error
+        break;
+      case 2: // stderr
+        for(int i = 0; i < length; i++)
+          putChar(buff[i],0x00FF0000); // rojo
+        return length; 
+        break;
+      default: // pipe
+        int64_t i;
+        if(fd >= 3 + MAX_PIPES || (i = writePipe(fd - 3, buff, length)) < 0) {
+            return -1; // error
+        }
+        return i; 
+        break;
+    }
+    return -1;
 }
 
 static uint64_t syscall_beep(uint64_t freq, uint64_t ticks) {
@@ -82,29 +79,11 @@ static uint64_t syscall_clearScreen(){
     return 0;
 }
 
-static uint64_t syscall_read( char* str,  uint64_t length){
-    for(int i = 0; i < length && length > 0; i++){
-        str[i] = getChar();
+static uint64_t syscall_read(uint64_t fd, char* str,  uint64_t length){
+    if(fd >= 3 + MAX_PIPES) {
+        return -1; // error
     }
-    return length > 0 ? length : 0;
-
-    /**
-     * misma idea que en el write pero al revés.
-     * 
-     * switch(fd){
-     *   case 0: // stdin
-     *     for(int i = 0; i < length && length > 0; i++){
-     *       str[i] = getChar(); // pensar que quizás no es más getChar y tratar el stdin como un buffer más pero stdout si como un printeo inmediatamente a menos que querramos hacer buffering, ni idea como implementarlo.
-     *     }
-     *     break;
-     *   case 1: // stdout
-     *     return syscall_write(1, str, length);
-     *   case 2: // stderr
-     *     return syscall_write(2, str, length);
-     *   default: // pipe
-     *     // leer del pipe con pipe_array[fd-3] y usando pipe_read. validar numero de pipe.
-     * }
-     */
+    return readPipe(fd, str, length);
 }
 
 static uint64_t syscall_time(uint64_t mod){
@@ -133,24 +112,6 @@ static uint64_t syscall_wait(uint64_t seconds){
 }
 
 pid_t syscall_create_process(ProcessCreationParams* params) {
-    // printStr("Process Creation Parameters KERNEL:\n", 0x00FFFFFF);
-    // printStr(params->name, 0x00FFFFFF);
-    // printStr("\n", 0x00FFFFFF);
-    // printStr("Function: ", 0x00FFFFFF);
-    // printStr((char*)params->function, 0x00FFFFFF); 
-    // printStr("\n", 0x00FFFFFF);
-    // printStr("Argument Count: ", 0x00FFFFFF);
-    // printInt(params->argc, 0x00FFFFFF);
-    // printStr("\n", 0x00FFFFFF);
-    // printStr("Arguments:\n", 0x00FFFFFF);
-    // for (uint64_t i = 0; i < params->argc; i++) {
-    //     printStr("Arg: ", 0x00FFFFFF);
-    //     printStr(params->arg[i], 0x00FFFFFF);
-    //     printStr("\n", 0x00FFFFFF);
-    // }
-    // printStr("Priority: ", 0x00FFFFFF);
-    // printInt(params->priority, 0x00FFFFFF);
-    // printStr("\n", 0x00FFFFFF);
     return createProcess(params->name, (fnptr)params->function, params->argc, params->arg, params->priority);
 }
 
@@ -197,13 +158,6 @@ static int64_t syscall_memInfo(memInfo *user_ptr){
     }
     memInfo temp;
     getMemoryInfo(&temp);
-    // printStr("[KERNEL] temp.total:", 0x00ADD8E6);
-    // printInt(temp.total, 0x00ADD8E6);
-    // printStr(" temp.used:", 0x00ADD8E6);
-    // printInt(temp.used, 0x00ADD8E6);
-    // printStr(" temp.free:", 0x00ADD8E6);
-    // printInt(temp.free, 0x00ADD8E6);
-    // printStr("\n", 0x00ADD8E6);
     user_ptr->total = temp.total;
     user_ptr->used  = temp.used;
     user_ptr->free  = temp.free;
@@ -245,6 +199,7 @@ void syscall_yield() {
 
 uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){
     if(syscall_number > CANT_SYSCALLS) return 0;
+    _cli();
     syscall_fn syscalls[] = {0,
         (syscall_fn)syscall_read, 
         (syscall_fn)syscall_write, 
@@ -275,5 +230,7 @@ uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2
         (syscall_fn)syscall_sem_close,
         (syscall_fn)syscall_yield
     };
-    return syscalls[syscall_number](arg1, arg2, arg3);
+    uint64_t ret = syscalls[syscall_number](arg1, arg2, arg3);
+    _sti();
+    return ret;
 }
