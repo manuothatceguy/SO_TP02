@@ -27,6 +27,13 @@ void wait_ticks(uint64_t ticksToWait) {
 	}
 }
 
+void wait_seconds(uint64_t secondsToWait) {
+	uint64_t curr = seconds_elapsed();
+	while(seconds_elapsed() < curr + secondsToWait){
+		yield();
+	}
+}
+
 void setup_timer(uint16_t freq) {
     uint16_t divisor = 1193180 / freq;
 

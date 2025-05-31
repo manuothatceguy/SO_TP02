@@ -9,7 +9,7 @@
 #include <syscall.h>
 #include <debug.h>
 
-#define QUANTUM 10
+#define QUANTUM 3
 #define MAX_PRIORITY 5 // agregar a limitaciones
 #define MIN_PRIORITY 0
 #define IDLE_PRIORITY -1
