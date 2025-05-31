@@ -33,6 +33,8 @@ uint64_t countBlockedProcesses(ProcessManagerADT list);
 
 uint64_t countProcesses(ProcessManagerADT list);
 
+PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessState state);
+
 // asm
 uint64_t processStackFrame(uint64_t base, uint64_t rip, uint64_t argc, char **arg);
 void wrapper(uint64_t function, char **argv);

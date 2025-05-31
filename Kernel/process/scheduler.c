@@ -88,7 +88,6 @@ pid_t getCurrentPid() {
 uint64_t schedule(uint64_t rsp){
     PCB* currentProcess = getCurrentProcess(processes);
     
-    // Si no hay proceso actual, buscar uno
     if(currentProcess == NULL) {
         PCB* nextProcess = getNextProcess(processes);
         if (nextProcess == NULL) {
@@ -100,32 +99,26 @@ uint64_t schedule(uint64_t rsp){
         return nextProcess->rsp;
     }
 
-    // Si el quantum no expiró, seguir con el mismo proceso
     if(quantum > 0 && currentProcess->state == RUNNING) {
         quantum--;
         return rsp; // MANTENER el RSP actual
     }
     
-    // Quantum expiró, hacer context switch
     DEBUG_PRINT("Quantum expired, switching processes...\n", 0x00FFFFFF);
     
-    // GUARDAR el contexto del proceso actual
     if(!first){
-        currentProcess->rsp = rsp; // Guardar RSP actual
+        currentProcess->rsp = rsp; 
     } else {
         first = 0;
     }
     
-    // Cambiar estado a READY (pero se queda en la cola)
     if(currentProcess->state == RUNNING) {
         currentProcess->state = READY;
     }
 
-    // Obtener el siguiente proceso
     PCB* nextProcess = getNextProcess(processes);
     if (nextProcess == NULL) {
         DEBUG_PRINT("ERROR: No next process available!\n", 0x00FFFFFF);
-        // Si no hay siguiente proceso, mantener el actual
         currentProcess->state = RUNNING;
         return rsp;
     }
@@ -164,7 +157,6 @@ uint64_t unblockProcess(pid_t pid){
         return -1;
     }
     process->state = READY;
-    //readyProcesses++;
     return 0;
 }
 
@@ -172,33 +164,15 @@ uint64_t kill(pid_t pid){
     if (pid == 0) { // Can't kill shell
         return -1;
     }
-    
-    PCB* process = getProcess(processes, pid);
-    if (process == NULL) {
-        DEBUG_PRINT("Process not found: ", 0x00FFFFFF);
-        DEBUG_PRINT_INT(pid, 0x00FFFFFF);
-        DEBUG_PRINT("\n", 0x00FFFFFF);
+    ProcessState state = (pid == getCurrentPid()) ? EXITED : KILLED; // si es el actual sale, sino es xq lo mataron
+    PCB* process = killProcess(processes, pid, 0, state);
+    if(process == NULL){
         return -1;
     }
-
-    // Free process resources
-    if (process->base != 0) {
-        DEBUG_PRINT("Freeing memory for process: ", 0x00FFFFFF);
-        DEBUG_PRINT(process->name, 0x00FFFFFF);
-        DEBUG_PRINT("\n", 0x00FFFFFF);
-        freeMemory((void*)(process->base - STACK_SIZE));
-    }
-    blockProcess(pid); // Set process state to BLOCKED before removing it
-    process->state = EXITED; // Set process state to EXITED
-
-    DEBUG_PRINT("Removing process: ", 0x00FFFFFF);
-    DEBUG_PRINT(process->name, 0x00FFFFFF);
-    DEBUG_PRINT("\n", 0x00FFFFFF);
-    // If killing current process, force a reschedule
+    freeMemory((void*)process->base); // libera el stack
     if (pid == currentPid) {
         yield();
     }
-    
     return 0;
 }
 
@@ -262,8 +236,4 @@ int16_t copyProcess(PCB *dest, PCB *src) {
 	strncpy(dest->name, src->name, NAME_MAX_LENGTH);
 	dest->name[NAME_MAX_LENGTH - 1] = '\0'; 
     return 0;
-}
-
-int32_t killCurrentProcess(int32_t retValue) {
-	return kill(retValue);
 }
