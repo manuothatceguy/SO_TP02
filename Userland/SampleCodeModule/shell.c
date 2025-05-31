@@ -29,6 +29,8 @@ typedef enum {
     TEST_SYNC,
     PS,
     MEM_INFO,
+    LOOP,
+    NICE,
     EXIT
 } instructions;
 
@@ -47,6 +49,8 @@ static char * inst_list[] = {"help",
                                             "test_sync",
                                             "ps",
                                             "memInfo",
+                                            "loop",
+                                            "nice",
                                             "exit"
                                             };
 
@@ -66,6 +70,8 @@ void (*instruction_handlers[CANT_INSTRUCTIONS-1])(char *) = {
     handle_test_sync,
     handle_ps,
     handle_mem_info,
+    handle_loop,
+    handle_nice,
 };
 
 int verifyInstruction(char * instruction){
