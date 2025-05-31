@@ -127,9 +127,9 @@ static uint64_t syscall_getHeight(){
     return getHeight();
 }
 
-static uint64_t syscall_wait(uint64_t ticks){
-    wait_ticks(ticks);
-    return ticks;
+static uint64_t syscall_wait(uint64_t seconds){
+    wait_seconds(seconds);
+    return seconds;
 }
 
 pid_t syscall_create_process(ProcessCreationParams* params) {
