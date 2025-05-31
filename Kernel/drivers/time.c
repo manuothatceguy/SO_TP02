@@ -2,6 +2,7 @@
 #include <lib.h>
 #include <textModule.h>
 #include <interrupts.h>
+#include <scheduler.h>
 
 static uint64_t ticks = 0;
 static uint16_t frequency = 18;
@@ -22,7 +23,7 @@ void wait_ticks(uint64_t ticksToWait) {
 	//_sti();
 	uint64_t curr = ticks;
 	while(ticks < curr + ticksToWait){
-		_hlt();
+		yield(); // antes era hlt pero tenemos procesos.....
 	}
 }
 
