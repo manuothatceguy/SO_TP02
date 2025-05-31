@@ -2,6 +2,7 @@
 #define TEST_FUNCTIONS_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
 // Declaraciones de funciones de prueba
 uint64_t test_mm(uint64_t argc, char *argv[]);

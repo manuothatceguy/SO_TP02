@@ -71,6 +71,29 @@ int strcmp(const char *s1, const char *s2){
     return *s1 - *s2;
 }
 
+// Parameters
+int64_t satoi(char *str) {
+  uint64_t i = 0;
+  int64_t res = 0;
+  int8_t sign = 1;
+
+  if (!str)
+    return 0;
+
+  if (str[i] == '-') {
+    i++;
+    sign = -1;
+  }
+
+  for (; str[i] != '\0'; ++i) {
+    if (str[i] < '0' || str[i] > '9')
+      return 0;
+    res = res * 10 + str[i] - '0';
+  }
+
+  return res * sign;
+}
+
 
 uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
     char output[MAX_LENGTH] = {0};

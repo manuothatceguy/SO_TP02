@@ -10,7 +10,7 @@
 #define MAX_ECHO 1000
 #define MAX_USERNAME_LENGTH 16
 #define PROMPT "%s$> "
-#define CANT_INSTRUCTIONS 17
+#define CANT_INSTRUCTIONS 18
 uint64_t curr = 0;
 
 typedef enum {
@@ -29,6 +29,7 @@ typedef enum {
     TEST_SYNC,
     PS,
     MEM_INFO,
+    LOOP,
     EXIT
 } instructions;
 
@@ -47,6 +48,7 @@ static char * inst_list[] = {"help",
                                             "test_sync",
                                             "ps",
                                             "memInfo",
+                                            "loop",
                                             "exit"
                                             };
 
@@ -66,6 +68,7 @@ void (*instruction_handlers[CANT_INSTRUCTIONS-1])(char *) = {
     handle_test_sync,
     handle_ps,
     handle_mem_info,
+    handle_loop,
 };
 
 int verifyInstruction(char * instruction){
