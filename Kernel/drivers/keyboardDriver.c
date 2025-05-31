@@ -186,7 +186,7 @@ int bufferWrite(){
 
     if(!specialKey && c <= F12_PRESS){  
         if(ctrlPressed && press_keys[c].ascii == 'c'){
-            //kill(getCurrentPid()); // CTRL + C mata al proceso actual
+            kill(getCurrentPid()); // CTRL + C mata al proceso actual
             return 0;
         }
         mayus = (caps && !shift) || (!caps && shift);

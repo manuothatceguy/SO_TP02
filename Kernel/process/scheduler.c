@@ -169,7 +169,7 @@ uint64_t unblockProcess(pid_t pid){
 }
 
 uint64_t kill(pid_t pid){
-    if (pid == 0) { // Can't kill idle process
+    if (pid == 0) { // Can't kill shell
         return -1;
     }
     

@@ -25,7 +25,8 @@ typedef enum {
     READY,
     RUNNING,
     BLOCKED,
-    EXITED
+    EXITED,
+    WAITING_SEM
 } ProcessState;
 
 typedef int pid_t;
