@@ -43,7 +43,52 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - test_sync: test de sincronizacion\n"
                 "    - ps: muestra los procesos con su informacion\n"
                 "    - memInfo: imprime estado de la memoria\n"
-                "    - loop <time>: ejecuta un bucle por el tiempo especificado\n";
+                "    - loop <time>: ejecuta un bucle por el tiempo especificado\n"
+                "    - nice <pid> <new_priority>: cambia la prioridad de un proceso\n";
+
+
+// Función auxiliar para parsear argumentos
+static int parse_arguments(char *arg, char **args, int max_args, int max_size) {
+    if (arg == NULL || arg[0] == '\0') {
+        return -1;
+    }
+    
+    int arg_count = 0;
+    int current_pos = 0;
+    int start_pos = 0;
+    
+    // Inicializar todos los argumentos como strings vacíos
+    for (int i = 0; i < max_args; i++) {
+        args[i][0] = '\0';
+    }
+    
+    // Procesar cada carácter
+    while (arg[current_pos] != '\0' && arg_count < max_args) {
+        // Si encontramos un espacio o el final de la cadena
+        if (arg[current_pos] == ' ' || arg[current_pos + 1] == '\0') {
+            // Si es el final de la cadena, incluir el último carácter
+            int end_pos = (arg[current_pos + 1] == '\0') ? current_pos + 1 : current_pos;
+            
+            // Copiar el argumento actual
+            int j = 0;
+            for (int i = start_pos; i < end_pos && j < max_size - 1; i++) {
+                args[arg_count][j++] = arg[i];
+            }
+            args[arg_count][j] = '\0';
+            
+            // Solo incrementar arg_count si el argumento no está vacío
+            if (j > 0) {
+                arg_count++;
+            }
+            
+            start_pos = current_pos + 1;
+        }
+        current_pos++;
+    }
+    
+    return arg_count;
+}
+
 void showTime(){
     uint64_t time[] = {
         syscall_time(0), // secs
@@ -340,5 +385,41 @@ void handle_loop(char * arg) {
 
     if (pid < 0) {
         printf("Error al crear el proceso de loop\n");
+    }
+}
+
+void handle_nice(char * arg) {
+    char *args[2];
+    char arg1[32] = {0};
+    char arg2[32] = {0};
+    args[0] = arg1;
+    args[1] = arg2;
+    
+    if (parse_arguments(arg, args, 2, 32) != 2) {
+        printf("Uso: nice <pid> <new_priority>\n");
+        return;
+    }
+    
+    // Convertir strings a números
+    int pid = satoi(args[0]);
+    int new_priority = satoi(args[1]);
+    
+    // Verificar que ambos sean números válidos
+    if (pid == 0) {
+        printf("Error: la shell no se toca\n");
+        return;
+    }else if (pid < 0) {
+        printf("Error: pid debe ser un número positivo\n");
+        return;
+    }else if (new_priority < 0 || new_priority > 5) {
+        printf("Error: la prioridad debe estar entre 0 y 5\n");
+        return;
+    }
+    
+    // Llamar a la syscall para cambiar la prioridad
+    if (syscall_changePrio(pid, new_priority) == -1) {
+        printf("Error al cambiar la prioridad del proceso %d\n", pid);
+    } else {
+        printf("Prioridad del proceso %d cambiada a %d\n", pid, new_priority);
     }
 }
