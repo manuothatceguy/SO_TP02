@@ -6,19 +6,32 @@
 
 #define STACK_SIZE 4096 
 
-typedef struct ProcessList *ProcessLinkedPtr;
+typedef struct ProcessManagerCDT *ProcessManagerADT;
 
-// External variable for user stack top
-extern uint64_t user_stack_top;
+ProcessManagerADT createProcessManager();
 
-ProcessLinkedPtr createProcessLinkedList();
-void addProcess(ProcessLinkedPtr list, PCB *process);
-void removeProcess(ProcessLinkedPtr list, pid_t pid);
-void freeProcessLinkedList(ProcessLinkedPtr list);
-PCB* getProcess(ProcessLinkedPtr list, pid_t pid);
-PCB* getNextProcess(ProcessLinkedPtr list);
-PCB* getCurrentProcess(ProcessLinkedPtr list);
-uint64_t getProcessCount(ProcessLinkedPtr list);
+void addProcess(ProcessManagerADT list, PCB *process);
+
+void removeProcess(ProcessManagerADT list, pid_t pid);
+
+void freeProcessLinkedList(ProcessManagerADT list);
+
+// busca en ambas colas
+PCB* getProcess(ProcessManagerADT list, pid_t pid);
+
+PCB* getNextProcess(ProcessManagerADT list);
+
+PCB* getCurrentProcess(ProcessManagerADT list);
+
+int blockProcessQueue(ProcessManagerADT list, pid_t pid);
+
+int unblockProcessQueue(ProcessManagerADT list, pid_t pid);
+
+uint64_t countReadyProcesses(ProcessManagerADT list);
+
+uint64_t countBlockedProcesses(ProcessManagerADT list);
+
+uint64_t countProcesses(ProcessManagerADT list);
 
 // asm
 uint64_t processStackFrame(uint64_t base, uint64_t rip, uint64_t argc, char **arg);

@@ -3,143 +3,163 @@
 #include <shared_structs.h>
 #include <memoryManager.h>
 #include <debug.h>
+#include <queue.h>
 
-// lista doblemente encadenada circular
-typedef struct ProcessNode {
-    PCB *process;
-    struct ProcessNode *next;
-    struct ProcessNode *prev;
-} ProcessNode;
+typedef struct ProcessManagerCDT {
+    PCB* currentProcess;
+    QueueADT readyQueue;
+    QueueADT blockedQueue;
+} ProcessManagerCDT;
 
-typedef struct ProcessList {
-    ProcessNode* current; // puntero al nodo cabeza
-    uint64_t numProcesses; // cantidad de procesos en la lista
-} ProcessList;
-
-ProcessLinkedPtr createProcessLinkedList(){
-    ProcessLinkedPtr list = (ProcessLinkedPtr)allocMemory(sizeof(ProcessList));
+ProcessManagerADT createProcessManager(){
+    ProcessManagerADT list = (ProcessManagerADT)allocMemory(sizeof(ProcessManagerCDT));
     if (list == NULL) {
         return NULL; 
     }
-    list->current = NULL;
-    list->numProcesses = 0;
+    list->currentProcess = NULL;
+    list->readyQueue = createQueue();
+    if (list->readyQueue == NULL) {
+        freeMemory(list);
+        return NULL; 
+    }
+    list->blockedQueue = createQueue();
+    if (list->blockedQueue == NULL) {
+        freeQueue(list->readyQueue);
+        freeMemory(list);
+        return NULL; 
+    }
     return list;
 }
 
-void addProcess(ProcessLinkedPtr list, PCB *process){
-    if (list == NULL || process == NULL) {
+void addProcess(ProcessManagerADT list, PCB *process){
+    if(list == NULL || process == NULL) {
         return;
     }
-    ProcessNode *newNode = (ProcessNode *)allocMemory(sizeof(ProcessNode));
-    if (newNode == NULL) {
-        return;
+    enqueue(list->readyQueue, process);
+    if(list->currentProcess == NULL) {
+        list->currentProcess = process; 
     }
-    newNode->process = process;
-    
-    if (list->current == NULL) {
-        list->current = newNode;
-        newNode->next = newNode;
-        newNode->prev = newNode;
-    } else { // la política es: agrego al final, siempre.
-        newNode->next = list->current;
-        newNode->prev = list->current->prev;
-        list->current->prev->next = newNode;
-        list->current->prev = newNode;
-    }
-    list->numProcesses++;
 }
 
-void removeProcess(ProcessLinkedPtr list, pid_t pid) {
-    if (list == NULL || list->current == NULL) {
-        return;
-    }
-    
-    ProcessNode *start = list->current;
-    ProcessNode *current = start;
-    
-    do {
-        if (current->process->pid == pid) {
-            // Manejo especial si es el único nodo
-            if (current->next == current) {
-                list->current = NULL;
-            } else {
-                current->prev->next = current->next;
-                current->next->prev = current->prev;
-                if (list->current == current) {
-                    list->current = current->next;
-                }
-            }
-            
-            freeMemory(current->process);
-            freeMemory(current);
-            list->numProcesses--;
-            return;
-        }
-        
-        current = current->next;
-    } while (current != start);
+int compareProcesses(void* a, void* b) {
+    PCB* processA = (PCB*)a;
+    PCB* processB = (PCB*)b;
+    return (processA->pid == processB->pid) ? 0 : -1;
 }
 
-void freeProcessLinkedList(ProcessLinkedPtr list){
+int hasPid(void* a, void*b){ // a es el proceso, b es el pid. el signature es así por temas de casteo...
+    PCB* processA = (PCB*)a;
+    pid_t* pid = (pid_t*)b;
+    return (processA->pid == *pid) ? 0 : -1; 
+}
+
+void removeProcess(ProcessManagerADT list, pid_t pid) {
     if (list == NULL) {
         return;
     }
+    removeFromQueue(list->readyQueue, &pid, hasPid);
+}
+
+static PCB* switchProcess(QueueADT qFrom, QueueADT qTo, pid_t pid) {
+    if (qFrom == NULL || qTo == NULL) {
+        return NULL;
+    }
+    PCB* process = (PCB*)removeFromQueue(qFrom, &pid, hasPid);
+    if (process == NULL) {
+        return NULL;
+    }
+    if (enqueue(qTo, process) != 0) {
+        enqueue(qFrom, process);
+        return NULL;
+    }
+    return process;
+}
+
+int blockProcessQueue(ProcessManagerADT list, pid_t pid) {
+    if (list == NULL) {
+        return -1; 
+    }
+    PCB* process = switchProcess(list->readyQueue, list->blockedQueue, pid);
+    if (process == NULL) {
+        return -1;
+    }
+    process->state = BLOCKED;
     
-    if (list->current != NULL) {
-        ProcessNode *start = list->current;
-        ProcessNode *current = start;
-        
-        do {
-            ProcessNode *temp = current;
-            current = current->next;
-            freeMemory(temp->process);
-            freeMemory(temp);
-        } while (current != start);
+    if (list->currentProcess && list->currentProcess->pid == pid) {
+        list->currentProcess = NULL; 
     }
     
+    return 0;
+}
+
+int unblockProcessQueue(ProcessManagerADT list, pid_t pid) {
+    if (list == NULL) {
+        return -1; 
+    }
+    PCB* process = switchProcess(list->blockedQueue, list->readyQueue, pid);
+    if (process == NULL) {
+        return -1;
+    }
+    process->state = READY; 
+    return 0;
+}
+
+void freeProcessLinkedList(ProcessManagerADT list){
+    if (list == NULL) {
+        return;
+    }
+    freeQueue(list->readyQueue);
+    freeQueue(list->blockedQueue);
     freeMemory(list);
 }
 
-PCB* getProcess(ProcessLinkedPtr list, pid_t pid){
-    if (list == NULL || list->current == NULL) {
-        return NULL;
-    }
-    
-    ProcessNode *start = list->current;
-    ProcessNode *current = start;
-    
-    do {
-        if (current->process->pid == pid) {
-            return current->process;
-        }
-        current = current->next;
-    } while (current != start);
-    
-    return NULL;
-}
-
-PCB* getNextProcess(ProcessLinkedPtr list){
-    if (list == NULL || list->current == NULL || list->numProcesses == 0) {
-        return NULL;
-    }
-    ProcessNode* current = list->current;
-    list->current = current->next;
-    return list->current->process;
-}
-
-PCB* getCurrentProcess(ProcessLinkedPtr list){
+PCB* getProcess(ProcessManagerADT list, pid_t pid){
     if (list == NULL) {
         return NULL;
     }
-    if (list->current == NULL) {
-        return NULL;
+    PCB* process = (PCB*)containsQueue(list->readyQueue, &pid, hasPid);
+    if (process != NULL) {
+        return process; // Found in ready queue
     }
-    return list->current->process;
+    return (PCB*)containsQueue(list->blockedQueue, &pid, hasPid);
 }
 
-uint64_t getProcessCount(ProcessLinkedPtr list) {
-    if (list == NULL) {
-        return 0;
+PCB* getNextProcess(ProcessManagerADT list){
+    if(list == NULL || isQueueEmpty(list->readyQueue)) {
+        return NULL;
     }
-    return list->numProcesses;
+    
+    PCB* nextProcess = (PCB*)dequeue(list->readyQueue);
+    if (nextProcess == NULL) {
+        return NULL; 
+    }
+
+    if(enqueue(list->readyQueue, nextProcess) != 0) {
+        return NULL;
+    }
+    
+    list->currentProcess = nextProcess;
+    return nextProcess;
+}
+
+int hasNextReady(ProcessManagerADT list) {
+    return !isQueueEmpty(list->readyQueue);
+}
+
+PCB* getCurrentProcess(ProcessManagerADT list){
+    return list ? list->currentProcess : NULL;
+}
+
+uint64_t getProcessCount(ProcessManagerADT list) {
+    return list ? queueSize(list->readyQueue) + queueSize(list->blockedQueue) : 0;
+}
+
+uint64_t countReadyProcesses(ProcessManagerADT list) {
+    return list ? queueSize(list->readyQueue) : 0;
+}
+uint64_t countBlockedProcesses(ProcessManagerADT list) {
+    return list ? queueSize(list->blockedQueue) : 0;
+}
+uint64_t countProcesses(ProcessManagerADT list) {
+    return list ? getProcessCount(list) : 0;
 }

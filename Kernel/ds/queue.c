@@ -88,10 +88,6 @@ int isQueueEmpty(QueueADT queue) {
     return queue->size == 0;
 }
 
-int isEmptyQueue(QueueADT queue) {
-    return isQueueEmpty(queue);
-}
-
 void* peekQueue(QueueADT queue) {
     if (queue == NULL || queue->front == NULL) {
         return NULL; 
@@ -123,6 +119,34 @@ void* containsQueue(QueueADT queue, void* data, int (*compare)(void*, void*)) {
         if (compare(current->data, data) == 0) {
             return current->data; 
         }
+        current = current->next;
+    }
+    return NULL; 
+}
+
+void* removeFromQueue(QueueADT queue, void* data, int (*compare)(void*, void*)) {
+    if (queue == NULL || compare == NULL) {
+        return NULL; 
+    }
+    Node* current = queue->front;
+    Node* previous = NULL;
+
+    while (current != NULL) {
+        if (compare(current->data, data) == 0) {
+            if (previous == NULL) {
+                queue->front = current->next;
+            } else {
+                previous->next = current->next;
+            }
+            if (current == queue->rear) {
+                queue->rear = previous;
+            }
+            void* removedData = current->data;
+            freeMemory(current);
+            queue->size--;
+            return removedData; 
+        }
+        previous = current;
         current = current->next;
     }
     return NULL; 
