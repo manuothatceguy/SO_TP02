@@ -2,58 +2,56 @@
 #include <semaphore.h>
 #include <stddef.h>
 
-static io_system_t io_system;
+static ioSystem_t ioSystem;
 
-// Variable global para gestión de IDs de semáforos
 static int next_sem_id = 0;
-static int io_system_initialized = 0;
+static int ioSystemInit = 0;
 
-// Función auxiliar para verificar si el sistema está inicializado
-static int ensure_io_system_initialized() {
-    if (!io_system_initialized) {
-        init_io_system();
-        io_system_initialized = 1;
+static int checkSystemInit() {
+    if (!ioSystemInit) {
+        initIoSystem();
+        ioSystemInit = 1;
     }
     return 0;
 }
 
-void init_io_system() {
-    io_system.next_pipe_id = 0;
+void initIoSystem() {
+    ioSystem.nextPipeId = 0;
     for(int i = 0; i < MAX_PIPES; i++) {
-        io_system.pipes[i].is_open = 0;
-        io_system.pipes[i].read_pos = 0;
-        io_system.pipes[i].write_pos = 0;
-        io_system.pipes[i].count = 0;
-        io_system.pipes[i].readers = 0;
-        io_system.pipes[i].writers = 0;
-        io_system.pipes[i].semaphore_read = -1;
-        io_system.pipes[i].semaphore_write = -1;
-        io_system.pipes[i].mutex = -1; 
+        ioSystem.pipes[i].isOpen = 0;
+        ioSystem.pipes[i].read_pos = 0;
+        ioSystem.pipes[i].write_pos = 0;
+        ioSystem.pipes[i].count = 0;
+        ioSystem.pipes[i].readers = 0;
+        ioSystem.pipes[i].writers = 0;
+        ioSystem.pipes[i].semReaders = -1;
+        ioSystem.pipes[i].semWriters = -1;
+        ioSystem.pipes[i].mutex = -1; 
     }
 }
 
-int create_pipe() {
-    ensure_io_system_initialized();
+int createPipe() {
+    checkSystemInit();
     
     for(int i = 0; i < MAX_PIPES; i++) {
-        if(!io_system.pipes[i].is_open) {
-            pipe_t *pipe = &io_system.pipes[i];
+        if(!ioSystem.pipes[i].isOpen) {
+            pipe_t *pipe = &ioSystem.pipes[i];
             
             pipe->read_pos = 0;
             pipe->write_pos = 0;
             pipe->count = 0;
             pipe->readers = 0;
             pipe->writers = 0;
-            pipe->is_open = 1;
+            pipe->isOpen = 1;
             
             // Crear semáforos usando la API existente
-            pipe->semaphore_read = next_sem_id++;
-            pipe->semaphore_write = next_sem_id++;
+            pipe->semReaders = next_sem_id++;
+            pipe->semWriters = next_sem_id++;
             pipe->mutex = next_sem_id++;
             
             // Inicializar semáforos
-            if(semInit(pipe->semaphore_read, 0) < 0 ||           // Sin datos inicialmente
-               semInit(pipe->semaphore_write, PIPE_BUFFER_SIZE) < 0 || // Buffer vacío
+            if(semInit(pipe->semReaders, 0) < 0 ||           // Sin datos inicialmente
+               semInit(pipe->semWriters, PIPE_BUFFER_SIZE) < 0 || // Buffer vacío
                semInit(pipe->mutex, 1) < 0) {                    // Mutex
                 return -1;
             }
@@ -64,17 +62,17 @@ int create_pipe() {
     return -1; // No hay pipes disponibles
 }
 
-int pipe_read(int pipe_id, char *buffer, int size) {
-    ensure_io_system_initialized();
+int readPipe(int pipe_id, char *buffer, int size) {
+    checkSystemInit();
     
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !io_system.pipes[pipe_id].is_open || buffer == NULL || size <= 0)
+    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !ioSystem.pipes[pipe_id].isOpen || buffer == NULL || size <= 0)
         return -1;
         
-    pipe_t *pipe = &io_system.pipes[pipe_id];
+    pipe_t *pipe = &ioSystem.pipes[pipe_id];
     int bytes_read = 0;
     
     for(int i = 0; i < size; i++) {
-        semWait(pipe->semaphore_read); // Esperar datos disponibles
+        semWait(pipe->semReaders); // Esperar datos disponibles
         semWait(pipe->mutex);          // Acceso exclusivo
         
         if(pipe->count > 0) {
@@ -85,23 +83,23 @@ int pipe_read(int pipe_id, char *buffer, int size) {
         }
         
         semPost(pipe->mutex);
-        semPost(pipe->semaphore_write); // Hay espacio disponible
+        semPost(pipe->semWriters); // Hay espacio disponible
     }
     
     return bytes_read;
 }
 
-int pipe_write(int pipe_id, const char *buffer, int size) {
-    ensure_io_system_initialized();
+int writePipe(int pipe_id, const char *buffer, int size) {
+    checkSystemInit();
     
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !io_system.pipes[pipe_id].is_open || buffer == NULL || size <= 0)
+    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !ioSystem.pipes[pipe_id].isOpen || buffer == NULL || size <= 0)
         return -1;
         
-    pipe_t *pipe = &io_system.pipes[pipe_id];
+    pipe_t *pipe = &ioSystem.pipes[pipe_id];
     int bytes_written = 0;
     
     for(int i = 0; i < size; i++) {
-        semWait(pipe->semaphore_write); // Esperar espacio disponible
+        semWait(pipe->semWriters); // Esperar espacio disponible
         semWait(pipe->mutex);           // Acceso exclusivo
         
         if(pipe->count < PIPE_BUFFER_SIZE) {
@@ -112,71 +110,33 @@ int pipe_write(int pipe_id, const char *buffer, int size) {
         }
         
         semPost(pipe->mutex);
-        semPost(pipe->semaphore_read); // Datos disponibles
+        semPost(pipe->semReaders); // Datos disponibles
     }
     
     return bytes_written;
 }
 
-int close_pipe(int pipe_id) {
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !io_system.pipes[pipe_id].is_open)
+int closePipe(int pipe_id) {
+    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !ioSystem.pipes[pipe_id].isOpen)
         return -1;
         
-    pipe_t *pipe = &io_system.pipes[pipe_id];
+    pipe_t *pipe = &ioSystem.pipes[pipe_id];
     
     // Cerrar semáforos
-    semClose(pipe->semaphore_read);
-    semClose(pipe->semaphore_write);
+    semClose(pipe->semReaders);
+    semClose(pipe->semWriters);
     semClose(pipe->mutex);
     
     // Limpiar estructura
-    pipe->is_open = 0;
+    pipe->isOpen = 0;
     pipe->read_pos = 0;
     pipe->write_pos = 0;
     pipe->count = 0;
     pipe->readers = 0;
     pipe->writers = 0;
-    pipe->semaphore_read = -1;
-    pipe->semaphore_write = -1;
+    pipe->semReaders = -1;
+    pipe->semWriters = -1;
     pipe->mutex = -1;
     
     return 0;
-}
-
-// API de usuario para lectura de teclado
-int kb_read_char() {
-    // Usar pipe 0 reservado para teclado, o el pipe específico del teclado
-    int pipe_id = 0; // Asumimos que el pipe 0 está reservado para teclado
-    char c;
-    if(pipe_read(pipe_id, &c, 1) == 1) {
-        return c;
-    }
-    return -1;
-}
-
-int kb_read_line(char *buffer, int max_size) {
-    if(buffer == NULL || max_size <= 0) return -1;
-    
-    int i = 0;
-    char c;
-    
-    while(i < max_size - 1) {
-        c = kb_read_char();
-        if(c == -1) continue;
-        
-        buffer[i++] = c;
-        if(c == '\n') break;
-    }
-    
-    buffer[i] = '\0';
-    return i;
-}
-
-int kb_read_available() {
-    // Verificar si hay datos disponibles sin bloquear
-    int pipe_id = 0;
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !io_system.pipes[pipe_id].is_open)
-        return 0;
-        
-    return io_system.pipes[pipe_id].count > 0;
 }

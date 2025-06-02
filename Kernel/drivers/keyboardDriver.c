@@ -1,8 +1,10 @@
 #include <keyboardDriver.h>
 #include <lib.h>
+#include <scheduler.h>
+#include <textModule.h>
 
 #define BUFFER_SIZE 1000
-#define CANT_SPECIAL_KEYS 8
+#define CANT_SPECIAL_KEYS 9
 
 #define LSHIFT_PRESS 0x2A
 #define LSHIFT_RELEASE 0xAA
@@ -15,6 +17,7 @@
 #define ESC_PRESS 0x01
 #define ALT_PRESS 0x3B
 #define CTRL_PRESS 0x1D
+#define CTRL_RELEASE 0x9D
 
 extern int kb_getKey();
 
@@ -75,9 +78,9 @@ ScanCode press_keys[] = {
     {'b', 'B'},
     {'n', 'N'},
     {'m', 'M'},
-    {',', '<'}, 
-    {'.', '>'}, 
-    {'/', '?'}, 
+    {',', ';'}, 
+    {'.', ':'}, 
+    {'-', '_'}, 
     {0, 0}, 
     {'*', '*'}, 
     {0, 0}, 
@@ -115,14 +118,15 @@ ScanCode press_keys[] = {
     {0, 0}  
 };
 
-static unsigned int specialKeys[] = {LSHIFT_PRESS, LSHIFT_RELEASE, RSHIFT_RELEASE, RSHIFT_PRESS, CAPS_PRESS, ALT_PRESS, CTRL_PRESS, ESC_PRESS};
+static unsigned int specialKeys[] = {LSHIFT_PRESS, LSHIFT_RELEASE, RSHIFT_RELEASE, RSHIFT_PRESS, CAPS_PRESS, ALT_PRESS, CTRL_PRESS, CTRL_RELEASE, ESC_PRESS};
 static char buffer[BUFFER_SIZE];
 
-unsigned int shift = 0;
-unsigned int caps = 0;
-unsigned int mayus = 0;
-unsigned int esc = 0;
-unsigned int specialKey = 0;
+static char shift = 0;
+static char caps = 0;
+static char mayus = 0;
+static char esc = 0;
+static char specialKey = 0;
+static char ctrlPressed = 0;
 
 static unsigned int current = 0;
 static unsigned int next = 0;
@@ -143,6 +147,12 @@ static void handleSpecialKeys(unsigned int key){
             break;
         case CAPS_PRESS:
             caps = !caps;
+            break;
+        case CTRL_PRESS:
+            ctrlPressed = 1;
+            break;
+        case CTRL_RELEASE:
+            ctrlPressed = 0;
             break;
         case ESC_PRESS:
             getRegisters();
@@ -175,6 +185,10 @@ int bufferWrite(){
     checkSpecialKeys(c);
 
     if(!specialKey && c <= F12_PRESS){  
+        if(ctrlPressed && press_keys[c].ascii == 'c'){
+            //kill(getCurrentPid()); // CTRL + C mata al proceso actual
+            return 0;
+        }
         mayus = (caps && !shift) || (!caps && shift);
         if( (isAlpha(c) && mayus) || (!isAlpha(c) && shift) ){
             addToBuffer(press_keys[c].shift_ascii);
@@ -182,7 +196,7 @@ int bufferWrite(){
             addToBuffer(press_keys[c].ascii);
         }
         return 1;
-    }
+    } 
     return 0;
 }
 

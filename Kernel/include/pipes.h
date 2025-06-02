@@ -11,24 +11,24 @@ typedef struct {
     int read_pos;
     int write_pos;
     int count;
-    int semaphore_read;  // ID del semáforo para lectores
-    int semaphore_write; // ID del semáforo para escritores
-    int mutex;           // ID del mutex para acceso exclusivo
+    int semReaders;  
+    int semWriters; 
+    int mutex;           
     int readers;
     int writers;
-    int is_open;
+    int isOpen;
 } pipe_t;
 
 typedef struct {
     pipe_t pipes[MAX_PIPES];
-    int next_pipe_id;
-} io_system_t;
+    int nextPipeId;
+} ioSystem_t;
 
 // Funciones públicas
-void init_io_system();
-int create_pipe();
-int pipe_read(int pipe_id, char *buffer, int size);
-int pipe_write(int pipe_id, const char *buffer, int size);
-int close_pipe(int pipe_id);
+void initIoSystem();
+int createPipe();
+int readPipe(int pipe_id, char *buffer, int size);
+int writePipe(int pipe_id, const char *buffer, int size);
+int closePipe(int pipe_id);
 
 #endif

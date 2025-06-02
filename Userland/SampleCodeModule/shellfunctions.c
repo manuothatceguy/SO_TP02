@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <test_functions.h>
 #include <shared_structs.h>
+#include "shell.h"
 
 #define CANT_REGISTERS 19
+#define BUFFER_SPACE 1000
 
 extern void div_zero();
 extern void invalid_opcode();
@@ -44,7 +46,9 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - ps: muestra los procesos con su informacion\n"
                 "    - memInfo: imprime estado de la memoria\n"
                 "    - loop <time>: ejecuta un bucle por el tiempo especificado\n"
-                "    - nice <pid> <new_priority>: cambia la prioridad de un proceso\n";
+                "    - nice <pid> <new_priority>: cambia la prioridad de un proceso\n"
+                "    - wc: cuenta la cantidad de lineas del input\n"
+                "    - filter: filtra las vocales del input\n";
 
 
 // Función auxiliar para parsear argumentos
@@ -160,6 +164,7 @@ void handle_clear(char * arg){
 }
 
 void handle_mem_info(char * arg) {
+    free(arg);
     printf("Estado de memoria:\n");
 
     memInfo info;
@@ -171,6 +176,7 @@ void handle_mem_info(char * arg) {
     printf("Memoria total: %d bytes\n", info.total);
     printf("Memoria usada: %d bytes\n", info.used);
     printf("Memoria libre: %d bytes\n", info.free);
+    
     return;
 }
 
@@ -419,5 +425,48 @@ void handle_nice(char * arg) {
         printf("Error al cambiar la prioridad del proceso %d\n", pid);
     } else {
         printf("Prioridad del proceso %d cambiada a %d\n", pid, new_priority);
+    }
+}
+
+void handle_wc(char * arg) {
+    char buffer[BUFFER_SPACE] = {0};
+    int line_count = 0;
+    
+    printf("Ingrese el texto (presione Enter dos veces para terminar):\n");
+    
+    while (1) {
+        readLine(buffer, BUFFER_SPACE);
+        if (buffer[0] == '\0') {  // Si la línea está vacía, terminamos
+            break;
+        }
+        line_count++;
+    }
+    
+    printf("Cantidad de lineas: %d\n", line_count);
+}
+
+void handle_filter(char * arg) {
+    char buffer[BUFFER_SPACE] = {0};
+    char filtered[BUFFER_SPACE] = {0};
+    
+    printf("Ingrese el texto (presione Enter dos veces para terminar):\n");
+    
+    while (1) {
+        readLine(buffer, BUFFER_SPACE);
+        if (buffer[0] == '\0') {  // Si la línea está vacía, terminamos
+            break;
+        }
+        
+        int j = 0;
+        for (int i = 0; buffer[i] != '\0' && j < BUFFER_SPACE - 1; i++) {
+            char c = buffer[i];
+            // Si no es una vocal, copiarlo al resultado
+            if (c != 'a' && c != 'e' && c != 'i' && c != 'o' && c != 'u' &&
+                c != 'A' && c != 'E' && c != 'I' && c != 'O' && c != 'U') {
+                filtered[j++] = c;
+            }
+        }
+        filtered[j] = '\0';
+        printf("%s\n", filtered);
     }
 }

@@ -54,7 +54,7 @@ static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
      *       putChar(buff[i],0x00FF0000); // rojo
      *     break;
      *   default: // pipe
-     *     // escribir en el pipe con pipe_array[fd-3] y usando pipe_write obvio. validar numero de pipe.
+     *     // escribir en el pipe con pipe_array[fd-3] y usando writePipe obvio. validar numero de pipe.
      *     break;
      * }
      * 
@@ -102,7 +102,7 @@ static uint64_t syscall_read( char* str,  uint64_t length){
      *   case 2: // stderr
      *     return syscall_write(2, str, length);
      *   default: // pipe
-     *     // leer del pipe con pipe_array[fd-3] y usando pipe_read. validar numero de pipe.
+     *     // leer del pipe con pipe_array[fd-3] y usando readPipe. validar numero de pipe.
      * }
      */
 }
