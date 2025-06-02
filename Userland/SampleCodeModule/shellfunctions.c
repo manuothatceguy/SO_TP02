@@ -478,3 +478,26 @@ void handle_filter(char * arg) {
         printf("%s\n", filtered);
     }
 }
+
+void handle_test_malloc_free(char *arg) {
+    printf("Estado de memoria antes de malloc:\n");
+    memInfo info;
+    syscall_memInfo(&info);
+    printf("Usada: %d, Libre: %d\n", info.used, info.free);
+
+    uint64_t size = 1000;
+    void *ptr = syscall_allocMemory(size);
+    if (!ptr) {
+        printf("Fallo el malloc\n");
+        return;
+    }
+    printf("Estado de memoria después de malloc:\n");
+    syscall_memInfo(&info);
+    printf("Usada: %d, Libre: %d\n", info.used, info.free);
+
+    syscall_freeMemory(ptr);
+
+    printf("Estado de memoria después de free:\n");
+    syscall_memInfo(&info);
+    printf("Usada: %d, Libre: %d\n", info.used, info.free);
+}
