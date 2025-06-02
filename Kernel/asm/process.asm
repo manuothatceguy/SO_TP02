@@ -6,7 +6,7 @@ wrapper:
     mov rax, 23
     int 80h
 
-.hang:
+.hang: ; should never be here
     hlt
     jmp .hang
 

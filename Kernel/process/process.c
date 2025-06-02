@@ -46,11 +46,6 @@ void addProcess(ProcessManagerADT list, PCB *process){
         return;
     }
     enqueue(list->readyQueue, process);
-    /* Lo hace SCHEDULER, y nos ahorramos el if(first) ..
-    if(list->currentProcess == NULL) {
-        list->currentProcess = process; 
-    } 
-    */ 
 }
 
 int compareProcesses(void* a, void* b) {
@@ -151,6 +146,7 @@ PCB* getProcess(ProcessManagerADT list, pid_t pid){
 }
 
 PCB* getNextProcess(ProcessManagerADT list){
+    list->currentProcess = NULL; // reset
     if(list == NULL || isQueueEmpty(list->readyQueue)) {
         return NULL;
     }

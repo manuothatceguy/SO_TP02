@@ -98,11 +98,17 @@ pid_t getCurrentPid() {
 }
 
 uint64_t schedule(uint64_t rsp){
+    static int first = 1;
     PCB* currentProcess = getCurrentProcess(processes);
     
     if(currentProcess == NULL) {
         PCB* nextProcess = getNextProcess(processes);
         if (nextProcess == NULL) {
+            quantum = calculateQuantum(IDLE_PRIORITY);
+            if(!first){
+                return currentProcess->rsp = rsp;
+            }
+            first = 0;
             return ((PCB*)getIdleProcess(processes))->rsp;
         }
         nextProcess->state = RUNNING;
@@ -125,6 +131,7 @@ uint64_t schedule(uint64_t rsp){
 
     PCB* nextProcess = getNextProcess(processes); // Si no tengo READYs --> idle
     if (nextProcess == NULL) {
+        first=0;
         return ((PCB*)getIdleProcess(processes))->rsp;
     }
 
