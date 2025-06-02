@@ -9,6 +9,7 @@ typedef struct ProcessManagerCDT {
     PCB* currentProcess;
     QueueADT readyQueue;
     QueueADT blockedQueue;
+    QueueADT blockedQueueBySem;
     QueueADT zombieQueue;
     PCB* idleProcess;
 } ProcessManagerCDT;
@@ -35,6 +36,14 @@ ProcessManagerADT createProcessManager(){
     if (list->zombieQueue == NULL) {
         freeQueue(list->readyQueue);
         freeQueue(list->blockedQueue);
+        freeMemory(list);
+        return NULL; 
+    }
+    list->blockedQueueBySem = createQueue();
+    if (list->blockedQueueBySem == NULL) {
+        freeQueue(list->readyQueue);
+        freeQueue(list->blockedQueue);
+        freeQueue(list->zombieQueue);
         freeMemory(list);
         return NULL; 
     }
@@ -112,11 +121,35 @@ int blockProcessQueue(ProcessManagerADT list, pid_t pid) {
     return 0;
 }
 
-int unblockProcessQueue(ProcessManagerADT list, pid_t pid) {
+int blockProcessQueueBySem(ProcessManagerADT list, pid_t pid) {
+    if (list == NULL) {
+        return -1; 
+    }
+    PCB* process = switchProcess(list->readyQueue, list->blockedQueueBySem, pid);
+    if (process == NULL) {
+        return -1;
+    }
+    process->state = WAITING_SEM;
+    return 0;
+}
+
+int unblockProcessQueue(ProcessManagerADT list, pid_t pid , ProcessState state) {
     if (list == NULL) {
         return -1; 
     }
     PCB* process = switchProcess(list->blockedQueue, list->readyQueue, pid);
+    if (process == NULL) {
+        return -1;
+    }
+    process->state = READY; 
+    return 0;
+}
+
+int unblockProcessQueueBySem(ProcessManagerADT list, pid_t pid) {
+    if (list == NULL) {
+        return -1; 
+    }
+    PCB* process = switchProcess(list->blockedQueueBySem, list->readyQueue, pid);
     if (process == NULL) {
         return -1;
     }

@@ -102,7 +102,7 @@ int wait (sem_t *sem){
     *pid = getCurrentPid();
     enqueue(sem->blocked, (void*)pid);
     release(&sem->lock);
-    blockProcess(*pid);
+    blockProcessBySem(*pid);
     return 0;
 }
 
@@ -112,7 +112,7 @@ int post (sem_t *sem){
     if (pidPtr != NULL) {
         pid_t pid = *pidPtr;
         freeMemory(pidPtr);  // Free the memory allocated in wait()
-        unblockProcess(pid);
+        unblockProcessBySem(pid);
         release(&sem->lock);
         return 0;   
     }

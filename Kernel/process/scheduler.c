@@ -157,6 +157,16 @@ uint64_t blockProcess (pid_t pid) {
     return 0; 
 }
 
+uint64_t blockProcessBySem(pid_t pid) {
+    if (blockProcessQueueBySem(processes, pid) != 0) {
+        return -1;
+    }
+    if (pid == getCurrentPid()) { // si el proceso bloqueado es el actual se renuncia al cpu con interrupción 
+        yield(); 
+    }
+    return 0; 
+}
+
 void yield() {
     quantum = 0; // siguiente!!
     callTimerTick();
@@ -164,6 +174,10 @@ void yield() {
 
 uint64_t unblockProcess(pid_t pid){
     return unblockProcessQueue(processes, pid);
+}
+
+uint64_t unblockProcessBySem(pid_t pid) {
+    return unblockProcessQueueBySem(processes, pid);
 }
 
 uint64_t kill(pid_t pid){

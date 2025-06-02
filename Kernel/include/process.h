@@ -42,6 +42,10 @@ uint64_t countProcesses(ProcessManagerADT list);
 
 PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessState state);
 
+int blockProcessQueueBySem(ProcessManagerADT list, pid_t pid);
+
+int unblockProcessQueueBySem(ProcessManagerADT list, pid_t pid);
+
 // asm
 uint64_t processStackFrame(uint64_t base, uint64_t rip, uint64_t argc, char **arg);
 void wrapper(uint64_t function, char **argv);
