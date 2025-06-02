@@ -40,7 +40,8 @@ enum syscall_number {
     SEM_WAIT,
     SEM_POST,
     SEM_CLOSE,
-    YIELD
+    YIELD,
+    WAITPID
 };
 
 uint64_t syscall_read(char * buff, uint64_t len){
@@ -171,6 +172,10 @@ void syscall_yield() {
     syscall(YIELD, 0, 0, 0);
 }
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
+
+pid_t syscall_waitpid(pid_t pid, int32_t* status){
+    syscall(WAITPID, pid, (uint64_t)status, 0);
+}   
 
 int64_t my_getpid() {
   return 0;

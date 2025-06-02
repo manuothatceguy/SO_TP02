@@ -25,6 +25,7 @@ typedef enum {
     READY,
     RUNNING,
     BLOCKED,
+    ZOMBIE,
     EXITED,
     KILLED,
     WAITING_SEM
@@ -35,6 +36,7 @@ typedef int pid_t;
 typedef struct PCB {
     pid_t pid; 
     pid_t parentPid;
+    pid_t waitingForPid;
     uint8_t priority; 
     ProcessState state; 
     uint64_t rsp;

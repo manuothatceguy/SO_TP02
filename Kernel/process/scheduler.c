@@ -14,8 +14,6 @@
 #define MIN_PRIORITY 0
 #define IDLE_PRIORITY -1
 
-static char first = 1;
-
 uint64_t calculateQuantum(uint8_t priority) {
     if (priority == IDLE_PRIORITY) {
         return QUANTUM;  // Minimum quantum for idle
@@ -26,25 +24,38 @@ uint64_t calculateQuantum(uint8_t priority) {
 static ProcessManagerADT processes = NULL;              
 static pid_t currentPid = -1;   
 static pid_t nextFreePid = 0; // 0 es el idle!
-//static uint64_t readyProcesses = 0; // cantidad de procesos listos
 static uint64_t quantum = 0;    
 
-void initScheduler(ProcessManagerADT list) {
+// Declaración de función interna
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority);
+
+void initScheduler(fnptr idle) {
+    ProcessManagerADT list = createProcessManager();
+    PCB* idleProcess = _createProcessPCB("idle", idle, 0, NULL, IDLE_PRIORITY);
+    setIdleProcess(list, idleProcess);
     processes = list;
 }
 
 pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority) {
-    if (name == NULL || function == NULL) {
+    PCB* process = _createProcessPCB(name, function, argc, arg, priority);
+    if (process == NULL) {
         return -1;
+    }
+    return process->pid;
+}
+
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority) {
+    if (name == NULL || function == NULL) {
+        return NULL;
     }
 
     if (argc > 0 && arg == NULL) {
-        return -1;
+        return NULL;
     }
 
     PCB* process = allocMemory(sizeof(PCB));
     if (process == NULL) {
-        return -1; 
+        return NULL; 
     }
 
     if(priority < IDLE_PRIORITY){
@@ -55,6 +66,8 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
 
     strncpy(process->name, name, NAME_MAX_LENGTH);
     process->pid = nextFreePid++;
+    process->waitingForPid = -1;
+    process->retValue = 0;     
 
     if (currentPid == -1) {
         process->parentPid = -1; 
@@ -63,21 +76,20 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
     }
 
     process->state = READY;
-    //readyProcesses++;
     
     process->priority = priority;
     process->base = (uint64_t)allocMemory(STACK_SIZE);
 
     if ((void *)process->base == NULL) {
         freeMemory(process); 
-        return -1;
+        return NULL;
     }
     process->base += STACK_SIZE;
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
-    addProcess(processes, process);
+    if(priority != IDLE_PRIORITY) addProcess(processes, process);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
-    return process->pid;
+    return process;
 }
 
 pid_t getCurrentPid() {
@@ -91,7 +103,7 @@ uint64_t schedule(uint64_t rsp){
     if(currentProcess == NULL) {
         PCB* nextProcess = getNextProcess(processes);
         if (nextProcess == NULL) {
-            return rsp;
+            return ((PCB*)getIdleProcess(processes))->rsp;
         }
         nextProcess->state = RUNNING;
         currentPid = nextProcess->pid;
@@ -105,25 +117,18 @@ uint64_t schedule(uint64_t rsp){
     }
     
     DEBUG_PRINT("Quantum expired, switching processes...\n", 0x00FFFFFF);
-    
-    if(!first){
-        currentProcess->rsp = rsp; 
-    } else {
-        first = 0;
-    }
-    
+
+    currentProcess->rsp = rsp;
     if(currentProcess->state == RUNNING) {
         currentProcess->state = READY;
     }
 
-    PCB* nextProcess = getNextProcess(processes);
+    PCB* nextProcess = getNextProcess(processes); // Si no tengo READYs --> idle
     if (nextProcess == NULL) {
-        DEBUG_PRINT("ERROR: No next process available!\n", 0x00FFFFFF);
-        currentProcess->state = RUNNING;
-        return rsp;
+        return ((PCB*)getIdleProcess(processes))->rsp;
     }
 
-    // Cambiar al siguiente proceso
+    // Si tengo READYs --> lo cambio
     DEBUG_PRINT("Switching to process: ", 0x00FFFFFF);
     DEBUG_PRINT(nextProcess->name, 0x00FFFFFF);
     DEBUG_PRINT("\n", 0x00FFFFFF);
@@ -131,8 +136,6 @@ uint64_t schedule(uint64_t rsp){
     nextProcess->state = RUNNING;
     currentPid = nextProcess->pid;
     quantum = calculateQuantum(nextProcess->priority);
-    
-    // RETORNAR el RSP del nuevo proceso
     return nextProcess->rsp;
 }
 
@@ -152,28 +155,101 @@ void yield() {
 }
 
 uint64_t unblockProcess(pid_t pid){
-    PCB* process = getProcess(processes, pid);
-    if (process == NULL || process->state != BLOCKED) {
-        return -1;
-    }
-    process->state = READY;
-    return 0;
+    return unblockProcessQueue(processes, pid);
 }
 
 uint64_t kill(pid_t pid){
     if (pid == 0) { // Can't kill shell
         return -1;
     }
-    ProcessState state = (pid == getCurrentPid()) ? EXITED : KILLED; // si es el actual sale, sino es xq lo mataron
-    PCB* process = killProcess(processes, pid, 0, state);
+    //child->retValue es: (pid == getCurrentPid()) ? EXITED : KILLED; // si es el actual sale, sino es xq lo mataron
+    PCB* process = killProcess(processes, pid, (pid == getCurrentPid()) ? EXITED : KILLED, ZOMBIE);
     if(process == NULL){
         return -1;
     }
-    freeMemory((void*)process->base); // libera el stack
+    freeMemory((void*)process->base - STACK_SIZE); // libera el stack
+    wakeupWaitingParent(process->parentPid, pid);
     if (pid == currentPid) {
         yield();
     }
     return 0;
+}
+
+void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
+    if (parentPid == -1) return;
+    
+    PCB* parent = getProcess(processes, parentPid);
+    if (parent != NULL && 
+        parent->state == BLOCKED && 
+        parent->waitingForPid == childPid) {
+        unblockProcess(parentPid);
+        DEBUG_PRINT("Parent process unblocked: ", 0x00FFFFFF);
+        DEBUG_PRINT(parentPid, 0x00FFFFFF);
+        DEBUG_PRINT("\n", 0x00FFFFFF);
+        printStr("Parent process unblocked: ", 0x00FFFFFF);
+        printInt(parentPid, 0x00FFFFFF);
+        printStr("\n", 0x00FFFFFF);
+    }
+}
+
+// Función auxiliar para reapear
+int32_t reapChild(PCB* child, int32_t* status) {
+    if (status != NULL) {
+        *status = child->retValue;
+    }
+    
+    int32_t childPid = child->pid;
+    
+    // Limpiar el proceso
+    child->state = child->retValue; // EXITED O KILLED, MODIFICAR
+    removeZombieProcess(processes, childPid);
+    freeMemory(child);
+    
+    DEBUG_PRINT("Process reaped: ", 0x00FFFFFF);
+    DEBUG_PRINT(childPid, 0x00FFFFFF);
+    DEBUG_PRINT("\n", 0x00FFFFFF);
+    
+    return childPid;
+}
+
+int32_t waitpid(pid_t pid, int32_t* status) {
+    pid_t currentProcPid = getCurrentPid();
+    
+    // Buscar el proceso hijo
+    PCB* child = getProcess(processes, pid);
+    if (child == NULL) {
+        return -1; // Proceso no existe
+    }
+    
+    // Verificar que sea hijo del proceso actual
+    if (child->parentPid != currentProcPid) {
+        return -1; // No es mi hijo
+    }
+    
+    // Si el hijo ya está ZOMBIE, reapear inmediatamente
+    if (child->state == ZOMBIE) {
+        return reapChild(child, status);
+    }
+    
+    // Si el hijo aún está corriendo, BLOQUEAR al padre
+    if (child->state < ZOMBIE) {
+        // Marcar que estamos esperando a este proceso específico
+        PCB* parent = getProcess(processes, currentProcPid);
+        parent->waitingForPid = pid;  // ← Nuevo campo en PCB
+        
+        // Bloquear al proceso padre
+        printStr("Going to sleep", 0x00FFFFFF);
+        blockProcess(currentProcPid);
+        
+        // Cuando el scheduler nos despierte, verificar de nuevo
+        child = getProcess(processes, pid);
+        if (child != NULL && child->state == ZOMBIE) {
+            parent->waitingForPid = -1; // Limpiar
+            return reapChild(child, status);
+        }
+    }
+    
+    return -1; // Error
 }
 
 int8_t changePrio(pid_t pid, int8_t newPrio){
@@ -228,6 +304,7 @@ PCB* getProcessInfo(uint64_t *cantProcesses){
 int16_t copyProcess(PCB *dest, PCB *src) {
     dest->pid = src->pid;
     dest->parentPid = src->parentPid;
+    dest->waitingForPid = src->waitingForPid;
     dest->priority = src->priority;
     dest->state = src->state;
     dest->rsp = src->rsp;
@@ -235,5 +312,6 @@ int16_t copyProcess(PCB *dest, PCB *src) {
     dest->rip = src->rip;
 	strncpy(dest->name, src->name, NAME_MAX_LENGTH);
 	dest->name[NAME_MAX_LENGTH - 1] = '\0'; 
+    dest->retValue = src->retValue;
     return 0;
 }

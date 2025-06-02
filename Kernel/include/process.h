@@ -5,6 +5,7 @@
 #include <shared_structs.h>
 
 #define STACK_SIZE 4096 
+#define IDLE_PRIORITY -1
 
 typedef struct ProcessManagerCDT *ProcessManagerADT;
 
@@ -14,6 +15,8 @@ void addProcess(ProcessManagerADT list, PCB *process);
 
 void removeProcess(ProcessManagerADT list, pid_t pid);
 
+void removeZombieProcess(ProcessManagerADT list, pid_t pid);
+
 void freeProcessLinkedList(ProcessManagerADT list);
 
 // busca en ambas colas
@@ -22,6 +25,10 @@ PCB* getProcess(ProcessManagerADT list, pid_t pid);
 PCB* getNextProcess(ProcessManagerADT list);
 
 PCB* getCurrentProcess(ProcessManagerADT list);
+
+PCB* getIdleProcess(ProcessManagerADT list);
+
+void setIdleProcess(ProcessManagerADT list, PCB* idleProcess);
 
 int blockProcessQueue(ProcessManagerADT list, pid_t pid);
 

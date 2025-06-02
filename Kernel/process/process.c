@@ -9,7 +9,8 @@ typedef struct ProcessManagerCDT {
     PCB* currentProcess;
     QueueADT readyQueue;
     QueueADT blockedQueue;
-    QueueADT deadQueue;
+    QueueADT zombieQueue;
+    PCB* idleProcess;
 } ProcessManagerCDT;
 
 ProcessManagerADT createProcessManager(){
@@ -18,6 +19,7 @@ ProcessManagerADT createProcessManager(){
         return NULL; 
     }
     list->currentProcess = NULL;
+    list->idleProcess = NULL;
     list->readyQueue = createQueue();
     if (list->readyQueue == NULL) {
         freeMemory(list);
@@ -29,8 +31,8 @@ ProcessManagerADT createProcessManager(){
         freeMemory(list);
         return NULL; 
     }
-    list->deadQueue = createQueue();
-    if (list->deadQueue == NULL) {
+    list->zombieQueue = createQueue();
+    if (list->zombieQueue == NULL) {
         freeQueue(list->readyQueue);
         freeQueue(list->blockedQueue);
         freeMemory(list);
@@ -44,9 +46,11 @@ void addProcess(ProcessManagerADT list, PCB *process){
         return;
     }
     enqueue(list->readyQueue, process);
+    /* Lo hace SCHEDULER, y nos ahorramos el if(first) ..
     if(list->currentProcess == NULL) {
         list->currentProcess = process; 
-    }
+    } 
+    */ 
 }
 
 int compareProcesses(void* a, void* b) {
@@ -66,6 +70,13 @@ void removeProcess(ProcessManagerADT list, pid_t pid) {
         return;
     }
     removeFromQueue(list->readyQueue, &pid, hasPid);
+}
+
+void removeZombieProcess(ProcessManagerADT list, pid_t pid) {
+    if (list == NULL) {
+        return;
+    }
+    removeFromQueue(list->zombieQueue, &pid, hasPid);
 }
 
 static PCB* switchProcess(QueueADT qFrom, QueueADT qTo, pid_t pid) {
@@ -92,11 +103,14 @@ int blockProcessQueue(ProcessManagerADT list, pid_t pid) {
         return -1;
     }
     process->state = BLOCKED;
-    
+    /* ROMPE EL getCurrentPid() siendo -1 y no ejecuta el yield()
+        volviendo a la ejecucion como si no estuviera bloqueado!
+
+        
     if (list->currentProcess && list->currentProcess->pid == pid) {
         list->currentProcess = NULL; 
     }
-    
+    */
     return 0;
 }
 
@@ -129,7 +143,11 @@ PCB* getProcess(ProcessManagerADT list, pid_t pid){
     if (process != NULL) {
         return process; // Found in ready queue
     }
-    return (PCB*)containsQueue(list->blockedQueue, &pid, hasPid);
+    process = (PCB*)containsQueue(list->blockedQueue, &pid, hasPid);
+    if (process != NULL) {
+        return process; // Found in blocked queue
+    }
+    return (PCB*)containsQueue(list->zombieQueue, &pid, hasPid);
 }
 
 PCB* getNextProcess(ProcessManagerADT list){
@@ -158,8 +176,18 @@ PCB* getCurrentProcess(ProcessManagerADT list){
     return list ? list->currentProcess : NULL;
 }
 
+void setIdleProcess(ProcessManagerADT list, PCB* idleProcess) {
+    if (list != NULL){
+        list->idleProcess = idleProcess; 
+    }
+}
+
+PCB* getIdleProcess(ProcessManagerADT list) {
+    return list ? list->idleProcess : NULL;
+}
+
 uint64_t getProcessCount(ProcessManagerADT list) {
-    return list ? queueSize(list->readyQueue) + queueSize(list->blockedQueue) : 0;
+    return list ? queueSize(list->readyQueue) + queueSize(list->blockedQueue) + queueSize(list->zombieQueue) : 0;
 }
 
 uint64_t countReadyProcesses(ProcessManagerADT list) {
@@ -177,9 +205,9 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
         return NULL; 
     }
     
-    PCB* process = switchProcess(list->readyQueue, list->deadQueue, pid);
+    PCB* process = switchProcess(list->readyQueue, list->zombieQueue, pid);
     if (process == NULL) {
-        process = switchProcess(list->blockedQueue, list->deadQueue, pid);
+        process = switchProcess(list->blockedQueue, list->zombieQueue, pid);
         if (process == NULL) {
             return NULL; 
         }

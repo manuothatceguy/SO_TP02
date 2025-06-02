@@ -272,7 +272,10 @@ static void printProcessInfo(PCB processInfo) {
         case READY:   state = "READY";   break;
         case RUNNING: state = "RUNNING"; break;
         case BLOCKED: state = "BLOCKED"; break;
+        case ZOMBIE:  state = "ZOMBIE";  break;
         case EXITED:  state = "EXITED";  break;
+        case KILLED:  state = "KILLED";  break;
+        case WAITING_SEM: state = "WAITING_SEM"; break;
         default:      state = "UNKNOWN"; break;
     }
 
@@ -284,6 +287,11 @@ static void printProcessInfo(PCB processInfo) {
         printf("Parent PID  : (none)\n");
     else
         printf("Parent PID  : %d\n", (int) processInfo.parentPid);
+
+    if (processInfo.waitingForPid == -1)
+        printf("Waiting for : (none)\n");
+    else
+        printf("Waiting for : %d\n", (int) processInfo.waitingForPid);
 
     printf("Priority    : %d\n", (int) processInfo.priority);
     printf("RSP         : 0x%x\n", (unsigned int) processInfo.rsp);
