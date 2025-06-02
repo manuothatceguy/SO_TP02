@@ -10,7 +10,7 @@
 #define MAX_ECHO 1000
 #define MAX_USERNAME_LENGTH 16
 #define PROMPT "%s$> "
-#define CANT_INSTRUCTIONS 18
+#define CANT_INSTRUCTIONS 21
 uint64_t curr = 0;
 
 typedef enum {
@@ -30,6 +30,10 @@ typedef enum {
     PS,
     MEM_INFO,
     LOOP,
+    NICE,
+    WC,
+    FILTER,
+    TEST_MALLOC_FREE,
     EXIT
 } instructions;
 
@@ -49,6 +53,10 @@ static char * inst_list[] = {"help",
                                             "ps",
                                             "memInfo",
                                             "loop",
+                                            "nice",
+                                            "wc",
+                                            "filter",
+                                            "test_malloc_free",
                                             "exit"
                                             };
 
@@ -69,6 +77,10 @@ void (*instruction_handlers[CANT_INSTRUCTIONS-1])(char *) = {
     handle_ps,
     handle_mem_info,
     handle_loop,
+    handle_nice,
+    handle_wc,
+    handle_filter,
+    handle_test_malloc_free
 };
 
 int verifyInstruction(char * instruction){
@@ -108,6 +120,7 @@ int getInstruction(char * arguments){
     int iNum = 0;
     if((iNum = verifyInstruction(instruction)) == -1 && instruction[0] != 0){
         printferror("Comando no reconocido: %s\n", instruction);
+        free(arguments);
         return -1;
     }
     return iNum;

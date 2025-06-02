@@ -2,6 +2,7 @@
 #include <lib.h>
 #include <scheduler.h>
 #include <textModule.h>
+#include <pipes.h>
 
 #define BUFFER_SIZE 1000
 #define CANT_SPECIAL_KEYS 9
@@ -119,7 +120,6 @@ ScanCode press_keys[] = {
 };
 
 static unsigned int specialKeys[] = {LSHIFT_PRESS, LSHIFT_RELEASE, RSHIFT_RELEASE, RSHIFT_PRESS, CAPS_PRESS, ALT_PRESS, CTRL_PRESS, CTRL_RELEASE, ESC_PRESS};
-static char buffer[BUFFER_SIZE];
 
 static char shift = 0;
 static char caps = 0;
@@ -128,8 +128,7 @@ static char esc = 0;
 static char specialKey = 0;
 static char ctrlPressed = 0;
 
-static unsigned int current = 0;
-static unsigned int next = 0;
+static int stdin = -1;
 
 static char isAlpha(unsigned int key){
     return press_keys[key].ascii >= 'a' && press_keys[key].ascii <= 'z';
@@ -173,9 +172,13 @@ static void checkSpecialKeys(unsigned int key){
 }
 
 static void addToBuffer(unsigned int key){
-    current %= BUFFER_SIZE;
-    next %= BUFFER_SIZE;
-    buffer[current++] = key;
+    if(stdin == -1){
+        stdin = createPipe();
+        if(stdin < 0){
+            return; // Error al crear el pipe
+        }
+    }
+    writePipe(0, &key, 1);
 }
 
 int bufferWrite(){
@@ -187,6 +190,9 @@ int bufferWrite(){
     if(!specialKey && c <= F12_PRESS){  
         if(ctrlPressed && press_keys[c].ascii == 'c'){
             kill(getCurrentPid()); // CTRL + C mata al proceso actual
+            lineFeed();
+            printStr("^C", 0x00FFFFFF);
+            lineFeed();
             return 0;
         }
         mayus = (caps && !shift) || (!caps && shift);
@@ -201,14 +207,17 @@ int bufferWrite(){
 }
 
 char getChar(){
-    if(next < current){
-        return buffer[next++];
+    if(stdin == -1){
+        stdin = createPipe();
+        if(stdin < 0){
+            return 0; // Error al crear el pipe
+        }
     }
-    return 0;
+    char c = 0;
+    readPipe(0, &c, 1); 
+    return c;
 }
 
 void clear_buffer(){
-    current = 0;
-    next = 0;
-    buffer[0] = 0;
+    clearPipe(0);
 }

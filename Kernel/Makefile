@@ -6,7 +6,6 @@ SOURCES_ASM=$(wildcard asm/*.asm)
 OBJECTS=$(SOURCES:.c=.o)
 OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
 LOADERSRC=loader.asm
-
 LOADEROBJECT=$(LOADERSRC:.asm=.o)
 STATICLIBS=
 
@@ -20,7 +19,7 @@ $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
 %.o: %.c
 	$(GCC) $(GCCFLAGS) -I./include -I../SharedLibraries $(MM) -c $< -o $@
 
-%.o : %.asm drivers/keyboardDriver.o drivers/time.o process/scheduler.o
+%.o : %.asm drivers/keyboardDriver.o drivers/time.o process/scheduler.o 
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 $(LOADEROBJECT):

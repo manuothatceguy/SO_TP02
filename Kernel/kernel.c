@@ -13,6 +13,8 @@
 #include <process.h>
 #include <scheduler.h>
 #include <interrupts.h>
+#include <pipes.h>
+#include <semaphore.h>
 
 #define WHITE 0x00FFFFFF
 #define RED 0x000000FF
@@ -67,7 +69,7 @@ void idle(uint64_t argc, char **argv) {
 int feDeVida(uint64_t argc, char **argv) {
 	while(1) {
 		printStr("se me jijean\n", WHITE);
-		wait_ticks(40);
+		wait_seconds(4);
 	}
 	return 0;
 }
@@ -95,6 +97,8 @@ int main(){
 	// MEMORY MANAGER
 	createMemoryManager();
 	initScheduler(&idle);
+	semManager();
+	//createProcess("idle", &idle, 0, NULL, -1);
 	//createProcess("feDeVida",(fnptr) feDeVida, 0, NULL, 1);
 	//char *feDeVida2Args[] = {"Hola mundo!\n", NULL};
 	//createProcess("feDeVida2", (fnptr) feDeVida2, 1, feDeVida2Args, 1);
