@@ -9,7 +9,7 @@
 #include <syscall.h>
 #include <debug.h>
 
-#define QUANTUM 3
+#define QUANTUM 10
 #define MAX_PRIORITY 5 // agregar a limitaciones
 #define MIN_PRIORITY 0
 #define IDLE_PRIORITY -1
@@ -131,7 +131,7 @@ uint64_t schedule(uint64_t rsp){
 
     PCB* nextProcess = getNextProcess(processes); // Si no tengo READYs --> idle
     if (nextProcess == NULL) {
-        first=0;
+        first = 0;
         return ((PCB*)getIdleProcess(processes))->rsp;
     }
 

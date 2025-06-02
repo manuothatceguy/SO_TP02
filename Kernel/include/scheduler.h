@@ -9,7 +9,7 @@
 
 uint64_t schedule(uint64_t rsp);
 void initScheduler(fnptr idle);
-pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority);
+pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, int8_t priority);
 pid_t getCurrentPid();
 uint64_t blockProcess (pid_t pid);
 void yield();

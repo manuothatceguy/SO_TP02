@@ -45,6 +45,9 @@ void addProcess(ProcessManagerADT list, PCB *process){
     if(list == NULL || process == NULL) {
         return;
     }
+    if(list->currentProcess == list->idleProcess) {
+        list->currentProcess = process; // Set the first process as current
+    }
     enqueue(list->readyQueue, process);
 }
 
@@ -147,8 +150,14 @@ PCB* getProcess(ProcessManagerADT list, pid_t pid){
 
 PCB* getNextProcess(ProcessManagerADT list){
     list->currentProcess = NULL; // reset
-    if(list == NULL || isQueueEmpty(list->readyQueue)) {
-        return NULL;
+    
+    if(list == NULL) {
+        return NULL;   
+    }
+
+    if(isQueueEmpty(list->readyQueue)) {
+        list->currentProcess = list->idleProcess;
+        return list->idleProcess;
     }
     
     PCB* nextProcess = (PCB*)dequeue(list->readyQueue);

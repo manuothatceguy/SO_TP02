@@ -96,14 +96,13 @@ int main(){
 
 	// MEMORY MANAGER
 	createMemoryManager();
-	initScheduler(&idle);
+	initScheduler(idle);
 	semManager();
 	//createProcess("idle", &idle, 0, NULL, -1);
 	//createProcess("feDeVida",(fnptr) feDeVida, 0, NULL, 1);
 	//char *feDeVida2Args[] = {"Hola mundo!\n", NULL};
 	//createProcess("feDeVida2", (fnptr) feDeVida2, 1, feDeVida2Args, 1);
 	createProcess("shell", (fnptr) sampleCodeModuleAddress, 0, NULL, 0);
-
 	load_idt();
 	_sti();
 	while (1) {
