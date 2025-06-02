@@ -26,12 +26,4 @@
 #define HEAP_SIZE (16 * 1024 * 1024) // 16MB
 #define HEAP_END_ADDRESS   (HEAP_START_ADDRESS + HEAP_SIZE) // fin del heap
 
-// Tamaño del stack del proceso en modo usuario (por ejemplo, 16 KiB)
-#define USER_STACK_SIZE  0x4000      // 16 KiB
-
-// Dirección virtual más alta del stack de usuario (debe estar fuera del espacio del kernel)
-#define USER_STACK_TOP   0x800000    // 8 MB
-
-//#define NULL (void *)0
-
 #endif

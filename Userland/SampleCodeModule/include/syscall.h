@@ -12,7 +12,7 @@ typedef struct Point2D {
 } Point2D;
 
 
-uint64_t syscall_read(char *buff, uint64_t len);
+uint64_t syscall_read(uint64_t fd, char *buff, uint64_t len);
 uint64_t syscall_write(uint64_t fd, char *buff, uint64_t len);
 uint64_t syscall_time(uint64_t mod);
 uint64_t syscall_beep(uint64_t freq, uint64_t ticks);

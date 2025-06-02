@@ -117,6 +117,7 @@ int getInstruction(char * arguments){
     int iNum = 0;
     if((iNum = verifyInstruction(instruction)) == -1 && instruction[0] != 0){
         printferror("Comando no reconocido: %s\n", instruction);
+        free(arguments);
         return -1;
     }
     return iNum;

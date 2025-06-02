@@ -4,16 +4,16 @@
 #include <semaphore.h>
 
 #define MAX_PIPES 16
-#define PIPE_BUFFER_SIZE 4096
+#define PIPE_BUFFER_SIZE 100
 
 typedef struct {
     char buffer[PIPE_BUFFER_SIZE];
-    int read_pos;
-    int write_pos;
+    int readIdx;
+    int writeIdx;
     int count;
-    int semReaders;  
-    int semWriters; 
-    int mutex;           
+    int semReaders;  // ID del semáforo para lectores
+    int semWriters; // ID del semáforo para escritores
+    int mutex;           // ID del mutex para acceso exclusivo
     int readers;
     int writers;
     int isOpen;
@@ -21,14 +21,15 @@ typedef struct {
 
 typedef struct {
     pipe_t pipes[MAX_PIPES];
-    int nextPipeId;
-} ioSystem_t;
+    int next_pipe_id;
+} pipeManager;
 
 // Funciones públicas
-void initIoSystem();
+void initPipeManager();
 int createPipe();
 int readPipe(int pipe_id, char *buffer, int size);
 int writePipe(int pipe_id, const char *buffer, int size);
 int closePipe(int pipe_id);
+int clearPipe(int pipeId);
 
 #endif

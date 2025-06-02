@@ -9,6 +9,7 @@ typedef struct ProcessManagerCDT {
     PCB* currentProcess;
     QueueADT readyQueue;
     QueueADT blockedQueue;
+    QueueADT deadQueue;
 } ProcessManagerCDT;
 
 ProcessManagerADT createProcessManager(){
@@ -25,6 +26,13 @@ ProcessManagerADT createProcessManager(){
     list->blockedQueue = createQueue();
     if (list->blockedQueue == NULL) {
         freeQueue(list->readyQueue);
+        freeMemory(list);
+        return NULL; 
+    }
+    list->deadQueue = createQueue();
+    if (list->deadQueue == NULL) {
+        freeQueue(list->readyQueue);
+        freeQueue(list->blockedQueue);
         freeMemory(list);
         return NULL; 
     }
@@ -162,4 +170,22 @@ uint64_t countBlockedProcesses(ProcessManagerADT list) {
 }
 uint64_t countProcesses(ProcessManagerADT list) {
     return list ? getProcessCount(list) : 0;
+}
+
+PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessState state) {
+    if (list == NULL) {
+        return NULL; 
+    }
+    
+    PCB* process = switchProcess(list->readyQueue, list->deadQueue, pid);
+    if (process == NULL) {
+        process = switchProcess(list->blockedQueue, list->deadQueue, pid);
+        if (process == NULL) {
+            return NULL; 
+        }
+    }
+
+    process->retValue = retValue;
+    process->state = state;
+    return process;
 }

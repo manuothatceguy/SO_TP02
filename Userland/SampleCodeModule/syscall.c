@@ -43,8 +43,8 @@ enum syscall_number {
     YIELD
 };
 
-uint64_t syscall_read(char * buff, uint64_t len){
-    return syscall(READ, (uint64_t)buff, len, 0);
+uint64_t syscall_read(uint64_t fd, char * buff, uint64_t len){
+    return syscall(READ, fd, (uint64_t)buff, len);
 }
 
 uint64_t syscall_write(uint64_t fd, char * buff, uint64_t len){
