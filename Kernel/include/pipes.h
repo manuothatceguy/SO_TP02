@@ -1,5 +1,5 @@
-#ifndef _PIPES_H
-#define _PIPES_H
+#ifndef PIPES_H
+#define PIPES_H
 
 #include <semaphore.h>
 

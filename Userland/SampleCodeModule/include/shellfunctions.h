@@ -28,5 +28,6 @@ void handle_pid_info(char * arg);
 void handle_nice(char * arg);
 void handle_wc(char * arg);
 void handle_filter(char * arg);
+void handle_test_malloc_free(char * arg);
 
 #endif //SHELL_FUNCTIONS_H

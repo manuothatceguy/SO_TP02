@@ -48,7 +48,8 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - loop <time>: ejecuta un bucle por el tiempo especificado\n"
                 "    - nice <pid> <new_prio>: cambia la prioridad de un proceso\n"
                 "    - wc: cuenta la cantidad de lineas del input\n"
-                "    - filter: filtra las vocales del input\n";
+                "    - filter: filtra las vocales del input\n"
+                "    - test_malloc_free: test de malloc y free\n";
 
 
 // Función auxiliar para parsear argumentos
@@ -203,6 +204,9 @@ void handle_test_mm(char * arg) {
     } else {
         printf("Proceso de test creado con PID: %d\n", pid);
     }
+    
+    // Liberar la memoria después de crear el proceso
+    free(argv);
 }
 
 void handle_test_processes(char * arg) {
@@ -382,6 +386,10 @@ void handle_loop(char * arg) {
         return;
     }
     char **argv = malloc(2 * sizeof(char*));
+    if (argv == NULL) {
+        printf("Error al asignar memoria para los argumentos\n");
+        return;
+    }
     argv[0] = arg;
     argv[1] = NULL;
     

@@ -19,7 +19,7 @@
 
 
 #define CANT_REGS 19
-#define CANT_SYSCALLS 23
+#define CANT_SYSCALLS 29
 
 extern uint64_t regs[CANT_REGS];
 

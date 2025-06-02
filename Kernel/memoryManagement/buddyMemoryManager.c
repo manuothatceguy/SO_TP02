@@ -158,6 +158,11 @@ void *allocMemory(const size_t memoryToAllocate) {
     
     // Calcular y retornar la dirección de memoria después del header
     memoryManager->usedMemory += (1ULL << block->level);
+    DEBUG_PRINT("[allocMemory] Memoria usada: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(memoryManager->usedMemory, DEBUG_COLOR);
+    DEBUG_PRINT(" / ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(memoryManager->memorySize, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
     return (void*)((char*)block + sizeof(BuddyBlock));
 }
 
@@ -357,6 +362,10 @@ void *freeMemory(void *const restrict address) {
         return NULL; // Dirección inválida o bloque no asignado
     }
 
+    DEBUG_PRINT("[freeMemory] Liberando bloque de nivel: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(block->level, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
+
     // Liberar el bloque
     block->blockState = FREE;
 
@@ -370,6 +379,11 @@ void *freeMemory(void *const restrict address) {
 
     // Actualizar la memoria usada
     memoryManager->usedMemory -= (1ULL << block->level);
+    DEBUG_PRINT("[freeMemory] Memoria usada: ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(memoryManager->usedMemory, DEBUG_COLOR);
+    DEBUG_PRINT(" / ", DEBUG_COLOR);
+    DEBUG_PRINT_INT(memoryManager->memorySize, DEBUG_COLOR);
+    DEBUG_PRINT("\n", DEBUG_COLOR);
 
     // Intentar fusionar con el buddy
     mergeBlocks(memoryManager, block);

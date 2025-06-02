@@ -23,7 +23,7 @@
 
 #define MEMORY_MANAGER_ADDRESS 0x50000                  // aprovechando espacio vacío de la memoria
 #define HEAP_START_ADDRESS 0x600000                     // dirección de inicio del heap
-#define HEAP_SIZE (16 * 1024 * 1024) // 16MB
+#define HEAP_SIZE (512 * 1024 * 1024) // 512MB
 #define HEAP_END_ADDRESS   (HEAP_START_ADDRESS + HEAP_SIZE) // fin del heap
 
 #endif

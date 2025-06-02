@@ -55,6 +55,7 @@ static char * inst_list[] = {"help",
                                             "nice",
                                             "wc",
                                             "filter",
+                                            "test_malloc_free",
                                             "exit"
                                             };
 

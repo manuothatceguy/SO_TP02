@@ -69,7 +69,7 @@ void idle(uint64_t argc, char **argv) {
 int feDeVida(uint64_t argc, char **argv) {
 	while(1) {
 		printStr("se me jijean\n", WHITE);
-		wait_ticks(40);
+		wait_seconds(4);
 	}
 	return 0;
 }
