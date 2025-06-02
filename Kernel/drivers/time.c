@@ -3,6 +3,7 @@
 #include <textModule.h>
 #include <interrupts.h>
 #include <scheduler.h>
+#include <clock.h>
 
 static uint64_t ticks = 0;
 static uint16_t frequency = 18;
@@ -28,9 +29,11 @@ void wait_ticks(uint64_t ticksToWait) {
 }
 
 void wait_seconds(uint64_t secondsToWait) {
-	uint64_t curr = seconds_elapsed();
-	while(seconds_elapsed() < curr + secondsToWait){
+	time_t curr = getTime(0); // 0 para GMT
+	while(diffTimeMillis(curr, getTime(0))/1000 < secondsToWait){
+		//ticks--;
 		yield();
+		//printStr("Waiting for seconds...\n", 0x00FFFFFF);
 	}
 }
 

@@ -21,4 +21,10 @@ time_t getTime(int64_t timeZone);
 
 uint64_t getTimeParam(uint64_t param); // -1 si falla
 
+/**
+ * Returns the difference in milliseconds between two time_t structs.
+ * Assumes both times are in the same timezone.
+ */
+int64_t diffTimeMillis(time_t start, time_t end);
+
 #endif // CLOCK_H

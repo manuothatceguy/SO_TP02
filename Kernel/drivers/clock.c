@@ -109,6 +109,31 @@ char* intToString(int num) {
     return &buffer[i + 1];
 }
 
+time_t getTime(int64_t timeZone) {
+    time_t currentTime;
+    
+    currentTime.sec = seconds();
+    currentTime.min = minutes();
+    currentTime.hour = hours() + timeZone;
+    currentTime.day = day();
+    currentTime.month = month();
+    currentTime.year = year() + Y2K;
+    
+    // Adjust hour with day change
+    if (currentTime.hour >= 24) {
+        currentTime.hour -= 24;
+        currentTime.day++;
+    } else if (currentTime.hour < 0) {
+        currentTime.hour += 24;
+        currentTime.day--;
+    }
+    
+    // Adjust day with month change
+    checkDay(&currentTime.day, &currentTime.month, &currentTime.year);
+    
+    return currentTime;
+}
+
 uint64_t getTimeParam(uint64_t param) {
     uint8_t sec = seconds();
     uint8_t min = minutes();
@@ -149,3 +174,15 @@ uint64_t getTimeParam(uint64_t param) {
     return time[param];
 }
 
+int64_t diffTimeMillis(time_t start, time_t end) {
+
+    int64_t startMillis = start.sec * 1000 + start.min * 60 * 1000 + start.hour * 3600 * 1000 +
+                          start.day * 24 * 3600 * 1000 + start.month * 30 * 24 * 3600 * 1000 +
+                          (start.year - Y2K) * 365 * 24 * 3600 * 1000;
+
+    int64_t endMillis = end.sec * 1000 + end.min * 60 * 1000 + end.hour * 3600 * 1000 +
+                        end.day * 24 * 3600 * 1000 + end.month * 30 * 24 * 3600 * 1000 +
+                        (end.year - Y2K) * 365 * 24 * 3600 * 1000;
+
+    return endMillis - startMillis;
+}

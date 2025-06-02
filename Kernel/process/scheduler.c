@@ -9,7 +9,7 @@
 #include <syscall.h>
 #include <debug.h>
 
-#define QUANTUM 10
+#define QUANTUM 3
 #define MAX_PRIORITY 5 // agregar a limitaciones
 #define MIN_PRIORITY 0
 #define IDLE_PRIORITY -1
@@ -100,7 +100,7 @@ pid_t getCurrentPid() {
 uint64_t schedule(uint64_t rsp){
     static int first = 1;
     PCB* currentProcess = getCurrentProcess(processes);
-    
+
     if(currentProcess == NULL) {
         PCB* nextProcess = getNextProcess(processes);
         if (nextProcess == NULL) {
@@ -116,6 +116,7 @@ uint64_t schedule(uint64_t rsp){
         quantum = calculateQuantum(nextProcess->priority);
         return nextProcess->rsp;
     }
+    
 
     if(quantum > 0 && currentProcess->state == RUNNING) {
         quantum--;
