@@ -186,7 +186,7 @@ void deleteChar(){
 
 void putChar(unsigned char char_to_print, uint32_t color){
     if(char_to_print == '\n' || x_pos + font_width * font_size > getWidth()){
-        lineFeed(font_height * font_size);
+        lineFeed();
         if(char_to_print == '\n'){ // Unicamente retorno si es un ENTER, si no sigo con el flujo (imprimo el caracter)
             return;
         }
@@ -213,8 +213,8 @@ void clearText(uint32_t color){
     y_pos = 0;
 }
 
-void lineFeed(int fontHeight){
-    y_pos += fontHeight; // Avanzo para abajo veticalmente
+void lineFeed(){
+    y_pos += font_height * font_size; // Avanzo para abajo veticalmente
     x_pos = 0;
     moveScreenUpIfFull();
 }

@@ -46,7 +46,7 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - ps: muestra los procesos con su informacion\n"
                 "    - memInfo: imprime estado de la memoria\n"
                 "    - loop <time>: ejecuta un bucle por el tiempo especificado\n"
-                "    - nice <pid> <new_priority>: cambia la prioridad de un proceso\n"
+                "    - nice <pid> <new_prio>: cambia la prioridad de un proceso\n"
                 "    - wc: cuenta la cantidad de lineas del input\n"
                 "    - filter: filtra las vocales del input\n";
 
