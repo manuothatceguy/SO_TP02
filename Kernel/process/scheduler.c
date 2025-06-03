@@ -28,6 +28,7 @@ static uint64_t quantum = 0;
 
 // Declaración de función interna
 static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground);
+static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) ;
 
 void initScheduler(fnptr idle) {
     ProcessManagerADT list = createProcessManager();
@@ -209,7 +210,7 @@ uint64_t kill(pid_t pid){
     return 0;
 }
 
-void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
+static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
     if (parentPid == -1) return;
     
     PCB* parent = getProcess(processes, parentPid);
@@ -218,7 +219,7 @@ void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
         parent->waitingForPid == childPid) {
         unblockProcess(parentPid);
         DEBUG_PRINT("Parent process unblocked: ", 0x00FFFFFF);
-        DEBUG_PRINT(parentPid, 0x00FFFFFF);
+        DEBUG_PRINT_INT(parentPid, 0x00FFFFFF);
         DEBUG_PRINT("\n", 0x00FFFFFF);
         printStr("Parent process unblocked: ", 0x00FFFFFF);
         printInt(parentPid, 0x00FFFFFF);
@@ -240,7 +241,7 @@ int32_t reapChild(PCB* child, int32_t* status) {
     freeMemory(child);
     
     DEBUG_PRINT("Process reaped: ", 0x00FFFFFF);
-    DEBUG_PRINT(childPid, 0x00FFFFFF);
+    DEBUG_PRINT_INT(childPid, 0x00FFFFFF);
     DEBUG_PRINT("\n", 0x00FFFFFF);
     
     return childPid;

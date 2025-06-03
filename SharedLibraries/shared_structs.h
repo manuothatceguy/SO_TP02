@@ -43,8 +43,12 @@ typedef struct PCB {
     uint64_t rsp;
     uint64_t base;
     uint64_t rip;
-    char name[NAME_MAX_LENGTH];
     uint64_t retValue;
+    struct {
+        int stdin;
+        int stdout;
+    } fds;
+    char name[NAME_MAX_LENGTH];
 } PCB;
 
 

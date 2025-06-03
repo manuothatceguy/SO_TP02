@@ -124,7 +124,7 @@ static unsigned int specialKeys[] = {LSHIFT_PRESS, LSHIFT_RELEASE, RSHIFT_RELEAS
 static char shift = 0;
 static char caps = 0;
 static char mayus = 0;
-static char esc = 0;
+//static char esc = 0;
 static char specialKey = 0;
 static char ctrlPressed = 0;
 
@@ -178,7 +178,7 @@ static void addToBuffer(unsigned int key){
             return; // Error al crear el pipe
         }
     }
-    writePipe(0, &key, 1);
+    writePipe(stdin, &key, 1);
 }
 
 int bufferWrite(){
