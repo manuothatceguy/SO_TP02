@@ -100,23 +100,15 @@ void syscall_freeMemory(void *address) {
     syscall(FREE_MEMORY, (uint64_t)address, 0, 0);
 }
 
-uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority) {
+uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority, char foreground) {
     ProcessCreationParams params = {
         .name = name,
         .function = function,
         .argc = argc,
         .arg = argv,
-        .priority = priority
+        .priority = priority,
+        .foreground = foreground
     };
-    // printf("Process Creation Parameters USERLAND:\n");
-    // printf("Name: %s\n", params.name);
-    // printf("Function: %p\n", params.function);
-    // printf("Argument Count: %d\n", params.argc);
-    // printf("Arguments:\n");
-    // for (uint64_t i = 0; i < params.argc; i++) {
-    //     printf("Arg: %s\n", params.arg[i]);
-    // }
-    // printf("Priority: %d\n", params.priority);
     return syscall(CREATE_PROCESS, (uint64_t)&params, 0, 0);
 }
 
@@ -174,7 +166,7 @@ void syscall_yield() {
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
 pid_t syscall_waitpid(pid_t pid, int32_t* status){
-    syscall(WAITPID, pid, (uint64_t)status, 0);
+    return syscall(WAITPID, pid, (uint64_t)status, 0);
 }   
 
 int64_t my_getpid() {

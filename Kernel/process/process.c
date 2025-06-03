@@ -6,6 +6,7 @@
 #include <queue.h>
 
 typedef struct ProcessManagerCDT {
+    PCB* foregroundProcess;
     PCB* currentProcess;
     QueueADT readyQueue;
     QueueADT blockedQueue;
@@ -14,11 +15,24 @@ typedef struct ProcessManagerCDT {
     PCB* idleProcess;
 } ProcessManagerCDT;
 
+int compareProcesses(void* a, void* b) {
+    PCB* processA = (PCB*)a;
+    PCB* processB = (PCB*)b;
+    return (processA->pid == processB->pid) ? 0 : -1;
+}
+
+int hasPid(void* a, void*b){ // a es el proceso, b es el pid. el signature es así por temas de casteo...
+    PCB* processA = (PCB*)a;
+    pid_t* pid = (pid_t*)b;
+    return (processA->pid == *pid) ? 0 : -1; 
+}
+
 ProcessManagerADT createProcessManager(){
     ProcessManagerADT list = (ProcessManagerADT)allocMemory(sizeof(ProcessManagerCDT));
     if (list == NULL) {
         return NULL; 
     }
+    list->foregroundProcess = NULL;
     list->currentProcess = NULL;
     list->idleProcess = NULL;
     list->readyQueue = createQueue();
@@ -50,33 +64,43 @@ ProcessManagerADT createProcessManager(){
     return list;
 }
 
-void addProcess(ProcessManagerADT list, PCB *process){
+void addProcess(ProcessManagerADT list, PCB *process, char foreground){
     if(list == NULL || process == NULL) {
         return;
     }
     if(list->currentProcess == list->idleProcess) {
         list->currentProcess = process; // Set the first process as current
     }
+    if(foreground) {
+        // If there's a current foreground process, block it and make it wait for the new one
+        if(list->foregroundProcess != NULL) {
+            PCB* oldForeground = list->foregroundProcess;
+            // Remove from current queue if it exists
+            removeFromQueue(list->readyQueue, &oldForeground->pid, hasPid);
+            removeFromQueue(list->blockedQueue, &oldForeground->pid, hasPid);
+            removeFromQueue(list->blockedQueueBySem, &oldForeground->pid, hasPid);
+            // Add to blocked queue and set it to wait for the new process
+            enqueue(list->blockedQueue, oldForeground);
+            oldForeground->state = BLOCKED;
+            oldForeground->waitingForPid = process->pid;
+        }
+        // Set new foreground process
+        list->foregroundProcess = process;
+        process->state = READY;
+    }
     enqueue(list->readyQueue, process);
 }
 
-int compareProcesses(void* a, void* b) {
-    PCB* processA = (PCB*)a;
-    PCB* processB = (PCB*)b;
-    return (processA->pid == processB->pid) ? 0 : -1;
-}
 
-int hasPid(void* a, void*b){ // a es el proceso, b es el pid. el signature es así por temas de casteo...
-    PCB* processA = (PCB*)a;
-    pid_t* pid = (pid_t*)b;
-    return (processA->pid == *pid) ? 0 : -1; 
-}
 
 void removeProcess(ProcessManagerADT list, pid_t pid) {
     if (list == NULL) {
         return;
     }
     removeFromQueue(list->readyQueue, &pid, hasPid);
+    if(list->foregroundProcess && list->foregroundProcess->pid == pid) {
+        list->foregroundProcess = NULL;
+    }
 }
 
 void removeZombieProcess(ProcessManagerADT list, pid_t pid) {
@@ -238,6 +262,14 @@ uint64_t countProcesses(ProcessManagerADT list) {
     return list ? getProcessCount(list) : 0;
 }
 
+PCB* getForegroundProcess(ProcessManagerADT list) {
+    return list ? list->foregroundProcess : NULL;
+}
+
+char isForegroundProcess(ProcessManagerADT list, pid_t pid) {
+    return list && list->foregroundProcess && list->foregroundProcess->pid == pid;
+}
+
 PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessState state) {
     if (list == NULL) {
         return NULL; 
@@ -249,6 +281,11 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
         if (process == NULL) {
             return NULL; 
         }
+    }
+
+    // If the killed process was the foreground process, clear it
+    if (list->foregroundProcess && list->foregroundProcess->pid == pid) {
+        list->foregroundProcess = NULL;
     }
 
     process->retValue = retValue;

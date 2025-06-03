@@ -102,7 +102,7 @@ int main(){
 	//createProcess("feDeVida",(fnptr) feDeVida, 0, NULL, 1);
 	//char *feDeVida2Args[] = {"Hola mundo!\n", NULL};
 	//createProcess("feDeVida2", (fnptr) feDeVida2, 1, feDeVida2Args, 1);
-	createProcess("shell", (fnptr) sampleCodeModuleAddress, 0, NULL, 0);
+	createProcess("shell", (fnptr) sampleCodeModuleAddress, 0, NULL, 0, 1);
 	load_idt();
 	_sti();
 	while (1) {

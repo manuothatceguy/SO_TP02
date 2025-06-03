@@ -60,19 +60,19 @@ uint64_t test_prio() {
 
   printf("Creando los procesos\n");
 
-  pids[0] = syscall_create_process("print_a",(fnptr) (fnptr)print_a, 0, argv, LOWEST);
+  pids[0] = syscall_create_process("print_a",(fnptr) (fnptr)print_a, 0, argv, LOWEST, 0);
   if( pids[0] < 0) {
     printferror("Error al crear el proceso A\n");
     return -1;
   }
   printf("Proceso A creado con PID: %d\n", (int)pids[0]);
-  pids[1] = syscall_create_process("print_b",(fnptr) (fnptr)print_b, 0, argv, MEDIUM);
+  pids[1] = syscall_create_process("print_b",(fnptr) (fnptr)print_b, 0, argv, MEDIUM, 0);
   if( pids[1] < 0) {
     printferror("Error al crear el proceso B\n");
     return -1;
   }
   printf("Proceso B creado con PID: %d\n", (int)pids[1]);
-  pids[2] = syscall_create_process("print_c",(fnptr) (fnptr)print_c, 0, argv, HIGHEST);
+  pids[2] = syscall_create_process("print_c",(fnptr) (fnptr)print_c, 0, argv, HIGHEST, 0);
   if( pids[2] < 0) {
     printferror("Error al crear el proceso C\n");
     return -1;

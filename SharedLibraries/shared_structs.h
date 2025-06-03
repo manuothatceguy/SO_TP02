@@ -19,6 +19,7 @@ typedef struct ProcessCreationParams {
     uint64_t argc;
     uint8_t priority;
     char** arg;
+    char foreground;
 } ProcessCreationParams;
 
 typedef enum {

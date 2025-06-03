@@ -197,7 +197,7 @@ void handle_test_mm(char * arg) {
     printf("arg: %s\n", arg);
     printf("Direccion de test_mm: %p\n", (uint64_t*)test_mm);
     // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, 1, argv, 1);
+    pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, 1, argv, 1, 0);
 
     if (pid < 0) {
         printf("Error al crear el proceso de test\n");
@@ -233,7 +233,7 @@ void handle_test_processes(char * arg) {
     printf("Iniciando test de procesos...\n");
     char *argv[] = { arg, NULL };
 
-    pid_t pid = syscall_create_process("test_processes", (fnptr)test_processes, 1, argv, 1);
+    pid_t pid = syscall_create_process("test_processes", (fnptr)test_processes, 1, argv, 1, 0);
     
     if (pid < 0) {
         printf("Error al crear el proceso de test\n");
@@ -247,7 +247,7 @@ void handle_test_prio(char * arg) {
     char *argv[] = { NULL };
     
     // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("test_prio", (fnptr)test_prio, 0, argv, 1);
+    pid_t pid = syscall_create_process("test_prio", (fnptr)test_prio, 0, argv, 1, 1);
     
     if (pid < 0) {
         printf("Error al crear el proceso de test\n");
@@ -310,7 +310,7 @@ void handle_test_sync(char * arg) {
     char *argv[] = { iterations, processes, NULL };
     
     // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, 2, argv, 1);
+    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, 2, argv, 1, 0);
     
     if (pid < 0) {
         printf("Error al crear el proceso de test\n");
@@ -401,7 +401,7 @@ void handle_loop(char * arg) {
     argv[0] = arg;
     argv[1] = NULL;
     
-    pid_t pid = syscall_create_process("loop", (fnptr)loop, 1, argv, 1);
+    pid_t pid = syscall_create_process("loop", (fnptr)loop, 1, argv, 1, 1);
 
     if (pid < 0) {
         printf("Error al crear el proceso de loop\n");

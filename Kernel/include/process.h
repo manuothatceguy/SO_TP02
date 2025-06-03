@@ -11,7 +11,7 @@ typedef struct ProcessManagerCDT *ProcessManagerADT;
 
 ProcessManagerADT createProcessManager();
 
-void addProcess(ProcessManagerADT list, PCB *process);
+void addProcess(ProcessManagerADT list, PCB *process, char foreground);
 
 void removeProcess(ProcessManagerADT list, pid_t pid);
 
@@ -32,7 +32,7 @@ void setIdleProcess(ProcessManagerADT list, PCB* idleProcess);
 
 int blockProcessQueue(ProcessManagerADT list, pid_t pid);
 
-int unblockProcessQueue(ProcessManagerADT list, pid_t pid);
+int unblockProcessQueue(ProcessManagerADT list, pid_t pid, ProcessState state);
 
 uint64_t countReadyProcesses(ProcessManagerADT list);
 
@@ -45,6 +45,10 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
 int blockProcessQueueBySem(ProcessManagerADT list, pid_t pid);
 
 int unblockProcessQueueBySem(ProcessManagerADT list, pid_t pid);
+
+//foreground process functions
+PCB* getForegroundProcess(ProcessManagerADT list);
+char isForegroundProcess(ProcessManagerADT list, pid_t pid);
 
 // asm
 uint64_t processStackFrame(uint64_t base, uint64_t rip, uint64_t argc, char **arg);

@@ -27,24 +27,24 @@ static pid_t nextFreePid = 0; // 0 es el idle!
 static uint64_t quantum = 0;    
 
 // Declaración de función interna
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority);
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground);
 
 void initScheduler(fnptr idle) {
     ProcessManagerADT list = createProcessManager();
-    PCB* idleProcess = _createProcessPCB("idle", idle, 0, NULL, IDLE_PRIORITY);
+    PCB* idleProcess = _createProcessPCB("idle", idle, 0, NULL, IDLE_PRIORITY, 0);
     setIdleProcess(list, idleProcess);
     processes = list;
 }
 
-pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority) {
-    PCB* process = _createProcessPCB(name, function, argc, arg, priority);
+pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground) {
+    PCB* process = _createProcessPCB(name, function, argc, arg, priority, foreground);
     if (process == NULL) {
         return -1;
     }
     return process->pid;
 }
 
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority) {
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground) {
     if (name == NULL || function == NULL) {
         return NULL;
     }
@@ -87,9 +87,14 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->base += STACK_SIZE;
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
-    if(priority != IDLE_PRIORITY) addProcess(processes, process);
+    if(priority != IDLE_PRIORITY) addProcess(processes, process, foreground);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
     return process;
+}
+
+pid_t getForegroundPid() {
+    PCB* current = getForegroundProcess(processes);
+    return current ? current->pid : -1;
 }
 
 pid_t getCurrentPid() {
@@ -117,6 +122,13 @@ uint64_t schedule(uint64_t rsp){
         return nextProcess->rsp;
     }
     
+    // If current process is foreground, give it priority
+    if(isForegroundProcess(processes, currentProcess->pid)) {
+        if(currentProcess->state == RUNNING) {
+            quantum--;
+            return rsp;
+        }
+    }
 
     if(quantum > 0 && currentProcess->state == RUNNING) {
         quantum--;
@@ -173,7 +185,7 @@ void yield() {
 }
 
 uint64_t unblockProcess(pid_t pid){
-    return unblockProcessQueue(processes, pid);
+    return unblockProcessQueue(processes, pid, READY);
 }
 
 uint64_t unblockProcessBySem(pid_t pid) {
@@ -237,37 +249,41 @@ int32_t reapChild(PCB* child, int32_t* status) {
 int32_t waitpid(pid_t pid, int32_t* status) {
     pid_t currentProcPid = getCurrentPid();
     
-    // Buscar el proceso hijo
-    PCB* child = getProcess(processes, pid);
-    if (child == NULL) {
+    // Buscar el proceso
+    PCB* target = getProcess(processes, pid);
+    if (target == NULL) {
         return -1; // Proceso no existe
     }
     
-    // Verificar que sea hijo del proceso actual
-    if (child->parentPid != currentProcPid) {
-        return -1; // No es mi hijo
+    // Verificar que sea hijo del proceso actual o que estemos esperando por él como foreground
+    PCB* current = getProcess(processes, currentProcPid);
+    if (current == NULL) {
+        return -1;
+    }
+
+    if (target->parentPid != currentProcPid && current->waitingForPid != pid) {
+        return -1; // No es mi hijo ni estoy esperando por él como foreground
     }
     
-    // Si el hijo ya está ZOMBIE, reapear inmediatamente
-    if (child->state == ZOMBIE) {
-        return reapChild(child, status);
+    // Si el proceso ya está ZOMBIE, reapear inmediatamente
+    if (target->state == ZOMBIE) {
+        current->waitingForPid = -1; // Limpiar el estado de espera
+        return reapChild(target, status);
     }
     
-    // Si el hijo aún está corriendo, BLOQUEAR al padre
-    if (child->state < ZOMBIE) {
+    // Si el proceso aún está corriendo, BLOQUEAR al proceso actual
+    if (target->state < ZOMBIE) {
         // Marcar que estamos esperando a este proceso específico
-        PCB* parent = getProcess(processes, currentProcPid);
-        parent->waitingForPid = pid;  // ← Nuevo campo en PCB
+        current->waitingForPid = pid;
         
-        // Bloquear al proceso padre
-        printStr("Going to sleep", 0x00FFFFFF);
+        // Bloquear al proceso actual
         blockProcess(currentProcPid);
         
         // Cuando el scheduler nos despierte, verificar de nuevo
-        child = getProcess(processes, pid);
-        if (child != NULL && child->state == ZOMBIE) {
-            parent->waitingForPid = -1; // Limpiar
-            return reapChild(child, status);
+        target = getProcess(processes, pid);
+        if (target != NULL && target->state == ZOMBIE) {
+            current->waitingForPid = -1; // Limpiar
+            return reapChild(target, status);
         }
     }
     
