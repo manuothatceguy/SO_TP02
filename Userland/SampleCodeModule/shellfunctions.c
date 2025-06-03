@@ -408,6 +408,67 @@ void handle_loop(char * arg) {
     }
 }
 
+static void wc(uint64_t argc, char *argv[]) {
+    char buffer[BUFFER_SPACE] = {0};
+    int line_count = 0;
+    
+    printf("Ingrese el texto (presione Enter dos veces para terminar):\n");
+    
+    while (1) {
+        readLine(buffer, BUFFER_SPACE);
+        if (buffer[0] == '\0') {  // Si la línea está vacía, terminamos
+            break;
+        }
+        line_count++;
+    }
+    
+    printf("Cantidad de lineas: %d\n", line_count);
+}
+
+static void filter(uint64_t argc, char *argv[]) {
+    char buffer[BUFFER_SPACE] = {0};
+    char filtered[BUFFER_SPACE] = {0};
+    
+    printf("Ingrese el texto (presione Enter dos veces para terminar):\n");
+    
+    while (1) {
+        readLine(buffer, BUFFER_SPACE);
+        if (buffer[0] == '\0') {  // Si la línea está vacía, terminamos
+            break;
+        }
+        
+        int j = 0;
+        for (int i = 0; buffer[i] != '\0' && j < BUFFER_SPACE - 1; i++) {
+            char c = buffer[i];
+            // Si no es una vocal, copiarlo al resultado
+            if (c != 'a' && c != 'e' && c != 'i' && c != 'o' && c != 'u' &&
+                c != 'A' && c != 'E' && c != 'I' && c != 'O' && c != 'U') {
+                filtered[j++] = c;
+            }
+        }
+        filtered[j] = '\0';
+        printf("%s\n", filtered);
+    }
+}
+
+void handle_wc(char * arg) {
+    char *argv[] = { NULL };
+    pid_t pid = syscall_create_process("wc", (fnptr)wc, 0, argv, 1, 1);
+    
+    if (pid < 0) {
+        printf("Error al crear el proceso wc\n");
+    }
+}
+
+void handle_filter(char * arg) {
+    char *argv[] = { NULL };
+    pid_t pid = syscall_create_process("filter", (fnptr)filter, 0, argv, 1, 1);
+    
+    if (pid < 0) {
+        printf("Error al crear el proceso filter\n");
+    }
+}
+
 void handle_nice(char * arg) {
     char *args[2];
     char arg1[32] = {0};
@@ -444,48 +505,7 @@ void handle_nice(char * arg) {
     }
 }
 
-void handle_wc(char * arg) {
-    char buffer[BUFFER_SPACE] = {0};
-    int line_count = 0;
-    
-    printf("Ingrese el texto (presione Enter dos veces para terminar):\n");
-    
-    while (1) {
-        readLine(buffer, BUFFER_SPACE);
-        if (buffer[0] == '\0') {  // Si la línea está vacía, terminamos
-            break;
-        }
-        line_count++;
-    }
-    
-    printf("Cantidad de lineas: %d\n", line_count);
-}
 
-void handle_filter(char * arg) {
-    char buffer[BUFFER_SPACE] = {0};
-    char filtered[BUFFER_SPACE] = {0};
-    
-    printf("Ingrese el texto (presione Enter dos veces para terminar):\n");
-    
-    while (1) {
-        readLine(buffer, BUFFER_SPACE);
-        if (buffer[0] == '\0') {  // Si la línea está vacía, terminamos
-            break;
-        }
-        
-        int j = 0;
-        for (int i = 0; buffer[i] != '\0' && j < BUFFER_SPACE - 1; i++) {
-            char c = buffer[i];
-            // Si no es una vocal, copiarlo al resultado
-            if (c != 'a' && c != 'e' && c != 'i' && c != 'o' && c != 'u' &&
-                c != 'A' && c != 'E' && c != 'I' && c != 'O' && c != 'U') {
-                filtered[j++] = c;
-            }
-        }
-        filtered[j] = '\0';
-        printf("%s\n", filtered);
-    }
-}
 
 void handle_test_malloc_free(char *arg) {
     printf("Estado de memoria antes de malloc:\n");
