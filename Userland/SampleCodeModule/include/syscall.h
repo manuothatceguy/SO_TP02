@@ -11,7 +11,6 @@ typedef struct Point2D {
     uint64_t x, y;
 } Point2D;
 
-
 uint64_t syscall_read(uint64_t fd, char *buff, uint64_t len);
 uint64_t syscall_write(uint64_t fd, char *buff, uint64_t len);
 uint64_t syscall_time(uint64_t mod);
@@ -46,6 +45,10 @@ int syscall_sem_open(int sem_id, uint64_t initialValue);
 int syscall_sem_wait(int sem_id);
 int syscall_sem_post(int sem_id);    
 int syscall_sem_close(int sem_id);
+
+// Pipes
+int syscall_open_pipe();
+int syscall_close_pipe(int pipe_id);
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 int64_t my_getpid();

@@ -41,7 +41,9 @@ enum syscall_number {
     SEM_POST,
     SEM_CLOSE,
     YIELD,
-    WAITPID
+    WAITPID,
+    OPEN_PIPE,
+    CLOSE_PIPE
 };
 
 uint64_t syscall_read(uint64_t fd, char * buff, uint64_t len){
@@ -162,6 +164,14 @@ int syscall_sem_close(int sem_id) {
 
 void syscall_yield() {
     syscall(YIELD, 0, 0, 0);
+}
+
+int syscall_open_pipe() {
+    return syscall(OPEN_PIPE, 0, 0, 0);
+}
+
+int syscall_close_pipe(int pipe_id) {
+    return syscall(CLOSE_PIPE, pipe_id, 0, 0);
 }
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
