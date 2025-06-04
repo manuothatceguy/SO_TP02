@@ -58,3 +58,77 @@ char * strncpy(char * destination, const char * source, uint64_t length)
         destination[i] = '\0';
     return destination;
 }
+
+uint64_t strlen(const char * str) {
+    uint64_t len = 0;
+    while (str[len] != '\0') {
+        len++;
+    }
+    return len;
+}
+
+int64_t satoi(char *str) {
+  uint64_t i = 0;
+  int64_t res = 0;
+  int8_t sign = 1;
+
+  if (!str)
+    return 0;
+
+  if (str[i] == '-') {
+    i++;
+    sign = -1;
+  }
+
+  for (; str[i] != '\0'; ++i) {
+    if (str[i] < '0' || str[i] > '9')
+      return 0;
+    res = res * 10 + str[i] - '0';
+  }
+
+  return res * sign;
+}
+
+char* itoa(int64_t value, char* str, int base) {
+    // Handle negative numbers
+    int isNegative = 0;
+    if (value < 0 && base == 10) {
+        isNegative = 1;
+        value = -value;
+    }
+
+    // Handle 0 explicitly
+    if (value == 0) {
+        str[0] = '0';
+        str[1] = '\0';
+        return str;
+    }
+
+    // Process individual digits
+    int i = 0;
+    while (value > 0) {
+        int digit = value % base;
+        str[i++] = (digit > 9) ? (digit - 10) + 'a' : digit + '0';
+        value = value / base;
+    }
+
+    // Add negative sign if needed
+    if (isNegative) {
+        str[i++] = '-';
+    }
+
+    // Reverse the string
+    str[i] = '\0';
+    int start = 0;
+    int end = i - 1;
+    while (start < end) {
+        char temp = str[start];
+        str[start] = str[end];
+        str[end] = temp;
+        start++;
+        end--;
+    }
+
+    return str;
+}
+

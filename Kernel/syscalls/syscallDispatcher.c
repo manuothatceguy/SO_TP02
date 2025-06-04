@@ -38,13 +38,14 @@ static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
         return writePipe(0, buff, length);
         break;
       case 1: // stdout
+        // For foreground processes, write directly to screen
         for(int i = 0; i < length; i++)
-          putChar(buff[i],0x00FFFFFF); // blanco
-        return length; // no error
+            putChar(buff[i], 0x00FFFFFF);
+        return length;
         break;
       case 2: // stderr
         for(int i = 0; i < length; i++)
-          putChar(buff[i],0x00FF0000); // rojo
+            putChar(buff[i], 0x00FF0000); // rojo
         return length; 
         break;
       default: // pipe

@@ -126,7 +126,7 @@ int getInstruction(char * arguments){
     return iNum;
 }
 
-void shell() {
+uint64_t shell(uint64_t argc, char **argv) {
     syscall_clearScreen();
     syscall_sizeUpFont(1);
     printf("  Bienvenido a la shell\n\n");

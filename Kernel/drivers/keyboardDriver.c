@@ -1,8 +1,12 @@
 #include <keyboardDriver.h>
+#include <shared_structs.h>
+#include <stdint.h>
 #include <lib.h>
 #include <scheduler.h>
 #include <textModule.h>
 #include <pipes.h>
+#include <process.h>
+
 
 #define BUFFER_SIZE 1000
 #define CANT_SPECIAL_KEYS 9
@@ -95,7 +99,6 @@ ScanCode press_keys[] = {
     {0, 0}, 
     {0, 0}, 
     {0, 0}, 
-    {0, 0}, 
     {0, 0},
     {0, 0}, 
     {0, 0}, 
@@ -127,8 +130,6 @@ static char mayus = 0;
 //static char esc = 0;
 static char specialKey = 0;
 static char ctrlPressed = 0;
-
-static int stdin = -1;
 
 static char isAlpha(unsigned int key){
     return press_keys[key].ascii >= 'a' && press_keys[key].ascii <= 'z';
@@ -172,13 +173,10 @@ static void checkSpecialKeys(unsigned int key){
 }
 
 static void addToBuffer(unsigned int key){
-    if(stdin == -1){
-        stdin = createPipe();
-        if(stdin < 0){
-            return; // Error al crear el pipe
-        }
+    int stdin_fd = getProcessStdinOfForeground();
+    if(stdin_fd != -1) {
+        writePipe(stdin_fd, &key, 1);
     }
-    writePipe(stdin, &key, 1);
 }
 
 int bufferWrite(){
@@ -207,17 +205,19 @@ int bufferWrite(){
 }
 
 char getChar(){
-    if(stdin == -1){
-        stdin = createPipe();
-        if(stdin < 0){
-            return 0; // Error al crear el pipe
-        }
+    int stdin_fd = getCurrentProcessStdin();
+    if(stdin_fd == -1) {
+        return 0;
     }
+    
     char c = 0;
-    readPipe(0, &c, 1); 
+    readPipe(stdin_fd, &c, 1);
     return c;
 }
 
 void clear_buffer(){
-    clearPipe(0);
+    int stdin_fd = getCurrentProcessStdin();
+    if(stdin_fd != -1) {
+        clearPipe(stdin_fd);
+    }
 }

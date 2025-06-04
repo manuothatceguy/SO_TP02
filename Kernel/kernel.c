@@ -66,6 +66,38 @@ void idle(uint64_t argc, char **argv) {
 	}
 }
 
+// Test process to verify pipe communication
+void pipeTest(uint64_t argc, char **argv) {
+    int pipe_id = createPipe();
+    if (pipe_id < 0) {
+        printStr("Error creating pipe\n", RED);
+        return;
+    }
+
+    char test_msg[] = "Testing pipe communication...\n";
+    char read_buffer[100] = {0};
+
+    // Write to pipe
+    int written = writePipe(pipe_id, test_msg, strlen(test_msg));
+    if (written < 0) {
+        printStr("Error writing to pipe\n", RED);
+        return;
+    }
+
+    // Read from pipe
+    int read = readPipe(pipe_id, read_buffer, written);
+    if (read < 0) {
+        printStr("Error reading from pipe\n", RED);
+        return;
+    }
+
+    // Display what was read
+    printStr("Read from pipe: ", WHITE);
+    printStr(read_buffer, WHITE);
+
+    closePipe(pipe_id);
+}
+
 int feDeVida(uint64_t argc, char **argv) {
 	while(1) {
 		printStr("se me jijean\n", WHITE);
@@ -102,7 +134,14 @@ int main(){
 	//createProcess("feDeVida",(fnptr) feDeVida, 0, NULL, 1);
 	//char *feDeVida2Args[] = {"Hola mundo!\n", NULL};
 	//createProcess("feDeVida2", (fnptr) feDeVida2, 1, feDeVida2Args, 1);
-	createProcess("shell", (fnptr) sampleCodeModuleAddress, 0, NULL, 0, 1);
+	// Test pipe communication
+	//createProcess("pipeTest", (fnptr)pipeTest, 0, NULL, 1, 1);
+	// Crear pipe para stdin de la shell
+	int shell_stdin = createPipe();
+	char shell_stdin_str[8];
+	itoa(shell_stdin, shell_stdin_str, 10);
+	char *shell_args[] = { shell_stdin_str, NULL };
+	createProcess("shell", (fnptr) sampleCodeModuleAddress, 1, shell_args, 0, 1);
 	load_idt();
 	_sti();
 	while (1) {

@@ -8,6 +8,7 @@
 #include <textModule.h>
 #include <syscall.h>
 #include <debug.h>
+#include <pipes.h>
 
 #define QUANTUM 3
 #define MAX_PRIORITY 5 // agregar a limitaciones
@@ -31,6 +32,9 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
 static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) ;
 
 void initScheduler(fnptr idle) {
+    // Initialize pipe manager first
+    initPipeManager();
+    
     ProcessManagerADT list = createProcessManager();
     PCB* idleProcess = _createProcessPCB("idle", idle, 0, NULL, IDLE_PRIORITY, 0);
     setIdleProcess(list, idleProcess);
@@ -69,6 +73,8 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->pid = nextFreePid++;
     process->waitingForPid = -1;
     process->retValue = 0;     
+    process->fds.stdin = -1;   // Initialize file descriptors to -1
+    process->fds.stdout = -1;
 
     if (currentPid == -1) {
         process->parentPid = -1; 
@@ -88,6 +94,12 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->base += STACK_SIZE;
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
+
+    // Si es la shell, asignar el fd de stdin usando el argumento
+    if (process->pid == 0 && argc > 0 && arg != NULL && arg[0] != NULL) {
+        process->fds.stdin = satoi(arg[0]);
+    }
+
     if(priority != IDLE_PRIORITY) addProcess(processes, process, foreground);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
     return process;
@@ -352,5 +364,24 @@ int16_t copyProcess(PCB *dest, PCB *src) {
 	strncpy(dest->name, src->name, NAME_MAX_LENGTH);
 	dest->name[NAME_MAX_LENGTH - 1] = '\0'; 
     dest->retValue = src->retValue;
+    dest->fds.stdin = src->fds.stdin;
+    dest->fds.stdout = src->fds.stdout;
     return 0;
+}
+
+// Add new functions to access current process information
+int getCurrentProcessStdin() {
+    PCB* current = getCurrentProcess(processes);
+    return current ? current->fds.stdin : -1;
+}
+
+int getCurrentProcessStdout() {
+    PCB* current = getCurrentProcess(processes);
+    return current ? current->fds.stdout : -1;
+}
+
+// Devuelve el stdin del proceso foreground
+int getProcessStdinOfForeground() {
+    PCB* fg = getForegroundProcess(processes);
+    return fg ? fg->fds.stdin : -1;
 }

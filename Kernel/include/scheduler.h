@@ -23,6 +23,9 @@ uint64_t unblockProcessBySem(pid_t pid);
 
 PCB* getProcessInfo(uint64_t *cantProcesses);
 int16_t copyProcess(PCB *dest, PCB *src);
+int getCurrentProcessStdin();
+int getCurrentProcessStdout();
+int getProcessStdinOfForeground();
 // ... 
 
 #endif // SCHEDULER_H

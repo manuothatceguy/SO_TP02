@@ -182,22 +182,18 @@ uint64_t readLine(char *buff, uint64_t length) {
     char c;
     int i = 0;
     printf("|");
-    while ((c = getChar()) != '\n' && i < length - 1) { // -1 para dejar espacio para el null
+    while ((c = getChar()) != '\n' && i < length - 1) {
         if (c == '\b') {
             if (i > 0) {
                 i--;
-                printf("\b\b");
-                printf("|");
+                printf("\b \b");
             }
         } else if (c != 0) {
-            printf("\b");
             buff[i++] = c;
             printf("%c", c);
-            printf("|");
         }
     }
     buff[i] = 0;
-    printf("\b");
     printf("\n");
     return i;
 }

@@ -4,6 +4,7 @@
 #include <memoryManager.h>
 #include <debug.h>
 #include <queue.h>
+#include <pipes.h>
 
 typedef struct ProcessManagerCDT {
     PCB* foregroundProcess;
@@ -87,11 +88,22 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
         // Set new foreground process
         list->foregroundProcess = process;
         process->state = READY;
+        
+        // For foreground processes, use the same stdin as the shell
+        if (process->pid != 0) {  // If not the shell
+            process->fds.stdin = 0;  // Use pipe 0 (shell's stdin)
+            
+            // Create stdout pipe only for non-shell foreground processes
+            if (process->fds.stdout == -1) {
+                int stdout_fd = createPipe();
+                if(stdout_fd >= 0) {
+                    process->fds.stdout = stdout_fd;
+                }
+            }
+        }
     }
     enqueue(list->readyQueue, process);
 }
-
-
 
 void removeProcess(ProcessManagerADT list, pid_t pid) {
     if (list == NULL) {
@@ -291,4 +303,15 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
     process->retValue = retValue;
     process->state = state;
     return process;
+}
+
+// Add new function to get process I/O
+int getProcessStdin(ProcessManagerADT list, pid_t pid) {
+    PCB* process = getProcess(list, pid);
+    return process ? process->fds.stdin : -1;
+}
+
+int getProcessStdout(ProcessManagerADT list, pid_t pid) {
+    PCB* process = getProcess(list, pid);
+    return process ? process->fds.stdout : -1;
 }

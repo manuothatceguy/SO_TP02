@@ -34,12 +34,12 @@ typedef enum {
 
 typedef int pid_t;
 
-typedef struct PCB {
-    pid_t pid; 
+typedef struct {
+    pid_t pid;
     pid_t parentPid;
     pid_t waitingForPid;
-    uint8_t priority; 
-    ProcessState state; 
+    uint8_t priority;
+    ProcessState state;
     uint64_t rsp;
     uint64_t base;
     uint64_t rip;
