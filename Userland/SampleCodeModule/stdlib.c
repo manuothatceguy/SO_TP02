@@ -3,7 +3,7 @@
 #include <syscall.h>
 #include <stdint.h>
 
-#define MAX_LENGTH 1000
+#define MAX_LENGTH 2000
 #define MAX_INT_LENGTH 10
 #define STDIN 0
 #define STDOUT 1

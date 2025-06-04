@@ -4,6 +4,7 @@
 #include <test_functions.h>
 #include <shared_structs.h>
 #include "shell.h"
+#include <philo.h>
 
 #define CANT_REGISTERS 19
 #define BUFFER_SPACE 1000
@@ -49,7 +50,8 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - nice <pid> <new_prio>: cambia la prioridad de un proceso\n"
                 "    - wc: cuenta la cantidad de lineas del input\n"
                 "    - filter: filtra las vocales del input\n"
-                "    - test_malloc_free: test de malloc y free\n";
+                "    - test_malloc_free: test de malloc y free\n"
+                "    - philo: problema de los filosofos comensales\n";
 
 
 // Función auxiliar para parsear argumentos
@@ -528,4 +530,17 @@ void handle_test_malloc_free(char *arg) {
     printf("Estado de memoria después de free:\n");
     syscall_memInfo(&info);
     printf("Usada: %d, Libre: %d\n", info.used, info.free);
+}
+
+void handle_philo(char *arg) {
+    printf("Iniciando el problema de los filósofos comensales...\n");
+    
+    // Crear un nuevo proceso para ejecutar el test
+    pid_t pid = syscall_create_process("philo", (fnptr)startPhilo, 0, NULL, 1, 1);
+    
+    if (pid < 0) {
+        printf("Error al crear el proceso de filósofos\n");
+    } else {
+        printf("Proceso de filósofos creado con PID: %d\n", pid);
+    }
 }
