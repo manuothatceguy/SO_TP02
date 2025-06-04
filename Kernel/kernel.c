@@ -137,11 +137,7 @@ int main(){
 	// Test pipe communication
 	//createProcess("pipeTest", (fnptr)pipeTest, 0, NULL, 1, 1);
 	// Crear pipe para stdin de la shell
-	int shell_stdin = createPipe();
-	char shell_stdin_str[8];
-	itoa(shell_stdin, shell_stdin_str, 10);
-	char *shell_args[] = { shell_stdin_str, NULL };
-	createProcess("shell", (fnptr) sampleCodeModuleAddress, 1, shell_args, 0, 1);
+	createProcess("shell", (fnptr) sampleCodeModuleAddress, 0, NULL, 0, 1);
 	load_idt();
 	_sti();
 	while (1) {

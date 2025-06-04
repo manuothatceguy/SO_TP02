@@ -92,7 +92,6 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
         // For foreground processes, use the same stdin as the shell
         if (process->pid != 0) {  // If not the shell
             process->fds.stdin = 0;  // Use pipe 0 (shell's stdin)
-            
             // Create stdout pipe only for non-shell foreground processes
             if (process->fds.stdout == -1) {
                 int stdout_fd = createPipe();

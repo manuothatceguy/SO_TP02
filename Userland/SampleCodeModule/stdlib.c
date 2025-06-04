@@ -181,7 +181,6 @@ char getChar(){
 uint64_t readLine(char *buff, uint64_t length) {
     char c;
     int i = 0;
-    printf("|");
     while ((c = getChar()) != '\n' && i < length - 1) {
         if (c == '\b') {
             if (i > 0) {

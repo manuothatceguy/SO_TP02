@@ -96,8 +96,8 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
 
     // Si es la shell, asignar el fd de stdin usando el argumento
-    if (process->pid == 0 && argc > 0 && arg != NULL && arg[0] != NULL) {
-        process->fds.stdin = satoi(arg[0]);
+    if (process->pid == 0) {
+        process->fds.stdin = createPipe();
     }
 
     if(priority != IDLE_PRIORITY) addProcess(processes, process, foreground);
