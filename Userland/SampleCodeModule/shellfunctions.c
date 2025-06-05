@@ -216,25 +216,15 @@ void handle_test_processes(char * arg) {
         printf("Uso: test_processes <max_processes>\n");
         return;
     }
-
-    uint64_t max_processes = 0;
-    for (int i = 0; arg[i] != '\0'; i++) {
-        if (arg[i] >= '0' && arg[i] <= '9') {
-            max_processes = max_processes * 10 + (arg[i] - '0');
-        } else {
-            printf("Error: argumento invalido\n");
-            return;
-        }
-    }
-    
-    if (max_processes <= 0) {
-        printf("Error: max_processes debe ser mayor que 0\n");
+    printf("Iniciando test de procesos...\n");
+    char **argv = malloc(2 * sizeof(char*));
+    if (argv == NULL) {
+        printf("Error al asignar memoria para los argumentos\n");
         return;
     }
+    argv[0] = arg; // Asignar el argumento
+    argv[1] = NULL; // Terminar el array de argumentos
     
-    printf("Iniciando test de procesos...\n");
-    char *argv[] = { arg, NULL };
-
     pid_t pid = syscall_create_process("test_processes", (fnptr)test_processes, 1, argv, 1, 0);
     
     if (pid < 0) {
