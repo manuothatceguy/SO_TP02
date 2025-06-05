@@ -85,4 +85,6 @@ void free(void *ptr);
 
 int64_t satoi(char *str);
 
+int atoi(const char *str);
+
 #endif // STDLIB_H

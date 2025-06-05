@@ -29,20 +29,32 @@ typedef struct status {
 
 static PhyloProcess *phylo_status = NULL;
 
+static void test(int id) { // evita deadlock
+    // Un filósofo puede comer si state = hungry y sus vecinos no están comiendo
+    if (phylo_status->philosophers[id]->state == HUNGRY &&
+        phylo_status->philosophers[(id + phylo_status->philosopherCount - 1) % phylo_status->philosopherCount]->state != EATING &&
+        phylo_status->philosophers[(id + 1) % phylo_status->philosopherCount]->state != EATING) {
+        
+        phylo_status->philosophers[id]->state = EATING;
+        syscall_sem_post(phylo_status->forks[id]);
+        syscall_sem_post(phylo_status->forks[(id + 1) % phylo_status->philosopherCount]);
+    }
+}
+
 static void take_forks(int id) {
     syscall_sem_wait(phylo_status->mutex_sem);
     
     //Hambre
     phylo_status->philosophers[id]->state = HUNGRY;
     
-    //espero para tomar tenedores
-    syscall_sem_wait(phylo_status->forks[id]);  
-    syscall_sem_wait(phylo_status->forks[(id + 1) % phylo_status->philosopherCount]);  
-    
-    //comiendo
-    phylo_status->philosophers[id]->state = EATING;
+    // Testear si puede comer
+    test(id);
     
     syscall_sem_post(phylo_status->mutex_sem);
+    
+    // Esperar por los tenedores
+    syscall_sem_wait(phylo_status->forks[id]);
+    syscall_sem_wait(phylo_status->forks[(id + 1) % phylo_status->philosopherCount]);
 }
 
 static void put_forks(int id) {
@@ -55,34 +67,53 @@ static void put_forks(int id) {
     syscall_sem_post(phylo_status->forks[id]);  
     syscall_sem_post(phylo_status->forks[(id + 1) % phylo_status->philosopherCount]);  
     
+    // Testear a los vecinos después de soltar los tenedores
+    test((id + phylo_status->philosopherCount - 1) % phylo_status->philosopherCount);
+    test((id + 1) % phylo_status->philosopherCount);
+    
     //libero mutex
     syscall_sem_post(phylo_status->mutex_sem);
 }
 
-static void philosopher(uint64_t argc, char **argv) {
+static void print_state(void) {
+    syscall_sem_wait(phylo_status->mutex_sem);
+    
+    for (int i = 0; i < phylo_status->philosopherCount; i++) {
+        if (phylo_status->philosophers[i] != NULL) {
+            printf("%c ", phylo_status->philosophers[i]->state == EATING ? 'E' : '.');
+        }
+    }
+    printf("\n");
+    
+    syscall_sem_post(phylo_status->mutex_sem);
+}
+
+static uint64_t philosopher(uint64_t argc, char **argv) {
     if (argc != 1) {
         syscall_exit();
-        return;
+        return 1;
     }
     
     int id = atoi(argv[0]);
     if (id < 0 || id >= phylo_status->philosopherCount) {
         syscall_exit();
-        return;
+        return 1;
     }
     
     while (1) {
         // Think
         phylo_status->philosophers[id]->state = THINKING;
-        printf("Philosopher %d is thinking\n", id);
-        syscall_wait(THINKING_TIME);
+        syscall_wait(TIME);
         
         // Get hungry and eat
         take_forks(id);
-        printf("Philosopher %d is eating\n", id);
-        syscall_wait(EATING_TIME);
+        phylo_status->philosophers[id]->state = EATING;
+        printState();
+        syscall_wait(TIME);
         put_forks(id);
     }
+    
+    return 0;  // Nunca llegará aquí por el while(1)
 }
 
 static void init_philosophers(uint64_t count) {
@@ -181,12 +212,12 @@ static void init_philosophers(uint64_t count) {
 }
 
 uint64_t phylo(uint64_t argc, char **argv) {
-    if (argc != 2) {
+    if (argc != 1) {
         printf("Uso: philo <max_number>\n");
         return 1;
     }
     
-    uint64_t count = atoi(argv[1]);
+    uint64_t count = atoi(argv[0]);
     if (count <= 0 || count > MAX_PHILOSOPHERS) {
         printf("El número de filósofos debe estar entre 1 y %d\n", MAX_PHILOSOPHERS);
         return 1;
@@ -197,12 +228,6 @@ uint64_t phylo(uint64_t argc, char **argv) {
     if (phylo_status == NULL) {
         printf("Error al inicializar los filósofos\n");
         return 1;
-    }
-    
-    // Wait for all philosophers to finish (they won't in this case as they run forever)
-    for (int i = 0; i < count; i++) {
-        int32_t status;
-        syscall_waitpid(phylo_status->philosophers[i]->pid, &status);
     }
     
     return 0;
