@@ -11,8 +11,6 @@ typedef struct SemaphoreCDT {
 
 SemaphoreADT manager = NULL;
 
-static SemaphoreADT getSemManager();
-
 #define validateid(id) \
     do{ \
         if (id < 0 || id >= NUM_SEMS) { \
@@ -22,11 +20,15 @@ static SemaphoreADT getSemManager();
     
 
 SemaphoreADT semManager(){
-    manager = (SemaphoreADT)(void*)allocMemory(sizeof(SemaphoreCDT));
+    manager = allocMemory(sizeof(SemaphoreCDT));
+    if (manager == NULL) {
+        return NULL;
+    }
 
     for (int i = 0; i < NUM_SEMS; i++) {
         manager->semaphores[i].value = 0;
         manager->semaphores[i].lock = 0;
+        manager->semaphores[i].used = 0;
         manager->semaphores[i].blocked = createQueue();
 
         if (manager->semaphores[i].blocked == NULL) {
@@ -41,7 +43,6 @@ SemaphoreADT semManager(){
 int semInit (int id, uint32_t value) {
     validateid(id);
 
-    SemaphoreADT manager = getSemManager();
     if( ! manager->semaphores[id].used ) {
         manager->semaphores[id].value = value;
         manager->semaphores[id].lock = 0;
@@ -53,7 +54,6 @@ int semInit (int id, uint32_t value) {
 
 int semOpen (int id) {
     validateid(id);
-    SemaphoreADT manager = getSemManager();
     if ( ! manager->semaphores[id].used == 0 ) {
         return 0;
     }
@@ -62,7 +62,6 @@ int semOpen (int id) {
 
 int semClose(int id) {
     validateid(id);
-	SemaphoreADT manager = getSemManager();
 	if (! manager->semaphores[id].used) {
 		return -1;
     }
@@ -73,17 +72,11 @@ int semClose(int id) {
     return 0;
 }
 
-static SemaphoreADT getSemManager() {
-    return manager;
-}
-
 int semWait (int id) {
-    SemaphoreADT manager = getSemManager();
     return wait(&manager->semaphores[id]);
 }
 
 int semPost (int id) {
-    SemaphoreADT manager = getSemManager();
     return post(&manager->semaphores[id]);
 }
 

@@ -129,7 +129,10 @@ int main(){
 	// MEMORY MANAGER
 	createMemoryManager();
 	initScheduler(idle);
-	semManager();
+	if(semManager() == NULL) {
+		printStr("Error initializing semaphore manager\n", RED);
+		return -1;
+	}
 	//createProcess("idle", &idle, 0, NULL, -1);
 	//createProcess("feDeVida",(fnptr) feDeVida, 0, NULL, 1);
 	//char *feDeVida2Args[] = {"Hola mundo!\n", NULL};

@@ -157,7 +157,7 @@ void *allocMemory(const size_t memoryToAllocate) {
     DEBUG_PRINT("Bloque asignado\n", DEBUG_COLOR);
     
     // Calcular y retornar la dirección de memoria después del header
-    memoryManager->usedMemory += (1ULL << block->level);
+    memoryManager->usedMemory += (1ULL << level);
     DEBUG_PRINT("[allocMemory] Memoria usada: ", DEBUG_COLOR);
     DEBUG_PRINT_INT(memoryManager->usedMemory, DEBUG_COLOR);
     DEBUG_PRINT(" / ", DEBUG_COLOR);

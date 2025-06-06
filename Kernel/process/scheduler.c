@@ -96,8 +96,13 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
 
     // Si es la shell, asignar el fd de stdin usando el argumento
-    if (process->pid == 0) {
+    if (process->pid == 1) {
         process->fds.stdin = createPipe();
+        if( process->fds.stdin < 0) {
+            freeMemory((void*)process->base - STACK_SIZE); // libera el stack
+            freeMemory(process);
+            return NULL; // Error al crear pipe
+        }
     }
 
     if(priority != IDLE_PRIORITY) addProcess(processes, process, foreground);
@@ -122,7 +127,6 @@ uint64_t schedule(uint64_t rsp){
     if(currentProcess == NULL) {
         PCB* nextProcess = getNextProcess(processes);
         if (nextProcess == NULL) {
-            quantum = calculateQuantum(IDLE_PRIORITY);
             if(!first){
                 return currentProcess->rsp = rsp;
             }

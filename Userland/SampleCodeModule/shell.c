@@ -96,11 +96,11 @@ int verifyInstruction(char * instruction){
 }
 
 int getInstruction(char * arguments){
-    char shell_buffer[BUFFER_SPACE] = {0};
+    char * shell_buffer[] = malloc(BUFFER_SPACE * sizeof(char));
     readLine(shell_buffer, BUFFER_SPACE);
     int i = 0;
     int j = 0;
-    char instruction[BUFFER_SPACE] = {0};
+    char * instruction = malloc(BUFFER_SPACE * sizeof(char));
     
     for(; i < BUFFER_SPACE; i++){
         if(shell_buffer[i] == ' ' || shell_buffer[i] == '\0'){
@@ -119,13 +119,14 @@ int getInstruction(char * arguments){
         arguments[arg_index++] = shell_buffer[i++];
     }
     arguments[arg_index] = '\0';
+    free(shell_buffer);
 
     int iNum = 0;
     if((iNum = verifyInstruction(instruction)) == -1 && instruction[0] != 0){
         printferror("Comando no reconocido: %s\n", instruction);
         free(arguments);
-        return -1;
     }
+    free(instruction);
     return iNum;
 }
 

@@ -217,8 +217,6 @@ PCB* getProcess(ProcessManagerADT list, pid_t pid){
 }
 
 PCB* getNextProcess(ProcessManagerADT list){
-    list->currentProcess = NULL; // reset
-    
     if(list == NULL) {
         return NULL;   
     }

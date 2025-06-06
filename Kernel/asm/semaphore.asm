@@ -8,7 +8,7 @@ acquire:
 .retry:
     xchg [rdi], al
     test al, al
-    jz .retry
+    jnz .retry
     ret
 
 release:
