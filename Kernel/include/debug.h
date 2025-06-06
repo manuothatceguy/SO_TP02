@@ -2,6 +2,7 @@
 #define _DEBUG_H
 
 #include <defs.h>
+#include <textModule.h>
 
 // Debug flag - set to 1 to enable debug prints, 0 to disable
 #define DEBUG_MODE 0

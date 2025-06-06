@@ -30,11 +30,11 @@ int hasPid(void* a, void*b){ // a es el proceso, b es el pid. el signature es as
     pid_t* pid = (pid_t*)b;
     
     // Debug print
-    printStr("Comparing PID in hasPid - Process PID: ", 0x00FFFFFF);
-    printInt(processA->pid, 0x00FFFFFF);
-    printStr(" vs Target PID: ", 0x00FFFFFF);
-    printInt(*pid, 0x00FFFFFF);
-    printStr("\n", 0x00FFFFFF);
+    DEBUG_PRINT("Comparing PID in hasPid - Process PID: ", 0x00FFFFFF);
+    DEBUG_PRINT_INT(processA->pid, 0x00FFFFFF);
+    DEBUG_PRINT(" vs Target PID: ", 0x00FFFFFF);
+    DEBUG_PRINT_INT(*pid, 0x00FFFFFF);
+    DEBUG_PRINT("\n", 0x00FFFFFF);
     
     return (processA->pid == *pid) ? 0 : -1;
 }
@@ -80,13 +80,18 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
     if(list == NULL || process == NULL) {
         return;
     }
+
+    if(list->currentProcess == list->idleProcess) {
+        list->currentProcess = process; // Set the first process as current
+    }
+
     
     if(foreground) {
         // Set new foreground process
         list->foregroundProcess = process;
         
         // For foreground processes, use the same stdin as the shell
-        if (process->pid != 0) {  // If not the shell
+        if (process->pid > 1) {  // If not the shell
             process->fds.stdin = 0;  // Use pipe 0 (shell's stdin)
             // Create stdout pipe only for non-shell foreground processes
             if (process->fds.stdout == -1) {
@@ -284,7 +289,7 @@ PCB* getIdleProcess(ProcessManagerADT list) {
 }
 
 uint64_t getProcessCount(ProcessManagerADT list) {
-    return list ? queueSize(list->readyQueue) + queueSize(list->blockedQueue) + queueSize(list->zombieQueue) : 0;
+    return list ? queueSize(list->readyQueue) + queueSize(list->blockedQueue) + queueSize(list->zombieQueue) + queueSize(list->blockedQueueBySem) + 1 : 0; //counts idle
 }
 
 uint64_t countReadyProcesses(ProcessManagerADT list) {

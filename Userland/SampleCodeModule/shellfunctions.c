@@ -244,7 +244,7 @@ void handle_test_processes(char * arg) {
     create_process_and_wait("test_processes", (fnptr)test_processes, 1, argv, 1, 0);
     
     // Liberar la memoria después de crear el proceso
-    free(argv);
+    //free(argv);
 }
 
 void handle_test_prio(char * arg) {
@@ -309,7 +309,7 @@ void handle_test_sync(char * arg) {
     char *argv[] = { iterations, processes, NULL };
     
     // Crear un nuevo proceso para ejecutar el test
-    create_process_and_wait("test_sync", (fnptr)test_sync, 2, argv, 1, 0);
+    create_process_and_wait("test_sync", (fnptr)test_sync, 2, argv, 1, 1);
 }
 
 static void printProcessInfo(PCB processInfo) {

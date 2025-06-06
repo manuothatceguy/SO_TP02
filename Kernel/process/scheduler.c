@@ -24,7 +24,7 @@ uint64_t calculateQuantum(uint8_t priority) {
 
 static ProcessManagerADT processes = NULL;              
 static pid_t currentPid = -1;   
-static pid_t nextFreePid = 0; // 0 es el idle!
+static pid_t nextFreePid = 0; // PID 0 será asignado al proceso idle, PID 1 será la shell
 static uint64_t quantum = 0;    
 
 // Declaración de función interna
@@ -218,7 +218,7 @@ uint64_t unblockProcessBySem(pid_t pid) {
 }
 
 uint64_t kill(pid_t pid){
-    if (pid == 0) { // Can't kill shell
+    if (pid <= 1) { // Can't kill shell or idle
         return -1;
     }
     //child->retValue es: (pid == getCurrentPid()) ? EXITED : KILLED; // si es el actual sale, sino es xq lo mataron
@@ -365,22 +365,17 @@ PCB* getProcessInfo(uint64_t *cantProcesses){
         *cantProcesses = 0;
         return NULL;
     }
-
-    int found = 0;
-    pid_t pid = 0; 
     
-    for (uint64_t i = 0; found < count; i++) {
-        PCB* process = getProcess(processes, pid);
+    for (uint64_t i = 0; i < count; i++) {
+        PCB* process = getProcess(processes, i);
         if (process != NULL) {
 
-            if (copyProcess(&processInfo[found], process) == -1) {
+            if (copyProcess(&processInfo[i], process) == -1) {
                 freeMemory(processInfo);
                 *cantProcesses = 0;
                 return NULL;
             }
-            found++;
         } 
-        pid++;
     }
 
     *cantProcesses = count;
