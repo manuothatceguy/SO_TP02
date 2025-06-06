@@ -96,7 +96,7 @@ int verifyInstruction(char * instruction){
 }
 
 int getInstruction(char * arguments){
-    char * shell_buffer[] = malloc(BUFFER_SPACE * sizeof(char));
+    char * shell_buffer = malloc(BUFFER_SPACE * sizeof(char));
     readLine(shell_buffer, BUFFER_SPACE);
     int i = 0;
     int j = 0;

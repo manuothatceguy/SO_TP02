@@ -64,4 +64,6 @@ int64_t my_sem_close(char *sem_id);
 int64_t my_yield();
 int64_t my_wait(int64_t pid);
 
+pid_t syscall_waitpid(pid_t pid, int32_t* status);
+
 #endif

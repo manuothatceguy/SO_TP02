@@ -73,19 +73,7 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
         list->currentProcess = process; // Set the first process as current
     }
     if(foreground) {
-        // If there's a current foreground process, block it and make it wait for the new one
-        if(list->foregroundProcess != NULL) {
-            PCB* oldForeground = list->foregroundProcess;
-            // Remove from current queue if it exists
-            removeFromQueue(list->readyQueue, &oldForeground->pid, hasPid);
-            removeFromQueue(list->blockedQueue, &oldForeground->pid, hasPid);
-            removeFromQueue(list->blockedQueueBySem, &oldForeground->pid, hasPid);
-            // Add to blocked queue and set it to wait for the new process
-            enqueue(list->blockedQueue, oldForeground);
-            oldForeground->state = BLOCKED;
-            oldForeground->waitingForPid = process->pid;
-        }
-        // Set new foreground process
+        // Set new foreground process (blocking is now handled in scheduler.c)
         list->foregroundProcess = process;
         process->state = READY;
         

@@ -54,6 +54,29 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - philo: problema de los filosofos comensales\n";
 
 
+// Wrapper para crear procesos y manejar waitpid automáticamente
+static pid_t create_process_and_wait(char *name, fnptr function, uint64_t argc, char **argv, uint8_t priority, char foreground) {
+    // Crear el proceso
+    pid_t pid = syscall_create_process(name, function, argc, argv, priority, foreground);
+    
+    if (pid < 0) {
+        printf("Error al crear el proceso %s\n", name);
+        return -1;
+    }
+    
+    printf("Proceso %s creado con PID: %d\n", name, pid);
+    
+    // Si es foreground, esperar a que termine
+    if (foreground) {
+        int waited_pid = syscall_waitpid(pid, NULL);
+        if (waited_pid == pid) {
+            printf("Proceso %s (PID: %d) terminó\n", name, pid);
+        }
+    }
+    
+    return pid;
+}
+
 // Función auxiliar para parsear argumentos
 static int parse_arguments(char *arg, char **args, int max_args, int max_size) {
     if (arg == NULL || arg[0] == '\0') {
@@ -196,19 +219,12 @@ void handle_test_mm(char * arg) {
     }
     argv[0] = arg; // Asignar el argumento
     argv[1] = NULL; // Terminar el array de argumentos
-    printf("arg: %s\n", arg);
-    printf("Direccion de test_mm: %p\n", (uint64_t*)test_mm);
-    // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, 1, argv, 1, 0);
-
-    if (pid < 0) {
-        printf("Error al crear el proceso de test\n");
-    } else {
-        printf("Proceso de test creado con PID: %d\n", pid);
-    }
+    
+    // Crear un nuevo proceso para ejecutar el test (background porque es test)
+    create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 0);
     
     // Liberar la memoria después de crear el proceso
-    free(argv);
+    //free(argv);
 }
 
 void handle_test_processes(char * arg) {
@@ -225,13 +241,10 @@ void handle_test_processes(char * arg) {
     argv[0] = arg; // Asignar el argumento
     argv[1] = NULL; // Terminar el array de argumentos
     
-    pid_t pid = syscall_create_process("test_processes", (fnptr)test_processes, 1, argv, 1, 0);
+    create_process_and_wait("test_processes", (fnptr)test_processes, 1, argv, 1, 0);
     
-    if (pid < 0) {
-        printf("Error al crear el proceso de test\n");
-    } else {
-        printf("Proceso de test creado con PID: %d\n", pid);
-    }
+    // Liberar la memoria después de crear el proceso
+    free(argv);
 }
 
 void handle_test_prio(char * arg) {
@@ -239,13 +252,7 @@ void handle_test_prio(char * arg) {
     char *argv[] = { NULL };
     
     // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("test_prio", (fnptr)test_prio, 0, argv, 1, 1);
-    
-    if (pid < 0) {
-        printf("Error al crear el proceso de test\n");
-    } else {
-        printf("Proceso de test creado con PID: %d\n", pid);
-    }
+    create_process_and_wait("test_prio", (fnptr)test_prio, 0, argv, 1, 1);
 }
 
 void handle_test_sync(char * arg) {
@@ -302,13 +309,7 @@ void handle_test_sync(char * arg) {
     char *argv[] = { iterations, processes, NULL };
     
     // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, 2, argv, 1, 0);
-    
-    if (pid < 0) {
-        printf("Error al crear el proceso de test\n");
-    } else {
-        printf("Proceso de test creado con PID: %d\n", pid);
-    }
+    create_process_and_wait("test_sync", (fnptr)test_sync, 2, argv, 1, 0);
 }
 
 static void printProcessInfo(PCB processInfo) {
@@ -393,11 +394,10 @@ void handle_loop(char * arg) {
     argv[0] = arg;
     argv[1] = NULL;
     
-    pid_t pid = syscall_create_process("loop", (fnptr)loop, 1, argv, 1, 1);
-
-    if (pid < 0) {
-        printf("Error al crear el proceso de loop\n");
-    }
+    create_process_and_wait("loop", (fnptr)loop, 1, argv, 1, 1);
+    
+    // Liberar memoria
+    //free(argv);
 }
 
 static void wc(uint64_t argc, char *argv[]) {
@@ -445,20 +445,12 @@ static void filter(uint64_t argc, char *argv[]) {
 
 void handle_wc(char * arg) {
     char *argv[] = { NULL };
-    pid_t pid = syscall_create_process("wc", (fnptr)wc, 0, argv, 1, 1);
-    
-    if (pid < 0) {
-        printf("Error al crear el proceso wc\n");
-    }
+    create_process_and_wait("wc", (fnptr)wc, 0, argv, 1, 1);
 }
 
 void handle_filter(char * arg) {
     char *argv[] = { NULL };
-    pid_t pid = syscall_create_process("filter", (fnptr)filter, 0, argv, 1, 1);
-    
-    if (pid < 0) {
-        printf("Error al crear el proceso filter\n");
-    }
+    create_process_and_wait("filter", (fnptr)filter, 0, argv, 1, 1);
 }
 
 void handle_nice(char * arg) {
@@ -526,11 +518,5 @@ void handle_philo(char *arg) {
     printf("Iniciando el problema de los filósofos comensales...\n");
     
     // Crear un nuevo proceso para ejecutar el test
-    pid_t pid = syscall_create_process("philo", (fnptr)startPhilo, 0, NULL, 1, 1);
-    
-    if (pid < 0) {
-        printf("Error al crear el proceso de filósofos\n");
-    } else {
-        printf("Proceso de filósofos creado con PID: %d\n", pid);
-    }
+    create_process_and_wait("philo", (fnptr)startPhilo, 0, NULL, 1, 1);
 }
