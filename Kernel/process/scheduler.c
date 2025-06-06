@@ -97,7 +97,7 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
 
-    // Si es la shell, asignar el fd de stdin usando el argumento
+    // Si es la shell asignamos el fd de stdin
     if (process->pid == 1) {
         process->fds.stdin = createPipe();
         if( process->fds.stdin < 0) {
@@ -129,32 +129,19 @@ uint64_t schedule(uint64_t rsp){
 
     // Si hay un proceso foreground que no está en ninguna cola, 
     // significa que recién fue creado y el padre ya debió hacer waitpid
-    if (foregroundProcess != NULL && !isInAnyQueue(processes, foregroundProcess->pid)) {
-        addToReadyQueue(processes, foregroundProcess);
-    }
+    // if (foregroundProcess != NULL && !isInAnyQueue(processes, foregroundProcess->pid)) {
+    //     addToReadyQueue(processes, foregroundProcess);
+    // }
 
-    if(currentProcess == NULL) {
-        PCB* nextProcess = getNextProcess(processes);
-        if (nextProcess == NULL) {
-            if(!first){
-                return currentProcess->rsp = rsp;
-            }
-            first = 0;
-            return ((PCB*)getIdleProcess(processes))->rsp;
-        }
-        nextProcess->state = RUNNING;
-        currentPid = nextProcess->pid;
-        quantum = calculateQuantum(nextProcess->priority);
-        return nextProcess->rsp;
-    }
+   
     
     // If current process is foreground, give it priority
-    if(isForegroundProcess(processes, currentProcess->pid)) {
-        if(currentProcess->state == RUNNING) {
-            quantum--;
-            return rsp;
-        }
-    }
+    // if(isForegroundProcess(processes, currentProcess->pid)) {
+    //     if(currentProcess->state == RUNNING) {
+    //         quantum--;
+    //         return rsp;
+    //     }
+    // }
 
     if(quantum > 0 && currentProcess->state == RUNNING) {
         quantum--;
@@ -173,6 +160,9 @@ uint64_t schedule(uint64_t rsp){
         first = 0;
         return ((PCB*)getIdleProcess(processes))->rsp;
     }
+    if(isForegroundProcess(nextProcess)) {
+        setForegroundProcess(processes, nextProcess);
+    }
 
     DEBUG_PRINT("Switching to process: ", 0x00FFFFFF);
     DEBUG_PRINT(nextProcess->name, 0x00FFFFFF);
@@ -188,9 +178,9 @@ uint64_t blockProcess (pid_t pid) {
     if(blockProcessQueue(processes, pid) != 0){
         return -1;
     }
-    if (pid == getCurrentPid()) { // si el proceso bloqueado es el actual se renuncia al cpu con interrupción 
-        yield(); 
-    }
+    // if (pid == getCurrentPid()) { // si el proceso bloqueado es el actual se renuncia al cpu con interrupción 
+    //     yield(); 
+    // }
     return 0; 
 }
 
@@ -206,7 +196,7 @@ uint64_t blockProcessBySem(pid_t pid) {
 
 void yield() {
     quantum = 0; // siguiente!!
-    callTimerTick();
+    //callTimerTick();
 }
 
 uint64_t unblockProcess(pid_t pid){
@@ -229,7 +219,8 @@ uint64_t kill(pid_t pid){
     freeMemory((void*)process->base - STACK_SIZE); // libera el stack
     wakeupWaitingParent(process->parentPid, pid);
     if (pid == currentPid) {
-        yield();
+        quantum = 0;
+        callTimerTick();
     }
     return 0;
 }
@@ -256,9 +247,9 @@ static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
 }
 
 // Función auxiliar para reapear
-int32_t reapChild(PCB* child, int32_t* status) {
-    if (status != NULL) {
-        *status = child->retValue;
+int32_t reapChild(PCB* child, int32_t* retValue) {
+    if (retValue != NULL) {
+        *retValue = child->retValue;
     }
     
     int32_t childPid = child->pid;
@@ -275,7 +266,7 @@ int32_t reapChild(PCB* child, int32_t* status) {
     return childPid;
 }
 
-int32_t waitpid(pid_t pid, int32_t* status) {
+int32_t waitpid(pid_t pid, int32_t* retValue) {
     pid_t currentProcPid = getCurrentPid();
     
     DEBUG_PRINT("waitpid: Current PID ", 0x00FFFFFF);
@@ -303,7 +294,7 @@ int32_t waitpid(pid_t pid, int32_t* status) {
     // Si el proceso ya está ZOMBIE, reapear inmediatamente
     if (target->state == ZOMBIE) {
         current->waitingForPid = -1;
-        return reapChild(target, status);
+        return reapChild(target, retValue);
     }
     
     // Si el proceso aún está corriendo, BLOQUEAR al proceso actual
@@ -331,7 +322,7 @@ int32_t waitpid(pid_t pid, int32_t* status) {
         
         if (target->state == ZOMBIE) {
             current->waitingForPid = -1;
-            return reapChild(target, status);
+            return reapChild(target, retValue);
         }
     }
     

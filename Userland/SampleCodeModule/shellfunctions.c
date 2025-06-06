@@ -68,7 +68,8 @@ static pid_t create_process_and_wait(char *name, fnptr function, uint64_t argc, 
     
     // Si es foreground, esperar a que termine
     if (foreground) {
-        int waited_pid = syscall_waitpid(pid, NULL);
+        int status = 0;
+        int waited_pid = syscall_waitpid(pid, &status);
         if (waited_pid == pid) {
             printf("Proceso %s (PID: %d) terminó\n", name, pid);
         }

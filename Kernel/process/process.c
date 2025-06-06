@@ -87,29 +87,17 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
 
     
     if(foreground) {
-        // Set new foreground process
-        list->foregroundProcess = process;
         
         // For foreground processes, use the same stdin as the shell
         if (process->pid > 1) {  // If not the shell
             process->fds.stdin = 0;  // Use pipe 0 (shell's stdin)
-            // Create stdout pipe only for non-shell foreground processes
-            if (process->fds.stdout == -1) {
-                int stdout_fd = createPipe();
-                if(stdout_fd >= 0) {
-                    process->fds.stdout = stdout_fd;
-                }
-            }
         }
-        
-        // Para procesos foreground, los ponemos en READY pero no los encolamos todavía
-        // Esto da tiempo al padre para hacer waitpid
-        process->state = READY;
-        return;  // No encolamos aún, el scheduler lo hará cuando sea apropiado
     }
     
     // Los procesos background van directo a la cola
+    process->state = READY;
     enqueue(list->readyQueue, process);
+    return;
 }
 
 void removeProcess(ProcessManagerADT list, pid_t pid) {
@@ -284,6 +272,12 @@ void setIdleProcess(ProcessManagerADT list, PCB* idleProcess) {
     }
 }
 
+void setForegroundProcess(ProcessManagerADT list, PCB* foregroundProcess) {
+    if (list != NULL){
+        list->foregroundProcess = foregroundProcess; 
+    }
+}
+
 PCB* getIdleProcess(ProcessManagerADT list) {
     return list ? list->idleProcess : NULL;
 }
@@ -306,8 +300,12 @@ PCB* getForegroundProcess(ProcessManagerADT list) {
     return list ? list->foregroundProcess : NULL;
 }
 
-char isForegroundProcess(ProcessManagerADT list, pid_t pid) {
+char isCurrentForegroundProcess(ProcessManagerADT list, pid_t pid) {
     return list && list->foregroundProcess && list->foregroundProcess->pid == pid;
+}
+
+char isForegroundProcess(PCB* process) {
+    return process && process->fds.stdin == 0;
 }
 
 PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessState state) {

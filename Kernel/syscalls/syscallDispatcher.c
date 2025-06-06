@@ -198,12 +198,12 @@ void syscall_yield() {
     yield();
 }
 
-pid_t syscall_waitpid(pid_t pid, int32_t* status) {
-    if(pid < 0 || status == NULL) {
+pid_t syscall_waitpid(pid_t pid, int32_t* retValue) {
+    if(pid < 0 || retValue == NULL) {
         return -1;
     }
     printStr("waitpid\n", 0x000000FF );
-    return waitpid(pid, status);
+    return waitpid(pid, retValue);
 }
 
 int syscall_open_pipe() {

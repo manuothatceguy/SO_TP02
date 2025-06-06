@@ -73,10 +73,10 @@ uint64_t kill(pid_t pid);
 /**
  * @brief Waits for a process to terminate
  * @param pid Process ID to wait for
- * @param status Pointer to store exit status
+ * @param retValue Pointer to store exit status
  * @return pid_t Process ID that was waited for or -1 on failure
  */
-pid_t waitpid(pid_t pid, int32_t* status);
+pid_t waitpid(pid_t pid, int32_t* retValue);
 
 /**
  * @brief Changes process priority
