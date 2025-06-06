@@ -108,7 +108,7 @@ static uint64_t philosopher(uint64_t argc, char **argv) {
         // Get hungry and eat
         take_forks(id);
         phylo_status->philosophers[id]->state = EATING;
-        printState();
+        print_state();
         syscall_wait(TIME);
         put_forks(id);
     }
