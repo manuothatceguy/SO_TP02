@@ -1,4 +1,4 @@
-#include <semaphore.h>
+#include "../include/semaphore.h"
 #include <stddef.h>
 #include <memoryManager.h>
 #include <queue.h>

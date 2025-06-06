@@ -72,6 +72,20 @@ int strcmp(const char *s1, const char *s2){
     return *s1 - *s2;
 }
 
+int checkNumber(char *str){
+    if (str == NULL || *str == '\0') return 0; 
+
+    if (*str == '-' || *str == '+') str++; // Skip sign
+
+    if (*str == '\0') return 0; // Just a sign is not a number
+
+    while (*str) {
+        if (*str < '0' || *str > '9') return 0; // Non-digit character found
+        str++;
+    }
+    return 1; // All characters are digits
+}
+
 // Parameters
 int64_t satoi(char *str) {
   uint64_t i = 0;

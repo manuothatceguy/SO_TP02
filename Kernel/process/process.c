@@ -81,23 +81,18 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
         return;
     }
 
-    if(list->currentProcess == list->idleProcess) {
-        list->currentProcess = process; // Set the first process as current
+    if(list->currentProcess == NULL || list->currentProcess == list->idleProcess) {
+        list->currentProcess = process; // Setea idle y luego la shell como current
     }
 
     
     if(foreground) {
-        
         // For foreground processes, use the same stdin as the shell
         if (process->pid > 1) {  // If not the shell
             process->fds.stdin = 0;  // Use pipe 0 (shell's stdin)
         }
     }
-    
-    // Los procesos background van directo a la cola
-    process->state = READY;
     enqueue(list->readyQueue, process);
-    return;
 }
 
 void removeProcess(ProcessManagerADT list, pid_t pid) {
@@ -255,6 +250,9 @@ PCB* getNextProcess(ProcessManagerADT list){
     }
     
     list->currentProcess = nextProcess;
+    if(isForegroundProcess(nextProcess)) {
+        setForegroundProcess(list, nextProcess);
+    } 
     return nextProcess;
 }
 

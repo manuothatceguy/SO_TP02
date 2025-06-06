@@ -383,7 +383,7 @@ static void loop(uint64_t argc, char *argv[]) {
 }
 
 void handle_loop(char * arg) {
-    if (arg == NULL || arg[0] == '\0') {
+    if (arg == NULL || checkNumber(arg) == 0) {
         printf("Uso: loop <time>\n");
         return;
     }
