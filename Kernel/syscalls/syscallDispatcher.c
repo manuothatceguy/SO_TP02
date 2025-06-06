@@ -202,6 +202,7 @@ pid_t syscall_waitpid(pid_t pid, int32_t* status) {
     if(pid < 0 || status == NULL) {
         return -1;
     }
+    printStr("waitpid\n", 0x000000FF );
     return waitpid(pid, status);
 }
 

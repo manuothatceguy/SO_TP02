@@ -23,9 +23,20 @@ int compareProcesses(void* a, void* b) {
 }
 
 int hasPid(void* a, void*b){ // a es el proceso, b es el pid. el signature es así por temas de casteo...
+    if (a == NULL || b == NULL) {
+        return -1;
+    }
     PCB* processA = (PCB*)a;
     pid_t* pid = (pid_t*)b;
-    return (processA->pid == *pid) ? 0 : -1; 
+    
+    // Debug print
+    printStr("Comparing PID in hasPid - Process PID: ", 0x00FFFFFF);
+    printInt(processA->pid, 0x00FFFFFF);
+    printStr(" vs Target PID: ", 0x00FFFFFF);
+    printInt(*pid, 0x00FFFFFF);
+    printStr("\n", 0x00FFFFFF);
+    
+    return (processA->pid == *pid) ? 0 : -1;
 }
 
 ProcessManagerADT createProcessManager(){
@@ -69,13 +80,10 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
     if(list == NULL || process == NULL) {
         return;
     }
-    if(list->currentProcess == list->idleProcess) {
-        list->currentProcess = process; // Set the first process as current
-    }
+    
     if(foreground) {
-        // Set new foreground process (blocking is now handled in scheduler.c)
+        // Set new foreground process
         list->foregroundProcess = process;
-        process->state = READY;
         
         // For foreground processes, use the same stdin as the shell
         if (process->pid != 0) {  // If not the shell
@@ -88,7 +96,14 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
                 }
             }
         }
+        
+        // Para procesos foreground, los ponemos en READY pero no los encolamos todavía
+        // Esto da tiempo al padre para hacer waitpid
+        process->state = READY;
+        return;  // No encolamos aún, el scheduler lo hará cuando sea apropiado
     }
+    
+    // Los procesos background van directo a la cola
     enqueue(list->readyQueue, process);
 }
 
@@ -128,19 +143,24 @@ int blockProcessQueue(ProcessManagerADT list, pid_t pid) {
     if (list == NULL) {
         return -1; 
     }
-    PCB* process = switchProcess(list->readyQueue, list->blockedQueue, pid);
+    
+    // First verify the process exists in the ready queue
+    PCB* process = (PCB*)containsQueue(list->readyQueue, &pid, hasPid);
     if (process == NULL) {
         return -1;
     }
-    process->state = BLOCKED;
-    /* ROMPE EL getCurrentPid() siendo -1 y no ejecuta el yield()
-        volviendo a la ejecucion como si no estuviera bloqueado!
-
-        
-    if (list->currentProcess && list->currentProcess->pid == pid) {
-        list->currentProcess = NULL; 
+    
+    // Now move it to blocked queue
+    process = switchProcess(list->readyQueue, list->blockedQueue, pid);
+    if (process == NULL) {
+        return -1;
     }
-    */
+    
+    // State should already be BLOCKED from waitpid, but ensure it
+    if (process->state != BLOCKED) {
+        process->state = BLOCKED;
+    }
+    
     return 0;
 }
 
@@ -193,14 +213,32 @@ PCB* getProcess(ProcessManagerADT list, pid_t pid){
     if (list == NULL) {
         return NULL;
     }
+    
+    // Check if it's the current process
+    if (list->currentProcess && list->currentProcess->pid == pid) {
+        return list->currentProcess;
+    }
+    
+    // Check if it's the idle process
+    if (list->idleProcess && list->idleProcess->pid == pid) {
+        return list->idleProcess;
+    }
+    
     PCB* process = (PCB*)containsQueue(list->readyQueue, &pid, hasPid);
     if (process != NULL) {
         return process; // Found in ready queue
     }
+    
     process = (PCB*)containsQueue(list->blockedQueue, &pid, hasPid);
     if (process != NULL) {
         return process; // Found in blocked queue
     }
+    
+    process = (PCB*)containsQueue(list->blockedQueueBySem, &pid, hasPid);
+    if (process != NULL) {
+        return process; // Found in blocked by semaphore queue
+    }
+    
     return (PCB*)containsQueue(list->zombieQueue, &pid, hasPid);
 }
 
@@ -299,4 +337,35 @@ int getProcessStdin(ProcessManagerADT list, pid_t pid) {
 int getProcessStdout(ProcessManagerADT list, pid_t pid) {
     PCB* process = getProcess(list, pid);
     return process ? process->fds.stdout : -1;
+}
+
+int isInAnyQueue(ProcessManagerADT list, pid_t pid) {
+    if (list == NULL) return 0;
+    
+    // Check ready queue
+    if (containsQueue(list->readyQueue, &pid, hasPid) != NULL) {
+        return 1;
+    }
+    
+    // Check blocked queue
+    if (containsQueue(list->blockedQueue, &pid, hasPid) != NULL) {
+        return 1;
+    }
+    
+    // Check blocked by sem queue
+    if (containsQueue(list->blockedQueueBySem, &pid, hasPid) != NULL) {
+        return 1;
+    }
+    
+    // Check zombie queue
+    if (containsQueue(list->zombieQueue, &pid, hasPid) != NULL) {
+        return 1;
+    }
+    
+    return 0;
+}
+
+void addToReadyQueue(ProcessManagerADT list, PCB* process) {
+    if (list == NULL || process == NULL) return;
+    enqueue(list->readyQueue, process);
 }
