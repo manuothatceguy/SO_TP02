@@ -29,6 +29,5 @@ void handle_nice(char * arg);
 void handle_wc(char * arg);
 void handle_filter(char * arg);
 void handle_test_malloc_free(char * arg);
-void handle_philo(char * arg);
 
 #endif //SHELL_FUNCTIONS_H

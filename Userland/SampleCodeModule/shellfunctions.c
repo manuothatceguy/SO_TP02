@@ -4,7 +4,6 @@
 #include <test_functions.h>
 #include <shared_structs.h>
 #include "shell.h"
-#include <philo.h>
 
 #define CANT_REGISTERS 19
 #define BUFFER_SPACE 1000
@@ -50,8 +49,7 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - nice <pid> <new_prio>: cambia la prioridad de un proceso\n"
                 "    - wc: cuenta la cantidad de lineas del input\n"
                 "    - filter: filtra las vocales del input\n"
-                "    - test_malloc_free: test de malloc y free\n"
-                "    - philo: problema de los filosofos comensales\n";
+                "    - test_malloc_free: test de malloc y free\n";
 
 
 // Wrapper para crear procesos y manejar waitpid automáticamente
@@ -512,11 +510,4 @@ void handle_test_malloc_free(char *arg) {
     printf("Estado de memoria después de free:\n");
     syscall_memInfo(&info);
     printf("Usada: %d, Libre: %d\n", info.used, info.free);
-}
-
-void handle_philo(char *arg) {
-    printf("Iniciando el problema de los filósofos comensales...\n");
-    
-    // Crear un nuevo proceso para ejecutar el test
-    create_process_and_wait("philo", (fnptr)startPhilo, 0, NULL, 1, 1);
 }
