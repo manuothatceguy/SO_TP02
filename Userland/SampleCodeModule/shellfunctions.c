@@ -4,6 +4,7 @@
 #include <test_functions.h>
 #include <shared_structs.h>
 #include "shell.h"
+#include "phylo.h"
 
 #define CANT_REGISTERS 19
 #define BUFFER_SPACE 1000
@@ -49,7 +50,8 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - nice <pid> <new_prio>: cambia la prioridad de un proceso\n"
                 "    - wc: cuenta la cantidad de lineas del input\n"
                 "    - filter: filtra las vocales del input\n"
-                "    - test_malloc_free: test de malloc y free\n";
+                "    - test_malloc_free: test de malloc y free\n"
+                "    - phylo <max_philosophers>: test de filosofos\n";
 
 
 // Wrapper para crear procesos y manejar waitpid automáticamente
@@ -511,3 +513,16 @@ void handle_test_malloc_free(char *arg) {
     syscall_memInfo(&info);
     printf("Usada: %d, Libre: %d\n", info.used, info.free);
 }
+
+void handle_phylo(char * arg) {
+    char **argv = malloc(2 * sizeof(char*));
+    if (argv == NULL) {
+        printf("Error al asignar memoria para los argumentos\n");
+        return;
+    }
+    argv[0] = arg;
+    argv[1] = NULL;
+    
+    syscall_create_process("phylo", (fnptr)phylo, 1, argv, 1, 1);
+}
+    

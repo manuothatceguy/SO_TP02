@@ -3,7 +3,7 @@
 #include <syscall.h>
 #include <stdint.h>
 
-#define MAX_LENGTH 1000
+#define MAX_LENGTH 2000
 #define MAX_INT_LENGTH 10
 #define STDIN 0
 #define STDOUT 1
@@ -95,6 +95,9 @@ int64_t satoi(char *str) {
   return res * sign;
 }
 
+int atoi(const char *str) {
+    return (int)satoi((char *)str);
+}
 
 uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
     char output[MAX_LENGTH] = {0};
