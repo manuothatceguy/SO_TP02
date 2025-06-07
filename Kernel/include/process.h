@@ -80,6 +80,13 @@ PCB* getIdleProcess(ProcessManagerADT list);
 void setIdleProcess(ProcessManagerADT list, PCB* idleProcess);
 
 /**
+ * @brief Sets the foreground process
+ * @param list Process manager
+ * @param foregroundProcess Process to set as foreground
+ */
+void setForegroundProcess(ProcessManagerADT list, PCB* foregroundProcess);
+
+/**
  * @brief Blocks a process
  * @param list Process manager
  * @param pid Process ID to block
@@ -156,7 +163,14 @@ PCB* getForegroundProcess(ProcessManagerADT list);
  * @param pid Process ID to check
  * @return char 1 if foreground, 0 if not
  */
-char isForegroundProcess(ProcessManagerADT list, pid_t pid);
+char isCurrentForegroundProcess(ProcessManagerADT list, pid_t pid);
+
+/**
+ * @brief Checks if a process is the foreground process
+ * @param process Process to check
+ * @return char 1 if foreground, 0 if not
+ */
+char isForegroundProcess(PCB* process);
 
 /**
  * @brief Checks if a process is in any queue

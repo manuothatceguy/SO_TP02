@@ -81,34 +81,17 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
         return;
     }
 
-    if(list->currentProcess == list->idleProcess) {
-        list->currentProcess = process; // Set the first process as current
+    if(list->currentProcess == NULL || list->currentProcess == list->idleProcess) {
+        list->currentProcess = process; 
     }
 
     
     if(foreground) {
-        // Set new foreground process
-        list->foregroundProcess = process;
-        
         // For foreground processes, use the same stdin as the shell
         if (process->pid > 1) {  // If not the shell
             process->fds.stdin = 0;  // Use pipe 0 (shell's stdin)
-            // Create stdout pipe only for non-shell foreground processes
-            if (process->fds.stdout == -1) {
-                int stdout_fd = createPipe();
-                if(stdout_fd >= 0) {
-                    process->fds.stdout = stdout_fd;
-                }
-            }
         }
-        
-        // Para procesos foreground, los ponemos en READY pero no los encolamos todavía
-        // Esto da tiempo al padre para hacer waitpid
-        process->state = READY;
-        return;  // No encolamos aún, el scheduler lo hará cuando sea apropiado
     }
-    
-    // Los procesos background van directo a la cola
     enqueue(list->readyQueue, process);
 }
 
@@ -148,15 +131,19 @@ int blockProcessQueue(ProcessManagerADT list, pid_t pid) {
     if (list == NULL) {
         return -1; 
     }
-    
+    QueueADT queue = list->readyQueue;
     // First verify the process exists in the ready queue
     PCB* process = (PCB*)containsQueue(list->readyQueue, &pid, hasPid);
     if (process == NULL) {
-        return -1;
+        process = (PCB*)containsQueue(list->blockedQueueBySem, &pid, hasPid);
+        if(process == NULL) {
+            return -1; // Process not found in ready or blocked by semaphore queue
+        }
+        queue = list->blockedQueueBySem;
     }
     
     // Now move it to blocked queue
-    process = switchProcess(list->readyQueue, list->blockedQueue, pid);
+    process = switchProcess(queue, list->blockedQueue, pid);
     if (process == NULL) {
         return -1;
     }
@@ -267,6 +254,9 @@ PCB* getNextProcess(ProcessManagerADT list){
     }
     
     list->currentProcess = nextProcess;
+    if(isForegroundProcess(nextProcess)) {
+        setForegroundProcess(list, nextProcess);
+    } 
     return nextProcess;
 }
 
@@ -281,6 +271,13 @@ PCB* getCurrentProcess(ProcessManagerADT list){
 void setIdleProcess(ProcessManagerADT list, PCB* idleProcess) {
     if (list != NULL){
         list->idleProcess = idleProcess; 
+        list->currentProcess = idleProcess;
+    }
+}
+
+void setForegroundProcess(ProcessManagerADT list, PCB* foregroundProcess) {
+    if (list != NULL){
+        list->foregroundProcess = foregroundProcess; 
     }
 }
 
@@ -306,8 +303,12 @@ PCB* getForegroundProcess(ProcessManagerADT list) {
     return list ? list->foregroundProcess : NULL;
 }
 
-char isForegroundProcess(ProcessManagerADT list, pid_t pid) {
+char isCurrentForegroundProcess(ProcessManagerADT list, pid_t pid) {
     return list && list->foregroundProcess && list->foregroundProcess->pid == pid;
+}
+
+char isForegroundProcess(PCB* process) {
+    return process && process->fds.stdin == 0;
 }
 
 PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessState state) {

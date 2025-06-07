@@ -30,7 +30,7 @@ void initScheduler(fnptr idle);
  * @param foreground Whether process is foreground (1) or background (0)
  * @return pid_t Process ID or -1 on failure
  */
-pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground);
+pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout);
 
 /**
  * @brief Gets the current process ID
@@ -73,10 +73,10 @@ uint64_t kill(pid_t pid);
 /**
  * @brief Waits for a process to terminate
  * @param pid Process ID to wait for
- * @param status Pointer to store exit status
+ * @param retValue Pointer to store exit status
  * @return pid_t Process ID that was waited for or -1 on failure
  */
-pid_t waitpid(pid_t pid, int32_t* status);
+pid_t waitpid(pid_t pid, int32_t* retValue);
 
 /**
  * @brief Changes process priority
@@ -126,11 +126,5 @@ int getCurrentProcessStdin();
  * @return int File descriptor or -1 if none
  */
 int getCurrentProcessStdout();
-
-/**
- * @brief Gets foreground process stdin
- * @return int File descriptor or -1 if none
- */
-int getProcessStdinOfForeground();
 
 #endif // SCHEDULER_H

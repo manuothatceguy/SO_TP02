@@ -55,9 +55,9 @@ char * help =   " Lista de comandos disponibles:\n"
 
 
 // Wrapper para crear procesos y manejar waitpid automáticamente
-static pid_t create_process_and_wait(char *name, fnptr function, uint64_t argc, char **argv, uint8_t priority, char foreground) {
+static pid_t create_process_and_wait(char *name, fnptr function, uint64_t argc, char **argv, uint8_t priority, char foreground, int stdin, int stdout) {
     // Crear el proceso
-    pid_t pid = syscall_create_process(name, function, argc, argv, priority, foreground);
+    pid_t pid = syscall_create_process(name, function, argc, argv, priority, foreground, stdin, stdout);
     
     if (pid < 0) {
         printf("Error al crear el proceso %s\n", name);
@@ -68,7 +68,8 @@ static pid_t create_process_and_wait(char *name, fnptr function, uint64_t argc, 
     
     // Si es foreground, esperar a que termine
     if (foreground) {
-        int waited_pid = syscall_waitpid(pid, NULL);
+        int status = 0;
+        int waited_pid = syscall_waitpid(pid, &status);
         if (waited_pid == pid) {
             printf("Proceso %s (PID: %d) terminó\n", name, pid);
         }
@@ -221,7 +222,7 @@ void handle_test_mm(char * arg) {
     argv[1] = NULL; // Terminar el array de argumentos
     
     // Crear un nuevo proceso para ejecutar el test (background porque es test)
-    create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 0);
+    create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 0, 0, 1);
     
     // Liberar la memoria después de crear el proceso
     //free(argv);
@@ -241,7 +242,7 @@ void handle_test_processes(char * arg) {
     argv[0] = arg; // Asignar el argumento
     argv[1] = NULL; // Terminar el array de argumentos
     
-    create_process_and_wait("test_processes", (fnptr)test_processes, 1, argv, 1, 0);
+    create_process_and_wait("test_processes", (fnptr)test_processes, 1, argv, 1, 0, 0, 1);
     
     // Liberar la memoria después de crear el proceso
     //free(argv);
@@ -252,7 +253,7 @@ void handle_test_prio(char * arg) {
     char *argv[] = { NULL };
     
     // Crear un nuevo proceso para ejecutar el test
-    create_process_and_wait("test_prio", (fnptr)test_prio, 0, argv, 1, 1);
+    create_process_and_wait("test_prio", (fnptr)test_prio, 0, argv, 1, 1, 0, 1);
 }
 
 void handle_test_sync(char * arg) {
@@ -309,7 +310,7 @@ void handle_test_sync(char * arg) {
     char *argv[] = { iterations, processes, NULL };
     
     // Crear un nuevo proceso para ejecutar el test
-    create_process_and_wait("test_sync", (fnptr)test_sync, 2, argv, 1, 1);
+    create_process_and_wait("test_sync", (fnptr)test_sync, 2, argv, 1, 1, 0, 1);
 }
 
 static void printProcessInfo(PCB processInfo) {
@@ -382,7 +383,7 @@ static void loop(uint64_t argc, char *argv[]) {
 }
 
 void handle_loop(char * arg) {
-    if (arg == NULL || arg[0] == '\0') {
+    if (arg == NULL || checkNumber(arg) == 0) {
         printf("Uso: loop <time>\n");
         return;
     }
@@ -394,7 +395,7 @@ void handle_loop(char * arg) {
     argv[0] = arg;
     argv[1] = NULL;
     
-    create_process_and_wait("loop", (fnptr)loop, 1, argv, 1, 1);
+    create_process_and_wait("loop", (fnptr)loop, 1, argv, 1, 1, -1, 1);
     
     // Liberar memoria
     //free(argv);
@@ -445,12 +446,12 @@ static void filter(uint64_t argc, char *argv[]) {
 
 void handle_wc(char * arg) {
     char *argv[] = { NULL };
-    create_process_and_wait("wc", (fnptr)wc, 0, argv, 1, 1);
+    create_process_and_wait("wc", (fnptr)wc, 0, argv, 1, 1, 0, 1);
 }
 
 void handle_filter(char * arg) {
     char *argv[] = { NULL };
-    create_process_and_wait("filter", (fnptr)filter, 0, argv, 1, 1);
+    create_process_and_wait("filter", (fnptr)filter, 0, argv, 1, 1, 0, 1);
 }
 
 void handle_nice(char * arg) {
@@ -527,6 +528,6 @@ void handle_phylo(char * arg) {
     argv[0] = arg;
     argv[1] = NULL;
     
-    syscall_create_process("phylo", (fnptr)phylo, 1, argv, 1, 1);
+    syscall_create_process("phylo", (fnptr)phylo, 1, argv, 1, 1, 0, 1);
 }
     

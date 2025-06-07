@@ -24,6 +24,8 @@
 #define CTRL_PRESS 0x1D
 #define CTRL_RELEASE 0x9D
 
+#define STDIN_FD 0
+
 extern int kb_getKey();
 
 typedef struct {
@@ -173,10 +175,10 @@ static void checkSpecialKeys(unsigned int key){
 }
 
 static void addToBuffer(unsigned int key){
-    int stdin_fd = getProcessStdinOfForeground();
-    if(stdin_fd != -1) {
-        writePipe(stdin_fd, &key, 1);
+    if(getCurrentProcessStdin() != STDIN_FD){
+        return; // No se puede escribir en el buffer si no es el stdin
     }
+    writePipe(0, &key, 1);
 }
 
 int bufferWrite(){

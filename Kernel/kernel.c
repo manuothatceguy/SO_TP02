@@ -124,8 +124,6 @@ int main(){
 	printStr(" TP 2 SO \n", WHITE);
 	fontSizeDown(2);
 
-	clear_buffer();
-
 	// MEMORY MANAGER
 	createMemoryManager();
 	initScheduler(idle);
@@ -133,15 +131,9 @@ int main(){
 		printStr("Error initializing semaphore manager\n", RED);
 		return -1;
 	}
-	//createProcess("idle", &idle, 0, NULL, -1);
-	//createProcess("feDeVida",(fnptr) feDeVida, 0, NULL, 1);
-	//char *feDeVida2Args[] = {"Hola mundo!\n", NULL};
-	//createProcess("feDeVida2", (fnptr) feDeVida2, 1, feDeVida2Args, 1);
-	// Test pipe communication
-	//createProcess("pipeTest", (fnptr)pipeTest, 0, NULL, 1, 1);
-	// Crear pipe para stdin de la shell
-	createProcess("shell", (fnptr) sampleCodeModuleAddress, 0, NULL, 0, 1);
+	createProcess("shell", (fnptr) sampleCodeModuleAddress, 0, NULL, 0, 1, 0, 1);
 	load_idt();
+	clear_buffer();
 	_sti();
 	while (1) {
 		_hlt();

@@ -102,14 +102,16 @@ void syscall_freeMemory(void *address) {
     syscall(FREE_MEMORY, (uint64_t)address, 0, 0);
 }
 
-uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority, char foreground) {
+uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority, char foreground, int stdin, int stdout) {
     ProcessCreationParams params = {
         .name = name,
         .function = function,
         .argc = argc,
         .arg = argv,
         .priority = priority,
-        .foreground = foreground
+        .foreground = foreground,
+        .stdin = stdin,
+        .stdout = stdout
     };
     return syscall(CREATE_PROCESS, (uint64_t)&params, 0, 0);
 }

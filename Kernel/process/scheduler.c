@@ -28,28 +28,31 @@ static pid_t nextFreePid = 0; // PID 0 será asignado al proceso idle, PID 1 ser
 static uint64_t quantum = 0;    
 
 // Declaración de función interna
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground);
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout);
 static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) ;
+int getCurrentProcessStdin();
+int getCurrentProcessStdout();
+
 
 void initScheduler(fnptr idle) {
     // Initialize pipe manager first
     initPipeManager();
     
     ProcessManagerADT list = createProcessManager();
-    PCB* idleProcess = _createProcessPCB("idle", idle, 0, NULL, IDLE_PRIORITY, 0);
+    PCB* idleProcess = _createProcessPCB("idle", idle, 0, NULL, IDLE_PRIORITY, 0, -1, -1);
     setIdleProcess(list, idleProcess);
     processes = list;
 }
 
-pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground) {
-    PCB* process = _createProcessPCB(name, function, argc, arg, priority, foreground);
+pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout) {
+    PCB* process = _createProcessPCB(name, function, argc, arg, priority, foreground, stdin, stdout);
     if (process == NULL) {
         return -1;
     }
     return process->pid;
 }
 
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground) {
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout) {
     if (name == NULL || function == NULL) {
         return NULL;
     }
@@ -97,15 +100,19 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
 
-    // Si es la shell, asignar el fd de stdin usando el argumento
-    if (process->pid == 1) {
-        process->fds.stdin = createPipe();
-        if( process->fds.stdin < 0) {
+    if(process->pid > 1){
+        process->fds.stdin = stdin == 0 ? getCurrentProcessStdin() : stdin;
+        process->fds.stdout = stdout == 1 ? getCurrentProcessStdout() : stdout;
+    } else if (process->pid == 1){
+        process->fds.stdin = createPipe(); // Shell's stdin
+        if (process->fds.stdin < 0) {
             freeMemory((void*)process->base - STACK_SIZE); // libera el stack
             freeMemory(process);
-            return NULL; // Error al crear pipe
+            return NULL;
         }
+        process->fds.stdout = 1; // Shell's stdout
     }
+    
 
     if(priority != IDLE_PRIORITY) addProcess(processes, process, foreground);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
@@ -125,36 +132,14 @@ pid_t getCurrentPid() {
 uint64_t schedule(uint64_t rsp){
     static int first = 1;
     PCB* currentProcess = getCurrentProcess(processes);
-    PCB* foregroundProcess = getForegroundProcess(processes);
-
-    // Si hay un proceso foreground que no está en ninguna cola, 
-    // significa que recién fue creado y el padre ya debió hacer waitpid
-    if (foregroundProcess != NULL && !isInAnyQueue(processes, foregroundProcess->pid)) {
-        addToReadyQueue(processes, foregroundProcess);
-    }
-
-    if(currentProcess == NULL) {
-        PCB* nextProcess = getNextProcess(processes);
-        if (nextProcess == NULL) {
-            if(!first){
-                return currentProcess->rsp = rsp;
-            }
-            first = 0;
-            return ((PCB*)getIdleProcess(processes))->rsp;
-        }
-        nextProcess->state = RUNNING;
-        currentPid = nextProcess->pid;
-        quantum = calculateQuantum(nextProcess->priority);
-        return nextProcess->rsp;
-    }
     
     // If current process is foreground, give it priority
-    if(isForegroundProcess(processes, currentProcess->pid)) {
-        if(currentProcess->state == RUNNING) {
-            quantum--;
-            return rsp;
-        }
-    }
+    //if(isForegroundProcess(processes, currentProcess->pid)) {
+    //    if(currentProcess->state == RUNNING) {
+    //        quantum--;
+    //        return rsp;
+    //    }
+    //}
 
     if(quantum > 0 && currentProcess->state == RUNNING) {
         quantum--;
@@ -163,16 +148,10 @@ uint64_t schedule(uint64_t rsp){
     
     DEBUG_PRINT("Quantum expired, switching processes...\n", 0x00FFFFFF);
 
-    currentProcess->rsp = rsp;
-    if(currentProcess->state == RUNNING) {
-        currentProcess->state = READY;
-    }
+    if(!first) currentProcess->rsp = rsp; else first = 0;
+    if(currentProcess->state == RUNNING) currentProcess->state = READY;
 
     PCB* nextProcess = getNextProcess(processes);
-    if (nextProcess == NULL) {
-        first = 0;
-        return ((PCB*)getIdleProcess(processes))->rsp;
-    }
 
     DEBUG_PRINT("Switching to process: ", 0x00FFFFFF);
     DEBUG_PRINT(nextProcess->name, 0x00FFFFFF);
@@ -229,7 +208,8 @@ uint64_t kill(pid_t pid){
     freeMemory((void*)process->base - STACK_SIZE); // libera el stack
     wakeupWaitingParent(process->parentPid, pid);
     if (pid == currentPid) {
-        yield();
+        quantum = 0;
+        callTimerTick();
     }
     return 0;
 }
@@ -256,9 +236,9 @@ static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
 }
 
 // Función auxiliar para reapear
-int32_t reapChild(PCB* child, int32_t* status) {
-    if (status != NULL) {
-        *status = child->retValue;
+int32_t reapChild(PCB* child, int32_t* retValue) {
+    if (retValue != NULL) {
+        *retValue = child->retValue;
     }
     
     int32_t childPid = child->pid;
@@ -275,7 +255,7 @@ int32_t reapChild(PCB* child, int32_t* status) {
     return childPid;
 }
 
-int32_t waitpid(pid_t pid, int32_t* status) {
+int32_t waitpid(pid_t pid, int32_t* retValue) {
     pid_t currentProcPid = getCurrentPid();
     
     DEBUG_PRINT("waitpid: Current PID ", 0x00FFFFFF);
@@ -303,7 +283,7 @@ int32_t waitpid(pid_t pid, int32_t* status) {
     // Si el proceso ya está ZOMBIE, reapear inmediatamente
     if (target->state == ZOMBIE) {
         current->waitingForPid = -1;
-        return reapChild(target, status);
+        return reapChild(target, retValue);
     }
     
     // Si el proceso aún está corriendo, BLOQUEAR al proceso actual
@@ -322,7 +302,6 @@ int32_t waitpid(pid_t pid, int32_t* status) {
             current->state = READY;
             return -1;
         }
-        
         // Cuando el scheduler nos despierte, verificar de nuevo el estado
         target = getProcess(processes, pid);
         if (target == NULL) {
@@ -331,7 +310,7 @@ int32_t waitpid(pid_t pid, int32_t* status) {
         
         if (target->state == ZOMBIE) {
             current->waitingForPid = -1;
-            return reapChild(target, status);
+            return reapChild(target, retValue);
         }
     }
     
@@ -408,10 +387,4 @@ int getCurrentProcessStdin() {
 int getCurrentProcessStdout() {
     PCB* current = getCurrentProcess(processes);
     return current ? current->fds.stdout : -1;
-}
-
-// Devuelve el stdin del proceso foreground
-int getProcessStdinOfForeground() {
-    PCB* fg = getForegroundProcess(processes);
-    return fg ? fg->fds.stdin : -1;
 }
