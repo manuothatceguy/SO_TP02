@@ -402,46 +402,45 @@ void handle_loop(char * arg) {
 }
 
 static void wc(uint64_t argc, char *argv[]) {
-    char buffer[BUFFER_SPACE] = {0};
-    int line_count = 0;
+    int lines = 1;
+    char c;
     
-    printf("Ingrese el texto (presione Enter dos veces para terminar):\n");
+    printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
     
-    while (1) {
-        readLine(buffer, BUFFER_SPACE);
-        if (buffer[0] == '\0') {  // Si la línea está vacía, terminamos
-            break;
+    c = getChar();
+    while (c != EOF) {
+        if (c != 0) {
+            if (c == '\n') {
+                lines++;
+            }
+            printf("%c", c);
         }
-        line_count++;
+        c = getChar();
     }
+    printf("\n");
     
-    printf("Cantidad de lineas: %d\n", line_count);
+    printf("Cantidad de lineas: %d\n\n", --lines);
 }
 
 static void filter(uint64_t argc, char *argv[]) {
-    char buffer[BUFFER_SPACE] = {0};
+    char c;
     char filtered[BUFFER_SPACE] = {0};
+    int i = 0;
     
-    printf("Ingrese el texto (presione Enter dos veces para terminar):\n");
+    printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
     
-    while (1) {
-        readLine(buffer, BUFFER_SPACE);
-        if (buffer[0] == '\0') {  // Si la línea está vacía, terminamos
-            break;
-        }
-        
-        int j = 0;
-        for (int i = 0; buffer[i] != '\0' && j < BUFFER_SPACE - 1; i++) {
-            char c = buffer[i];
-            // Si no es una vocal, copiarlo al resultado
+    c = getChar();
+    while (c != EOF) {
+        if (c != 0) {
+            printf("%c", c);
             if (c != 'a' && c != 'e' && c != 'i' && c != 'o' && c != 'u' &&
                 c != 'A' && c != 'E' && c != 'I' && c != 'O' && c != 'U') {
-                filtered[j++] = c;
+                filtered[i++] = c;
             }
         }
-        filtered[j] = '\0';
-        printf("%s\n", filtered);
+        c = getChar();
     }
+    printf("\n%s\n", filtered);
 }
 
 void handle_wc(char * arg) {

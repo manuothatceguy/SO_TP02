@@ -7,9 +7,9 @@
 #include <pipes.h>
 #include <process.h>
 
-
 #define BUFFER_SIZE 1000
 #define CANT_SPECIAL_KEYS 9
+#define EOF -1
 
 #define LSHIFT_PRESS 0x2A
 #define LSHIFT_RELEASE 0xAA
@@ -189,6 +189,13 @@ int bufferWrite(){
             kill(getForegroundPid(),1); // CTRL + C mata al proceso actual
             lineFeed();
             printStr("^C", 0x00FFFFFF);
+            lineFeed();
+            return 0;
+        }
+        if(ctrlPressed && press_keys[c].ascii == 'd'){
+            addToBuffer(EOF); // Add EOF character to buffer
+            lineFeed();
+            printStr("^D", 0x00FFFFFF);
             lineFeed();
             return 0;
         }

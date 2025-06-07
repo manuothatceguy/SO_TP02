@@ -214,7 +214,6 @@ pid_t syscall_waitpid(pid_t pid, int32_t* retValue) {
     if(pid < 0 || retValue == NULL) {
         return -1;
     }
-    printStr("waitpid\n", 0x000000FF );
     return waitpid(pid, retValue);
 }
 

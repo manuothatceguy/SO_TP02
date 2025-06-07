@@ -6,6 +6,7 @@
 #include <syscall.h>
 
 #define NULL (void*) 0
+#define EOF -1
 
 /**
  * @brief Longitud de un string null-terminated
