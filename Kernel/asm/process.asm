@@ -3,6 +3,7 @@ GLOBAL processStackFrame
 
 wrapper:
     call r8
+    mov rbx, rax ; rbx = retValue
     mov rax, 23
     int 80h
 

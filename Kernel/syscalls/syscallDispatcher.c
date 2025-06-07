@@ -126,8 +126,8 @@ pid_t syscall_create_process(ProcessCreationParams* params) {
     return createProcess(params->name, (fnptr)params->function, params->argc, params->arg, params->priority, params->foreground, params->stdin, params->stdout);
 }
 
-static uint64_t syscall_exit(){ // mata al proceso que llama a la syscall
-    kill(getCurrentPid());
+static uint64_t syscall_exit(uint64_t retValue){ // mata al proceso que llama a la syscall
+    kill(getCurrentPid(), retValue);
     return 0; // no deberia ejecutarse
 }
 
@@ -135,8 +135,10 @@ pid_t syscall_getpid(){
     return getCurrentPid();
 }
 
+#define KILL 9
+
 static uint64_t syscall_kill(uint64_t pid){
-    return kill(pid);
+    return kill(pid, KILL);
 }
 
 pid_t syscall_block(uint64_t pid){
