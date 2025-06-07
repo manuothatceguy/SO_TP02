@@ -515,6 +515,10 @@ void handle_test_malloc_free(char *arg) {
 }
 
 void handle_phylo(char * arg) {
+    if ( arg == NULL || arg[0] == '\0') {
+        printf("Uso: phylo <max_philosophers>\n");
+        return;
+    }
     char **argv = malloc(2 * sizeof(char*));
     if (argv == NULL) {
         printf("Error al asignar memoria para los argumentos\n");
