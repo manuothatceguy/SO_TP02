@@ -84,14 +84,13 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
     if(list->currentProcess == NULL || list->currentProcess == list->idleProcess) {
         list->currentProcess = process; 
     }
-
     
-    if(foreground) {
-        // For foreground processes, use the same stdin as the shell
-        if (process->pid > 1) {  // If not the shell
-            process->fds.stdin = 0;  // Use pipe 0 (shell's stdin)
-        }
-    }
+    // if(foreground) {
+    //     // For foreground processes, use the same stdin as the shell
+    //     if (process->pid > 1) {  // If not the shell
+    //         process->fds.stdin = 0;  // Use pipe 0 (shell's stdin)
+    //     }
+    // }
     enqueue(list->readyQueue, process);
 }
 
@@ -308,7 +307,7 @@ char isCurrentForegroundProcess(ProcessManagerADT list, pid_t pid) {
 }
 
 char isForegroundProcess(PCB* process) {
-    return process && process->fds.stdin == 0;
+    return process && process->fds.stdout == 1;
 }
 
 PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessState state) {
@@ -317,14 +316,16 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
     }
     
     PCB* process = switchProcess(list->readyQueue, list->zombieQueue, pid);
-    if (process == NULL) {
+    if (process == NULL && (retValue == 1 || retValue == 9) ) {
         process = switchProcess(list->blockedQueue, list->zombieQueue, pid);
         if (process == NULL) {
-            return NULL; 
+            process = switchProcess(list->blockedQueueBySem, list->zombieQueue, pid);
+            if (process == NULL) {
+                return NULL; // Process not found in any queue
+            }
         }
     }
 
-    // If the killed process was the foreground process, clear it
     if (list->foregroundProcess && list->foregroundProcess->pid == pid) {
         list->foregroundProcess = NULL;
     }

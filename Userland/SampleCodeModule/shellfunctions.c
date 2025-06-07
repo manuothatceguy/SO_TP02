@@ -154,41 +154,50 @@ void showRegisters(){
 }
 
 void handle_help(char * arg){
+    free(arg); // no se usa
     printf("\n");
     printf(help); 
 }
 
 void handle_time(char * arg){
+    free(arg); // no se usa
     showTime();
 }
 
 void handle_registers(char * arg){
+    free(arg); // no se usa
     showRegisters();
 }
 
 void handle_echo(char * arguments){
     printf("%s\n", arguments);
+    free(arguments); // libero desp de usar
 }
 
 void handle_size_up(char * arg){
+    free(arg); // no se usa
     syscall_sizeUpFont(1);
     syscall_clearScreen();
 }
 
 void handle_size_down(char * arg){
+    free(arg); // no se usa
     syscall_sizeDownFont(1);
     syscall_clearScreen();
 }
 
 void handle_test_div_0(char * arg){
+    free(arg); // no se usa
     div_zero(); 
 }
 
 void handle_test_invalid_opcode(char * arg){
+    free(arg); // no se usa
     invalid_opcode(); 
 }
 
 void handle_clear(char * arg){
+    free(arg); // no se usa
     syscall_clearScreen();
 }
 
@@ -224,7 +233,7 @@ void handle_test_mm(char * arg) {
     argv[1] = NULL; // Terminar el array de argumentos
     
     // Crear un nuevo proceso para ejecutar el test (background porque es test)
-    create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 0, 0, 1);
+    create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 1, -1, 1);
     
     // Liberar la memoria después de crear el proceso
     //free(argv);
@@ -351,6 +360,7 @@ static void printProcessInfo(PCB processInfo) {
 }
   
 void handle_ps(char * arg){
+    free(arg); // no se usa
     uint64_t cantProcesses; 
 
     PCB *processInfo = syscall_getProcessInfo(&cantProcesses);
@@ -404,7 +414,7 @@ void handle_loop(char * arg) {
     //free(argv);
 }
 
-static void cat(uint64_t argc, char *argv[]) {
+static uint64_t cat(uint64_t argc, char *argv[]) {
     char c;
     char buffer[BUFFER_SPACE] = {0};
     int i = 0;
@@ -426,9 +436,10 @@ static void cat(uint64_t argc, char *argv[]) {
         c = getChar();
     }
     printf("\n");
+    return 0;
 }
 
-static void wc(uint64_t argc, char *argv[]) {
+static uint64_t wc(uint64_t argc, char *argv[]) {
     int lines = 1;
     char c;
     
@@ -447,9 +458,10 @@ static void wc(uint64_t argc, char *argv[]) {
     printf("\n");
     
     printf("Cantidad de lineas: %d\n\n", --lines);
+    return 0;
 }
 
-static void filter(uint64_t argc, char *argv[]) {
+static uint64_t filter(uint64_t argc, char *argv[]) {
     char c;
     char filtered[BUFFER_SPACE] = {0};
     int i = 0;
@@ -468,19 +480,23 @@ static void filter(uint64_t argc, char *argv[]) {
         c = getChar();
     }
     printf("\n%s\n", filtered);
+    return 0;
 }
 
 void handle_wc(char * arg) {
+    free(arg); // no se usa
     char *argv[] = { NULL };
     create_process_and_wait("wc", (fnptr)wc, 0, argv, 1, 1, 0, 1);
 }
 
 void handle_filter(char * arg) {
+    free(arg); // no se usa
     char *argv[] = { NULL };
     create_process_and_wait("filter", (fnptr)filter, 0, argv, 1, 1, 0, 1);
 }
 
 void handle_cat(char * arg) {
+    free(arg); // no se usa
     char *argv[] = { NULL };
     create_process_and_wait("cat", (fnptr)cat, 0, argv, 1, 1, 0, 1);
 }
@@ -496,6 +512,7 @@ void handle_nice(char * arg) {
         printf("Uso: nice <pid> <new_priority>\n");
         return;
     }
+    free(arg);
     
     // Convertir strings a números
     int pid = satoi(args[0]);

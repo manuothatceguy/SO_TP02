@@ -193,6 +193,7 @@ static void init_philosophers(uint64_t count) {
 }
 
 void phylo(uint64_t argc, char **argv) {
+    
     uint64_t count = atoi(argv[0]);
     if (count <= 0 || count > MAX_PHILOSOPHERS) {
         printf("El numero de filosofos debe estar entre 1 y %d\n", MAX_PHILOSOPHERS);
