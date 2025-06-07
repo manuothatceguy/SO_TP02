@@ -175,9 +175,9 @@ static void checkSpecialKeys(unsigned int key){
 }
 
 static void addToBuffer(unsigned int key){
-    if(getCurrentProcessStdin() != STDIN_FD){
-        return; // No se puede escribir en el buffer si no es el stdin
-    }
+    // if(getCurrentProcessStdin() != STDIN_FD){
+    //     return; // No se puede escribir en el buffer si no es el stdin
+    // }
     writePipe(0, &key, 1);
 }
 

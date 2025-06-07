@@ -18,7 +18,7 @@
 
 
 #define CANT_REGS 19
-#define CANT_SYSCALLS 31
+#define CANT_SYSCALLS 32
 
 extern uint64_t regs[CANT_REGS];
 
@@ -224,6 +224,10 @@ int syscall_close_pipe(int pipe_id) {
     return closePipe(pipe_id);
 }
 
+int syscall_clear_pipe(int pipe_id) {
+    return clearPipe(pipe_id);
+}
+
 uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){
     if(syscall_number > CANT_SYSCALLS) return 0;
     _cli();
@@ -258,7 +262,8 @@ uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2
         (syscall_fn)syscall_yield,
         (syscall_fn)syscall_waitpid,
         (syscall_fn)syscall_open_pipe,
-        (syscall_fn)syscall_close_pipe
+        (syscall_fn)syscall_close_pipe,
+        (syscall_fn)syscall_clear_pipe
     };
     uint64_t ret = syscalls[syscall_number](arg1, arg2, arg3);
     _sti();

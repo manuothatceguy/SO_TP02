@@ -49,6 +49,7 @@ int syscall_sem_close(int sem_id);
 // Pipes
 int syscall_open_pipe();
 int syscall_close_pipe(int pipe_id);
+int syscall_clear_pipe(int pipe_id);
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 int64_t my_getpid();

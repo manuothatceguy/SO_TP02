@@ -86,6 +86,10 @@ void (*instruction_handlers[CANT_INSTRUCTIONS-1])(char *) = {
     handle_phylo
 };
 
+static void clearBuffer(){
+    syscall_clear_pipe(0);
+}
+
 int verifyInstruction(char * instruction){
     for(int i = 0; i < CANT_INSTRUCTIONS; i++){
         if(strcmp(inst_list[i], instruction) == 0){
@@ -147,6 +151,7 @@ uint64_t shell(uint64_t argc, char **argv) {
     syscall_clearScreen();
     char *arg;
     while(!exit){
+        clearBuffer();
         printf(PROMPT, username);
         arg = (char *)malloc(BUFFER_SPACE * sizeof(char));
         if(arg == NULL){
