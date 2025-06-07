@@ -5,7 +5,7 @@
 
 #define MUTEX_ID 50
 #define MAX_PHILOSOPHERS 10
-#define TIME 2 //el tiempo de pensar y comer es el mismo(??
+#define TIME 1
 
 typedef enum {THINKING, HUNGRY, EATING} state;
 
@@ -166,7 +166,15 @@ static void init_philosophers(uint64_t count) {
         }
         id_str[0] = '0' + i;
         id_str[1] = '\0';
-        char *argv[] = {id_str, NULL};
+
+        char **argv = malloc(2 * sizeof(char*));
+        if (argv == NULL) {
+            printf("Error al asignar memoria para los argumentos\n");
+            return;
+        }
+
+        argv[0] = id_str;
+        argv[1] = NULL;
         
         pid_t pid = syscall_create_process("philosopher", philosopher, 1, argv, 1, 0, 0, 1);
         if (pid < 0) {
