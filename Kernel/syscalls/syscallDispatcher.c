@@ -12,7 +12,6 @@
 #include <scheduler.h>
 #include <shared_structs.h>
 #include <debug.h>
-#include <stdio.h>
 #include <semaphore.h>	
 #include <pipes.h>
 #include <interrupts.h>
@@ -33,6 +32,11 @@ typedef uint64_t (*syscall_fn)(uint64_t rbx, uint64_t rcx, uint64_t rdx);
 static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     if (length < 0) return 1;
     uint64_t color = (fd == 1 ? 0x00FFFFFF : (fd == 2 ? 0x00FF0000 : 0));
+    if( fd = 1 ){
+        fd = getCurrentProcessStdout();
+    } else if( fd == 0 ){
+        fd = getCurrentProcessStdin();
+    }
     switch(fd){
       case 0: // stdin
         return writePipe(0, buff, length);
@@ -40,12 +44,12 @@ static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
       case 1: // stdout
         // For foreground processes, write directly to screen
         for(int i = 0; i < length; i++)
-            putChar(buff[i], 0x00FFFFFF);
+            putChar(buff[i], color);
         return length;
         break;
       case 2: // stderr
         for(int i = 0; i < length; i++)
-            putChar(buff[i], 0x00FF0000); // rojo
+            putChar(buff[i], color); // rojo
         return length; 
         break;
       default: // pipe
@@ -84,6 +88,12 @@ static uint64_t syscall_read(uint64_t fd, char* str,  uint64_t length){
     if(fd >= 3 + MAX_PIPES) {
         return -1; // error
     }
+    if(fd == 0){ // stdin
+        fd = getCurrentProcessStdin();
+        if( fd == -1) {
+            return -1; // error
+        }
+    }
     return readPipe(fd, str, length);
 }
 
@@ -113,7 +123,7 @@ static uint64_t syscall_wait(uint64_t seconds){
 }
 
 pid_t syscall_create_process(ProcessCreationParams* params) {
-    return createProcess(params->name, (fnptr)params->function, params->argc, params->arg, params->priority, params->foreground);
+    return createProcess(params->name, (fnptr)params->function, params->argc, params->arg, params->priority, params->foreground, params->stdin, params->stdout);
 }
 
 static uint64_t syscall_exit(){ // mata al proceso que llama a la syscall

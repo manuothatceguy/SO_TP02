@@ -82,7 +82,7 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
     }
 
     if(list->currentProcess == NULL || list->currentProcess == list->idleProcess) {
-        list->currentProcess = process; // Setea idle y luego la shell como current
+        list->currentProcess = process; 
     }
 
     
@@ -131,15 +131,19 @@ int blockProcessQueue(ProcessManagerADT list, pid_t pid) {
     if (list == NULL) {
         return -1; 
     }
-    
+    QueueADT queue = list->readyQueue;
     // First verify the process exists in the ready queue
     PCB* process = (PCB*)containsQueue(list->readyQueue, &pid, hasPid);
     if (process == NULL) {
-        return -1;
+        process = (PCB*)containsQueue(list->blockedQueueBySem, &pid, hasPid);
+        if(process == NULL) {
+            return -1; // Process not found in ready or blocked by semaphore queue
+        }
+        queue = list->blockedQueueBySem;
     }
     
     // Now move it to blocked queue
-    process = switchProcess(list->readyQueue, list->blockedQueue, pid);
+    process = switchProcess(queue, list->blockedQueue, pid);
     if (process == NULL) {
         return -1;
     }
@@ -267,6 +271,7 @@ PCB* getCurrentProcess(ProcessManagerADT list){
 void setIdleProcess(ProcessManagerADT list, PCB* idleProcess) {
     if (list != NULL){
         list->idleProcess = idleProcess; 
+        list->currentProcess = idleProcess;
     }
 }
 

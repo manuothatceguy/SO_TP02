@@ -191,7 +191,7 @@ static void init_philosophers(uint64_t count) {
         id_str[1] = '\0';
         char *argv[] = {id_str, NULL};
         
-        pid_t pid = syscall_create_process("philosopher", philosopher, 1, argv, 1, 0);
+        pid_t pid = syscall_create_process("philosopher", philosopher, 1, argv, 1, 0, 0, 1);
         if (pid < 0) {
             // Clean up
             for (int j = 0; j <= i; j++) {

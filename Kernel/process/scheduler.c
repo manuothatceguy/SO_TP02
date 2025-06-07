@@ -28,28 +28,31 @@ static pid_t nextFreePid = 0; // PID 0 será asignado al proceso idle, PID 1 ser
 static uint64_t quantum = 0;    
 
 // Declaración de función interna
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground);
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout);
 static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) ;
+int getCurrentProcessStdin();
+int getCurrentProcessStdout();
+
 
 void initScheduler(fnptr idle) {
     // Initialize pipe manager first
     initPipeManager();
     
     ProcessManagerADT list = createProcessManager();
-    PCB* idleProcess = _createProcessPCB("idle", idle, 0, NULL, IDLE_PRIORITY, 0);
+    PCB* idleProcess = _createProcessPCB("idle", idle, 0, NULL, IDLE_PRIORITY, 0, -1, -1);
     setIdleProcess(list, idleProcess);
     processes = list;
 }
 
-pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground) {
-    PCB* process = _createProcessPCB(name, function, argc, arg, priority, foreground);
+pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout) {
+    PCB* process = _createProcessPCB(name, function, argc, arg, priority, foreground, stdin, stdout);
     if (process == NULL) {
         return -1;
     }
     return process->pid;
 }
 
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground) {
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout) {
     if (name == NULL || function == NULL) {
         return NULL;
     }
@@ -97,15 +100,19 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
 
-    // Si es la shell asignamos el fd de stdin
-    if (process->pid == 1) {
-        process->fds.stdin = createPipe();
-        if( process->fds.stdin < 0) {
+    if(process->pid > 1){
+        process->fds.stdin = stdin == 0 ? getCurrentProcessStdin() : stdin;
+        process->fds.stdout = stdout == 1 ? getCurrentProcessStdout() : stdout;
+    } else if (process->pid == 1){
+        process->fds.stdin = createPipe(); // Shell's stdin
+        if (process->fds.stdin < 0) {
             freeMemory((void*)process->base - STACK_SIZE); // libera el stack
             freeMemory(process);
-            return NULL; // Error al crear pipe STDIN
+            return NULL;
         }
+        process->fds.stdout = 1; // Shell's stdout
     }
+    
 
     if(priority != IDLE_PRIORITY) addProcess(processes, process, foreground);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
@@ -145,7 +152,7 @@ uint64_t schedule(uint64_t rsp){
     if(currentProcess->state == RUNNING) currentProcess->state = READY;
 
     PCB* nextProcess = getNextProcess(processes);
-    
+
     DEBUG_PRINT("Switching to process: ", 0x00FFFFFF);
     DEBUG_PRINT(nextProcess->name, 0x00FFFFFF);
     DEBUG_PRINT("\n", 0x00FFFFFF);
@@ -160,9 +167,9 @@ uint64_t blockProcess (pid_t pid) {
     if(blockProcessQueue(processes, pid) != 0){
         return -1;
     }
-    // if (pid == getCurrentPid()) { // si el proceso bloqueado es el actual se renuncia al cpu con interrupción 
-    //     yield(); 
-    // }
+    if (pid == getCurrentPid()) { // si el proceso bloqueado es el actual se renuncia al cpu con interrupción 
+        yield(); 
+    }
     return 0; 
 }
 
@@ -178,7 +185,7 @@ uint64_t blockProcessBySem(pid_t pid) {
 
 void yield() {
     quantum = 0; // siguiente!!
-    //callTimerTick();
+    callTimerTick();
 }
 
 uint64_t unblockProcess(pid_t pid){
@@ -295,7 +302,6 @@ int32_t waitpid(pid_t pid, int32_t* retValue) {
             current->state = READY;
             return -1;
         }
-        
         // Cuando el scheduler nos despierte, verificar de nuevo el estado
         target = getProcess(processes, pid);
         if (target == NULL) {
@@ -381,10 +387,4 @@ int getCurrentProcessStdin() {
 int getCurrentProcessStdout() {
     PCB* current = getCurrentProcess(processes);
     return current ? current->fds.stdout : -1;
-}
-
-// Devuelve el stdin del proceso foreground
-int getProcessStdinOfForeground() {
-    PCB* fg = getForegroundProcess(processes);
-    return fg ? fg->fds.stdin : -1;
 }

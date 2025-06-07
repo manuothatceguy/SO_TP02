@@ -31,7 +31,7 @@ void syscall_freeMemory(void *address);
 int64_t syscall_memInfo(memInfo *info);
 
 //Procesos
-uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority, char foreground);
+uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority, char foreground, int stdin, int stdout);
 uint64_t syscall_getpid();
 uint64_t syscall_kill(uint64_t pid);
 uint64_t syscall_block(uint64_t pid);
