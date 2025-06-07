@@ -53,7 +53,7 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - filter: filtra las vocales del input\n"
                 "    - cat: muestra el input tal cual se ingresa\n"
                 "    - test_malloc_free: test de malloc y free\n"
-                "    - phylo <max_philosophers>: test de filosofos\n";
+                "    - phylo <cant_philosophers>: test de filosofos\n";
 
 
 // Wrapper para crear procesos y manejar waitpid automáticamente
@@ -545,7 +545,7 @@ void handle_test_malloc_free(char *arg) {
 
 void handle_phylo(char * arg) {
     if ( arg == NULL || arg[0] == '\0') {
-        printf("Uso: phylo <max_philosophers>\n");
+        printf("Uso: phylo <cant_philosophers>\n");
         return;
     }
     char **argv = malloc(2 * sizeof(char*));
@@ -556,6 +556,6 @@ void handle_phylo(char * arg) {
     argv[0] = arg;
     argv[1] = NULL;
     
-    syscall_create_process("phylo", (fnptr)phylo, 1, argv, 1, 1, 0, 1);
+    create_process_and_wait("phylo", (fnptr)phylo, 1, argv, 1, 1, 0, 1);
 }
     

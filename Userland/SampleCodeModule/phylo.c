@@ -1,210 +1,190 @@
-#include <phylo.h>
-#include <stdint.h>
-#include <stdlib.h>
 #include <syscall.h>
+#include <stdlib.h>
+#include <phylo.h>
 
-#define MUTEX_ID 50
-#define MAX_PHILOSOPHERS 10
+#define MAX_PHYLOS 7
+#define MIN_PHYLOS 3
+
+#define MUTEX_ID 100
+
 #define TIME 1
+#define philosopherSemaphore(i) (MUTEX_ID + (i) + 1)
 
-typedef enum {THINKING, HUNGRY, EATING} state;
+#define LEFT(phyloId) (((phyloId) + phylosCount - 1) % phylosCount)
+#define RIGHT(phyloId) (((phyloId) + 1) % phylosCount)
 
-typedef struct philosopher {
-    pid_t pid;
-    uint8_t id;
-    int state;
-    //char **args;
-    int semName;
-    //char **descriptors;
-    //int status;
-} Philosopher;
+typedef enum { THINKING, HUNGRY, EATING } state_t;
 
-typedef struct status {
-    //char *mutex;
-    uint64_t philosopherCount;
-    uint64_t maxPhilosophers;
-    Philosopher **philosophers;
-    //int *forks;  // Array of semaphore IDs for forks
-    int mutex_sem;  // Mutex semaphore ID
-} PhyloProcess;
+int phylosCount = 0;
 
-static PhyloProcess *phylo_status = NULL;
+state_t state[MAX_PHYLOS] = {0};
+int philosopherPids[MAX_PHYLOS] = {0};
 
-static int getRightBlock(int id) {
-  syscall_sem_wait(phylo_status->mutex_sem);
-  int right = (id + 1) % phylo_status->philosopherCount;
-  syscall_sem_post(phylo_status->mutex_sem);
-  return right;
+static void printState() {
+	printf("\n");
+	for (int i = 0; i < phylosCount; i++) {
+		printf(state[i] == EATING ? "E " : ". ");
+	}
+	printf("\n");
 }
 
-static void print_state(void) {
-    syscall_sem_wait(phylo_status->mutex_sem);
-    uint64_t currentCount = phylo_status->philosopherCount;
-    for (int i = 0; i < currentCount && i < MAX_PHILOSOPHERS; i++) {
-        printf("%s", phylo_status->philosophers[i]->state == EATING ? "E" : ".");
-    }
-    printf("\n");
-    syscall_sem_post(phylo_status->mutex_sem);
+static void test(int phyloId) {
+	if (state[phyloId] == HUNGRY && state[LEFT(phyloId)] != EATING && state[RIGHT(phyloId)] != EATING) {
+		state[phyloId] = EATING;
+        printState();
+		syscall_sem_post(philosopherSemaphore(phyloId));
+	}
 }
 
-
-static void take_forks(int id) {
-  if (id % 2 == 0) {
-    syscall_sem_wait(phylo_status->philosophers[id]->semName);
-    syscall_sem_wait(phylo_status->philosophers[getRightBlock(id)]->semName);
-  } else {
-    syscall_sem_wait(phylo_status->philosophers[getRightBlock(id)]->semName);
-    syscall_sem_wait(phylo_status->philosophers[id]->semName);
-  }
+static void takeForks(int phyloId) {
+	syscall_sem_wait(MUTEX_ID);
+	state[phyloId] = HUNGRY;
+	test(phyloId);
+	syscall_sem_post(MUTEX_ID);
+	syscall_sem_wait(philosopherSemaphore(phyloId));
 }
 
-static void put_forks(int id) {
-  if (id % 2 == 0) {
-    syscall_sem_post(phylo_status->philosophers[getRightBlock(id)]->semName);
-    syscall_sem_post(phylo_status->philosophers[id]->semName);
-  } else {
-    syscall_sem_post(phylo_status->philosophers[id]->semName);
-    syscall_sem_post(phylo_status->philosophers[getRightBlock(id)]->semName);
-  }
+static void putForks(int phyloId) {
+	syscall_sem_wait(MUTEX_ID);
+	state[phyloId] = THINKING;
+	test(LEFT(phyloId));
+	test(RIGHT(phyloId));
+	syscall_sem_post(MUTEX_ID);
 }
 
-static uint64_t philosopher(uint64_t argc, char *argv[]) {
-    int id = atoi(argv[0]);
-    if (id < 0 || id >= phylo_status->philosopherCount) {
-        syscall_exit();
-        return 1;
-    }
-    
-  while (1) {
-    syscall_sem_wait(phylo_status->mutex_sem);
-    phylo_status->philosophers[id]->state = THINKING;
-    syscall_sem_post(phylo_status->mutex_sem);
+static uint64_t philosopher(uint64_t argc, char *argv[]){
+	int i = atoi(argv[0]);
+    state[i] = THINKING;
 
-    syscall_wait(TIME);
-
-    // Hambriento
-    syscall_sem_wait(phylo_status->mutex_sem);
-    phylo_status->philosophers[id]->state = HUNGRY;
-    syscall_sem_post(phylo_status->mutex_sem);
-
-    take_forks(id);
-
-    // Comiendo
-    syscall_sem_wait(phylo_status->mutex_sem);
-    phylo_status->philosophers[id]->state = EATING;
-    syscall_sem_post(phylo_status->mutex_sem);
-
-    print_state();
-
-    syscall_wait(TIME);
-
-    // Pensando otra vez
-    syscall_sem_wait(phylo_status->mutex_sem);
-    phylo_status->philosophers[id]->state = THINKING;
-    syscall_sem_post(phylo_status->mutex_sem);
-
-    put_forks(id);
-  }
+	while (1) {
+		syscall_wait(TIME);
+		takeForks(i);
+		syscall_wait(TIME);
+		putForks(i);
+	}
+	return 0;
 }
 
-static void init_philosophers(uint64_t count) {
-    if (count > MAX_PHILOSOPHERS) {
-        count = MAX_PHILOSOPHERS;
-    }
-    
-    // Allocate memory for the status structure
-    phylo_status = (PhyloProcess *)syscall_allocMemory(sizeof(PhyloProcess));
-    if (phylo_status == NULL) {
+static void addPhilosopher() {
+	syscall_sem_wait(MUTEX_ID);
+	state[phylosCount] = THINKING;
+
+	if (syscall_sem_open(philosopherSemaphore(phylosCount) , 0) == -1) {
+		printf("Error al crear semáforo %d\n", philosopherSemaphore(phylosCount));
+		return;
+	}
+
+    char *id_str = (char *)syscall_allocMemory(2);
+    if (id_str == NULL) {
+        syscall_freeMemory(id_str);
         return;
     }
-    
-    // Initialize the status structure
-    phylo_status->philosopherCount = count;
-    phylo_status->maxPhilosophers = MAX_PHILOSOPHERS;
-    phylo_status->philosophers = (Philosopher **)syscall_allocMemory(sizeof(Philosopher *) * count);
+    intToStr(phylosCount, id_str);
 
-    if (phylo_status->philosophers == NULL ) { 
-        syscall_freeMemory(phylo_status);
+    char **argv = (char **)syscall_allocMemory(2 * sizeof(char*));
+    if (argv == NULL) {
+        printf("Error al asignar memoria para los argumentos\n");
+        syscall_freeMemory(argv);
         return;
     }
-    
-    // Initialize mutex semaphore
-    phylo_status->mutex_sem = MUTEX_ID;
-    if (syscall_sem_open(phylo_status->mutex_sem, 1) < 0) {
-        syscall_freeMemory(phylo_status->philosophers);
-        syscall_freeMemory(phylo_status);
-        return;
-    }
-    // Create philosopher processes
-    for (int i = 0; i < count; i++) {
-        phylo_status->philosophers[i] = (Philosopher *)syscall_allocMemory(sizeof(Philosopher));
-        if (phylo_status->philosophers[i] == NULL) {
-            // Clean up
-            for (int j = 0; j < i; j++) {
-                syscall_freeMemory(phylo_status->philosophers[j]);
+
+    argv[0] = id_str;
+    argv[1] = NULL;
+        
+	philosopherPids[phylosCount] =syscall_create_process("philosopher", philosopher, 1, argv, 1, 0, 0, 1);
+	if (philosopherPids[phylosCount] < 0) {
+		printf("Error al crear filosofo %d\n", phylosCount);
+		return;
+	}
+
+	phylosCount++;
+	syscall_sem_post(MUTEX_ID);
+}
+
+static void removePhilosopher() {
+	phylosCount--;
+
+    printf("Eliminando filosofo...\n");
+
+	syscall_sem_wait(MUTEX_ID);
+	while (state[LEFT(phylosCount)] == EATING && state[RIGHT(phylosCount)] == EATING) {
+		syscall_sem_post(MUTEX_ID);
+		syscall_sem_wait(philosopherSemaphore(phylosCount));
+		syscall_sem_wait(MUTEX_ID);
+	}
+	if (syscall_kill(philosopherPids[phylosCount]) == -1) {
+		//printf("Error al matar filosofo %d\n", phylosCount);
+		return;
+	}
+	//printf("matado ok");
+	if (syscall_sem_close(philosopherSemaphore(phylosCount)) == -1) {
+		printf("Error al cerrar semaforo %d\n", philosopherSemaphore(phylosCount));
+		return;
+	}
+	//printf("sem cerrado ok");
+	//printf("eliminado ok");
+	syscall_sem_post(MUTEX_ID);
+}
+void start() {
+	char c;
+	while (1) {
+		c = getChar();
+		if(c == 'a') {
+			if(phylosCount < MAX_PHYLOS) {
+                printf("Agregando filosofo\n");
+                addPhilosopher();
+			}
+			else {
+                printf("No se pueden agregar mas filosofos\n");
             }
-            syscall_sem_close(phylo_status->mutex_sem);
-            syscall_freeMemory(phylo_status->philosophers);
-            syscall_freeMemory(phylo_status);
-            return;
-        }
-        
-        // Initialize philosopher
-        phylo_status->philosophers[i]->id = i;
-        phylo_status->philosophers[i]->state = THINKING;
-        
-        phylo_status->philosophers[i]->semName= MUTEX_ID + i + 1; 
-        if (syscall_sem_open(phylo_status->philosophers[i]->semName, 1) < 0) {
-            syscall_freeMemory(phylo_status->philosophers[i]);
-            return;
-        }
-        
-        // Create process for philosopher
-        char *id_str = (char *)syscall_allocMemory(2);
-        if (id_str == NULL) {
-            return;
-        }
-        id_str[0] = '0' + i;
-        id_str[1] = '\0';
-
-        char **argv = malloc(2 * sizeof(char*));
-        if (argv == NULL) {
-            printf("Error al asignar memoria para los argumentos\n");
-            return;
-        }
-
-        argv[0] = id_str;
-        argv[1] = NULL;
-        
-        pid_t pid = syscall_create_process("philosopher", philosopher, 1, argv, 1, 0, 0, 1);
-        if (pid < 0) {
-            // Clean up
-            for (int j = 0; j <= i; j++) {
-                syscall_freeMemory(phylo_status->philosophers[j]);
+		} else if (c == 'e') {
+            if (phylosCount > MIN_PHYLOS) {
+                removePhilosopher();
+            } else {
+                printf("No se pueden eliminar mas filosofos\n");
             }
-            syscall_sem_close(phylo_status->mutex_sem);
-            syscall_freeMemory(phylo_status->philosophers);
-            syscall_freeMemory(phylo_status);
+		} else if (c == 'f') {
             return;
-        }
-        
-        phylo_status->philosophers[i]->pid = pid;
-    }
+		}
+	}
+
+	for (int i = 0; i < phylosCount; i++) {
+		if (syscall_kill(philosopherPids[i]) == -1) {
+			printf("Error al matar filosofo %d\n", i);
+			return;
+		}
+		if (syscall_sem_close(philosopherSemaphore(i)) == -1) {
+			printf("Error al cerrar semaforo %d\n", i);
+			return;
+		}
+	}
+	if (syscall_sem_close(MUTEX_ID) == -1) {
+		printf("Error al cerrar mutex\n");
+		return;
+	}
+	return;
 }
 
 void phylo(uint64_t argc, char **argv) {
-    uint64_t count = atoi(argv[0]);
-    if (count <= 0 || count > MAX_PHILOSOPHERS) {
-        printf("El numero de filosofos debe estar entre 1 y %d\n", MAX_PHILOSOPHERS);
-        return;
-    }
+	uint64_t aux = atoi(argv[0]);
+	if (aux < MIN_PHYLOS || aux > MAX_PHYLOS) {
+		printf("Cantidad de filosofos debe estar entre %d y %d\n", MIN_PHYLOS, MAX_PHYLOS);
+		return;
+	}
+	if (syscall_sem_open(MUTEX_ID, 1) == -1) {
+		printf("Error al crear semaforo mutex\n");
+		return;
+	}
+
+	printf("\nFilosofos comensales\n");
+	printf("Comandos: 'a' agregar, 'e' eliminar, 'f' finalizar\n");
+	printf("Comenzamos...\n");
+	for (int i = 0; i < aux; i++) {
+		addPhilosopher();
+	}
+
+	start();
     
-    init_philosophers(count);
-    
-    if (phylo_status == NULL) {
-        printf("Error al inicializar los filosofos\n");
-        return;
-    }
-    
-    return;
+	phylosCount = 0;
+	return;
 }
