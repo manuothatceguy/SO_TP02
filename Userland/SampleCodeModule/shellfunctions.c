@@ -154,41 +154,50 @@ void showRegisters(){
 }
 
 void handle_help(char * arg){
+    free(arg); // no se usa
     printf("\n");
     printf(help); 
 }
 
 void handle_time(char * arg){
+    free(arg); // no se usa
     showTime();
 }
 
 void handle_registers(char * arg){
+    free(arg); // no se usa
     showRegisters();
 }
 
 void handle_echo(char * arguments){
     printf("%s\n", arguments);
+    free(arguments); // libero desp de usar
 }
 
 void handle_size_up(char * arg){
+    free(arg); // no se usa
     syscall_sizeUpFont(1);
     syscall_clearScreen();
 }
 
 void handle_size_down(char * arg){
+    free(arg); // no se usa
     syscall_sizeDownFont(1);
     syscall_clearScreen();
 }
 
 void handle_test_div_0(char * arg){
+    free(arg); // no se usa
     div_zero(); 
 }
 
 void handle_test_invalid_opcode(char * arg){
+    free(arg); // no se usa
     invalid_opcode(); 
 }
 
 void handle_clear(char * arg){
+    free(arg); // no se usa
     syscall_clearScreen();
 }
 
@@ -224,7 +233,7 @@ void handle_test_mm(char * arg) {
     argv[1] = NULL; // Terminar el array de argumentos
     
     // Crear un nuevo proceso para ejecutar el test (background porque es test)
-    create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 0, 0, 1);
+    create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 1, -1, 1);
     
     // Liberar la memoria después de crear el proceso
     //free(argv);
@@ -260,7 +269,9 @@ void handle_test_prio(char * arg) {
 
 void handle_test_sync(char * arg) {
     if (arg == NULL || arg[0] == '\0') {
-        printf("Uso: test_sync <iterations> <processes>\n");
+        printf("Uso: test_sync <iterations> <use_sem>\n");
+        printf("  iterations: número de iteraciones por proceso\n");
+        printf("  use_sem: 1 para usar semáforos, 0 para no usarlos\n");
         return;
     }
     
@@ -275,12 +286,13 @@ void handle_test_sync(char * arg) {
     
     if (space_pos == -1) {
         printf("Error: se requieren dos argumentos\n");
+        printf("Uso: test_sync <iterations> <use_sem>\n");
         return;
     }
     
     // Crear copias de los argumentos
     char iterations[32] = {0};
-    char processes[32] = {0};
+    char use_sem[32] = {0};
     
     // Copiar primer argumento
     for (int i = 0; i < space_pos; i++) {
@@ -290,7 +302,7 @@ void handle_test_sync(char * arg) {
     // Copiar segundo argumento
     int j = 0;
     for (int i = space_pos + 1; arg[i] != '\0'; i++) {
-        processes[j++] = arg[i];
+        use_sem[j++] = arg[i];
     }
     
     // Verificar que ambos sean números válidos
@@ -301,15 +313,13 @@ void handle_test_sync(char * arg) {
         }
     }
     
-    for (int i = 0; processes[i] != '\0'; i++) {
-        if (processes[i] < '0' || processes[i] > '9') {
-            printf("Error: processes debe ser un número\n");
-            return;
-        }
+    if (use_sem[0] != '0' && use_sem[0] != '1') {
+        printf("Error: use_sem debe ser 0 o 1\n");
+        return;
     }
     
     printf("Iniciando test de sincronizacion...\n");
-    char *argv[] = { iterations, processes, NULL };
+    char *argv[] = { iterations, use_sem, NULL };
     
     // Crear un nuevo proceso para ejecutar el test
     create_process_and_wait("test_sync", (fnptr)test_sync, 2, argv, 1, 1, 0, 1);
@@ -350,6 +360,7 @@ static void printProcessInfo(PCB processInfo) {
 }
   
 void handle_ps(char * arg){
+    free(arg); // no se usa
     uint64_t cantProcesses; 
 
     PCB *processInfo = syscall_getProcessInfo(&cantProcesses);
@@ -403,7 +414,7 @@ void handle_loop(char * arg) {
     //free(argv);
 }
 
-static void cat(uint64_t argc, char *argv[]) {
+static uint64_t cat(uint64_t argc, char *argv[]) {
     char c;
     char buffer[BUFFER_SPACE] = {0};
     int i = 0;
@@ -425,9 +436,10 @@ static void cat(uint64_t argc, char *argv[]) {
         c = getChar();
     }
     printf("\n");
+    return 0;
 }
 
-static void wc(uint64_t argc, char *argv[]) {
+static uint64_t wc(uint64_t argc, char *argv[]) {
     int lines = 1;
     char c;
     
@@ -446,9 +458,10 @@ static void wc(uint64_t argc, char *argv[]) {
     printf("\n");
     
     printf("Cantidad de lineas: %d\n\n", --lines);
+    return 0;
 }
 
-static void filter(uint64_t argc, char *argv[]) {
+static uint64_t filter(uint64_t argc, char *argv[]) {
     char c;
     char filtered[BUFFER_SPACE] = {0};
     int i = 0;
@@ -467,19 +480,23 @@ static void filter(uint64_t argc, char *argv[]) {
         c = getChar();
     }
     printf("\n%s\n", filtered);
+    return 0;
 }
 
 void handle_wc(char * arg) {
+    free(arg); // no se usa
     char *argv[] = { NULL };
     create_process_and_wait("wc", (fnptr)wc, 0, argv, 1, 1, 0, 1);
 }
 
 void handle_filter(char * arg) {
+    free(arg); // no se usa
     char *argv[] = { NULL };
     create_process_and_wait("filter", (fnptr)filter, 0, argv, 1, 1, 0, 1);
 }
 
 void handle_cat(char * arg) {
+    free(arg); // no se usa
     char *argv[] = { NULL };
     create_process_and_wait("cat", (fnptr)cat, 0, argv, 1, 1, 0, 1);
 }
@@ -495,6 +512,7 @@ void handle_nice(char * arg) {
         printf("Uso: nice <pid> <new_priority>\n");
         return;
     }
+    free(arg);
     
     // Convertir strings a números
     int pid = satoi(args[0]);

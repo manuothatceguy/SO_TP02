@@ -104,11 +104,22 @@ int verifyInstruction(char * instruction){
 
 int getInstruction(char * arguments){
     char * shell_buffer = malloc(BUFFER_SPACE * sizeof(char));
+    if(shell_buffer == NULL) {
+        printferror("Error al asignar memoria para el buffer.\n");
+        return -1;
+    }
+    
     readLine(shell_buffer, BUFFER_SPACE);
     int i = 0;
     int j = 0;
+
     char * instruction = malloc(BUFFER_SPACE * sizeof(char));
-    
+    if(instruction == NULL) {
+        printferror("Error al asignar memoria para la instrucción.\n");
+        free(shell_buffer);
+        return -1;
+    }
+
     for(; i < BUFFER_SPACE; i++){
         if(shell_buffer[i] == ' ' || shell_buffer[i] == '\0'){
             instruction[j] = 0;
@@ -159,7 +170,7 @@ uint64_t shell(uint64_t argc, char **argv) {
         arg = (char *)malloc(BUFFER_SPACE * sizeof(char));
         if(arg == NULL){
             printferror("Error al asignar memoria para los argumentos.\n");
-            return;
+            return 1;
         }
         for(int i = 0; i < BUFFER_SPACE; i++) {
             arg[i] = 0; // Inicializa el buffer de argumentos
@@ -176,5 +187,5 @@ uint64_t shell(uint64_t argc, char **argv) {
     }
     printf("Saliendo de la terminal...\n");
     syscall_wait(2000);
-    return;
+    return 0;
 }

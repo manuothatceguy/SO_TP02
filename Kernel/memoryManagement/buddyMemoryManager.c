@@ -357,7 +357,6 @@ void *freeMemory(void *const restrict address) {
 
     // Validar el bloque
     if (block->blockState != ALLOCATED) {
-        memoryManager->status = BUDDY_ERROR;
         DEBUG_PRINT("Bloque no encontrado o no asignado\n", DEBUG_COLOR);
         return NULL; // Dirección inválida o bloque no asignado
     }
