@@ -10,7 +10,7 @@
 #define MAX_ECHO 1000
 #define MAX_USERNAME_LENGTH 16
 #define PROMPT "%s$> "
-#define CANT_INSTRUCTIONS 22
+#define CANT_INSTRUCTIONS 23
 uint64_t curr = 0;
 
 typedef enum {
@@ -33,6 +33,7 @@ typedef enum {
     NICE,
     WC,
     FILTER,
+    CAT,
     TEST_MALLOC_FREE,
     PHYLO,
     EXIT
@@ -57,6 +58,7 @@ static char * inst_list[] = {"help",
                                             "nice",
                                             "wc",
                                             "filter",
+                                            "cat",
                                             "test_malloc_free",
                                             "phylo",
                                             "exit"
@@ -82,6 +84,7 @@ void (*instruction_handlers[CANT_INSTRUCTIONS-1])(char *) = {
     handle_nice,
     handle_wc,
     handle_filter,
+    handle_cat,
     handle_test_malloc_free,
     handle_phylo
 };

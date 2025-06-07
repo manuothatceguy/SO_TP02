@@ -8,6 +8,7 @@
 
 #define CANT_REGISTERS 19
 #define BUFFER_SPACE 1000
+#define CANT_SPECIAL_KEYS 9
 
 extern void div_zero();
 extern void invalid_opcode();
@@ -50,6 +51,7 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - nice <pid> <new_prio>: cambia la prioridad de un proceso\n"
                 "    - wc: cuenta la cantidad de lineas del input\n"
                 "    - filter: filtra las vocales del input\n"
+                "    - cat: muestra el input tal cual se ingresa\n"
                 "    - test_malloc_free: test de malloc y free\n"
                 "    - phylo <max_philosophers>: test de filosofos\n";
 
@@ -401,11 +403,35 @@ void handle_loop(char * arg) {
     //free(argv);
 }
 
+static void cat(uint64_t argc, char *argv[]) {
+    char c;
+    char buffer[BUFFER_SPACE] = {0};
+    int i = 0;
+    
+    //printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
+    
+    c = getChar();
+    while (c != EOF) {
+        if (c != 0) {
+            printf("%c", c);
+            buffer[i++] = c;
+            if (c == '\n') {
+                buffer[i] = '\0';
+                printf("%s", buffer);
+                buffer[0] = '\0';
+                i = 0;
+            }
+        }
+        c = getChar();
+    }
+    printf("\n");
+}
+
 static void wc(uint64_t argc, char *argv[]) {
     int lines = 1;
     char c;
     
-    printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
+    //printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
     
     c = getChar();
     while (c != EOF) {
@@ -427,7 +453,7 @@ static void filter(uint64_t argc, char *argv[]) {
     char filtered[BUFFER_SPACE] = {0};
     int i = 0;
     
-    printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
+    //printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
     
     c = getChar();
     while (c != EOF) {
@@ -451,6 +477,11 @@ void handle_wc(char * arg) {
 void handle_filter(char * arg) {
     char *argv[] = { NULL };
     create_process_and_wait("filter", (fnptr)filter, 0, argv, 1, 1, 0, 1);
+}
+
+void handle_cat(char * arg) {
+    char *argv[] = { NULL };
+    create_process_and_wait("cat", (fnptr)cat, 0, argv, 1, 1, 0, 1);
 }
 
 void handle_nice(char * arg) {
@@ -488,8 +519,6 @@ void handle_nice(char * arg) {
         printf("Prioridad del proceso %d cambiada a %d\n", pid, new_priority);
     }
 }
-
-
 
 void handle_test_malloc_free(char *arg) {
     printf("Estado de memoria antes de malloc:\n");
