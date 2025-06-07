@@ -66,9 +66,10 @@ uint64_t unblockProcess(pid_t pid);
 /**
  * @brief Kills a process
  * @param pid Process ID to kill
+ * @param retValue Return value for the killed process
  * @return uint64_t 0 on success, -1 on failure
  */
-uint64_t kill(pid_t pid);
+uint64_t kill(pid_t pid, uint64_t retValue);
 
 /**
  * @brief Waits for a process to terminate

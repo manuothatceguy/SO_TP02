@@ -175,9 +175,6 @@ static void checkSpecialKeys(unsigned int key){
 }
 
 static void addToBuffer(unsigned int key){
-    // if(getCurrentProcessStdin() != STDIN_FD){
-    //     return; // No se puede escribir en el buffer si no es el stdin
-    // }
     writePipe(0, &key, 1);
 }
 
@@ -189,7 +186,7 @@ int bufferWrite(){
 
     if(!specialKey && c <= F12_PRESS){  
         if(ctrlPressed && press_keys[c].ascii == 'c'){
-            kill(getForegroundPid()); // CTRL + C mata al proceso actual
+            kill(getForegroundPid(),1); // CTRL + C mata al proceso actual
             lineFeed();
             printStr("^C", 0x00FFFFFF);
             lineFeed();

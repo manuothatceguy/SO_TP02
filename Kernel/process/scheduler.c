@@ -196,15 +196,16 @@ uint64_t unblockProcessBySem(pid_t pid) {
     return unblockProcessQueueBySem(processes, pid);
 }
 
-uint64_t kill(pid_t pid){
+uint64_t kill(pid_t pid, uint64_t retValue) {
     if (pid <= 1) { // Can't kill shell or idle
         return -1;
     }
     //child->retValue es: (pid == getCurrentPid()) ? EXITED : KILLED; // si es el actual sale, sino es xq lo mataron
-    PCB* process = killProcess(processes, pid, (pid == getCurrentPid()) ? EXITED : KILLED, ZOMBIE);
+    PCB* process = killProcess(processes, pid, retValue, ZOMBIE);
     if(process == NULL){
         return -1;
     }
+    
     freeMemory((void*)process->base - STACK_SIZE); // libera el stack
     wakeupWaitingParent(process->parentPid, pid);
     if (pid == currentPid) {
