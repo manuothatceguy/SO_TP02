@@ -260,7 +260,9 @@ void handle_test_prio(char * arg) {
 
 void handle_test_sync(char * arg) {
     if (arg == NULL || arg[0] == '\0') {
-        printf("Uso: test_sync <iterations> <processes>\n");
+        printf("Uso: test_sync <iterations> <use_sem>\n");
+        printf("  iterations: número de iteraciones por proceso\n");
+        printf("  use_sem: 1 para usar semáforos, 0 para no usarlos\n");
         return;
     }
     
@@ -275,12 +277,13 @@ void handle_test_sync(char * arg) {
     
     if (space_pos == -1) {
         printf("Error: se requieren dos argumentos\n");
+        printf("Uso: test_sync <iterations> <use_sem>\n");
         return;
     }
     
     // Crear copias de los argumentos
     char iterations[32] = {0};
-    char processes[32] = {0};
+    char use_sem[32] = {0};
     
     // Copiar primer argumento
     for (int i = 0; i < space_pos; i++) {
@@ -290,7 +293,7 @@ void handle_test_sync(char * arg) {
     // Copiar segundo argumento
     int j = 0;
     for (int i = space_pos + 1; arg[i] != '\0'; i++) {
-        processes[j++] = arg[i];
+        use_sem[j++] = arg[i];
     }
     
     // Verificar que ambos sean números válidos
@@ -301,15 +304,13 @@ void handle_test_sync(char * arg) {
         }
     }
     
-    for (int i = 0; processes[i] != '\0'; i++) {
-        if (processes[i] < '0' || processes[i] > '9') {
-            printf("Error: processes debe ser un número\n");
-            return;
-        }
+    if (use_sem[0] != '0' && use_sem[0] != '1') {
+        printf("Error: use_sem debe ser 0 o 1\n");
+        return;
     }
     
     printf("Iniciando test de sincronizacion...\n");
-    char *argv[] = { iterations, processes, NULL };
+    char *argv[] = { iterations, use_sem, NULL };
     
     // Crear un nuevo proceso para ejecutar el test
     create_process_and_wait("test_sync", (fnptr)test_sync, 2, argv, 1, 1, 0, 1);

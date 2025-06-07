@@ -32,7 +32,7 @@ typedef uint64_t (*syscall_fn)(uint64_t rbx, uint64_t rcx, uint64_t rdx);
 static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     if (length < 0) return 1;
     uint64_t color = (fd == 1 ? 0x00FFFFFF : (fd == 2 ? 0x00FF0000 : 0));
-    if( fd = 1 ){
+    if( fd == 1 ){
         fd = getCurrentProcessStdout();
     } else if( fd == 0 ){
         fd = getCurrentProcessStdin();
