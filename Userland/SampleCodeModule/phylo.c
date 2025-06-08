@@ -116,8 +116,7 @@ static void removePhilosopher() {
 		printferror("Error al matar filosofo %d\n", phylosCount);
 		return;
 	}
-    int status = 0;
-    syscall_waitpid(philosopherPids[phylosCount], &status);
+    syscall_waitpid(philosopherPids[phylosCount], NULL);
     if(status != 9) {
         printferror("Error al esperar filosofo %d, status: %d\n", phylosCount, status);
         return;
