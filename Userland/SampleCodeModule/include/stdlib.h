@@ -114,4 +114,6 @@ int atoi(const char *str);
  */
 char* itoa(int n);
 
+int checkNumber(char *str);
+
 #endif // STDLIB_H

@@ -20,3 +20,6 @@ Userland/0000-sampleCodeModule.elf
 .tgdbinit
 .gdbinit
 .gdb_history
+strace_out
+PVS-Studio.log
+report.tasks

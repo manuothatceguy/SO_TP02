@@ -33,8 +33,8 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
 
   //char curr = 'a';
   //printf("antes del while 1");
-  char i = 0;
-  for (; i < 3; i++) {
+  char j = 0;
+  for (; j < 3; j++) {
     rq = 0;
     total = 0;
     //printf("antes del otro while\n");

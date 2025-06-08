@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <syscall.h>
 #include <stdlib.h>
 #include <phylo.h>
@@ -174,11 +176,11 @@ uint64_t phylo(uint64_t argc, char **argv) {
 	uint64_t aux = atoi(argv[0]);
 	if (aux < MIN_PHYLOS || aux > MAX_PHYLOS) {
 		printf("Cantidad de filosofos debe estar entre %d y %d\n", MIN_PHYLOS, MAX_PHYLOS);
-		return;
+		return 1;
 	}
 	if (syscall_sem_open(MUTEX_ID, 1) == -1) {
 		printf("Error al crear semaforo mutex\n");
-		return;
+		return 1;
 	}
 
 	printf("\nFilosofos comensales\n");

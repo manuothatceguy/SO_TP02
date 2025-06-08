@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <clock.h>
 #include <lib.h>
 #include <stdint.h>
@@ -147,9 +149,6 @@ uint64_t getTimeParam(uint64_t param) {
     if (hour >= 24) {
         hour -= 24;
         dayVar++;
-    } else if (hour < 0) {
-        hour += 24;
-        dayVar--;
     }
 
     // Ajustar el día con cambio de mes

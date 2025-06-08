@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <scheduler.h>
 #include <defs.h>
 #include <memoryManager.h>
@@ -47,7 +49,7 @@ void initScheduler(fnptr idle) {
     processes = list;
 }
 
-pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout) {
+pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, int8_t priority, char foreground, int stdin, int stdout) {
     PCB* process = _createProcessPCB(name, function, argc, arg, priority, foreground, stdin, stdout);
     if (process == NULL) {
         return -1;
@@ -55,7 +57,7 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, uint8
     return process->pid;
 }
 
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout) {
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, int8_t priority, char foreground, int stdin, int stdout) {
     if (name == NULL || function == NULL) {
         return NULL;
     }
@@ -220,6 +222,26 @@ uint64_t kill(pid_t pid, uint64_t retValue) {
     return 0;
 }
 
+// Función auxiliar para reapear
+static int32_t reapChild(PCB* child, int32_t* retValue) {
+    if (retValue != NULL) {
+        *retValue = child->retValue;
+    }
+    
+    int32_t childPid = child->pid;
+    
+    // Limpiar el proceso
+    child->state = child->retValue; // EXITED O KILLED, MODIFICAR
+    removeZombieProcess(processes, childPid);
+    freeMemory(child);
+    
+    DEBUG_PRINT("Process reaped: ", 0x00FFFFFF);
+    DEBUG_PRINT_INT(childPid, 0x00FFFFFF);
+    DEBUG_PRINT("\n", 0x00FFFFFF);
+    
+    return childPid;
+}
+
 static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
     if (parentPid == -1){
         return;
@@ -242,26 +264,6 @@ static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
     if (parent->state == BLOCKED && parent->waitingForPid == childPid) {
         unblockProcess(parentPid);
     }
-}
-
-// Función auxiliar para reapear
-int32_t reapChild(PCB* child, int32_t* retValue) {
-    if (retValue != NULL) {
-        *retValue = child->retValue;
-    }
-    
-    int32_t childPid = child->pid;
-    
-    // Limpiar el proceso
-    child->state = child->retValue; // EXITED O KILLED, MODIFICAR
-    removeZombieProcess(processes, childPid);
-    freeMemory(child);
-    
-    DEBUG_PRINT("Process reaped: ", 0x00FFFFFF);
-    DEBUG_PRINT_INT(childPid, 0x00FFFFFF);
-    DEBUG_PRINT("\n", 0x00FFFFFF);
-    
-    return childPid;
 }
 
 int32_t waitpid(pid_t pid, int32_t* retValue) {

@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <keyboardDriver.h>
 #include <shared_structs.h>
 #include <stdint.h>
@@ -184,7 +186,7 @@ int bufferWrite(){
 
     checkSpecialKeys(c);
 
-    if(!specialKey && c <= F12_PRESS){  
+    if(!specialKey && c < F12_PRESS){  
         if(ctrlPressed && press_keys[c].ascii == 'c'){
             kill(getForegroundPid(),1); // CTRL + C mata al proceso actual
             lineFeed();
@@ -198,7 +200,7 @@ int bufferWrite(){
             lineFeed();
             return 0;
         }
-        mayus = (caps && !shift) || (!caps && shift);
+        mayus = caps ^ shift;
         if( (isAlpha(c) && mayus) || (!isAlpha(c) && shift) ){
             addToBuffer(press_keys[c].shift_ascii);
         } else {

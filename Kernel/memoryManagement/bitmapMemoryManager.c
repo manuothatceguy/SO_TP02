@@ -1,4 +1,6 @@
-#ifdef BITMAP
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#ifndef BUDDY
 #include <memoryManager.h>
 #include <defs.h>
 #include <stdint.h>
@@ -24,24 +26,12 @@ void createMemoryManager() {
   uint32_t totalNeeded = HEAP_SIZE;
   memoryManager.start = (void*)HEAP_START_ADDRESS;
   memoryManager.blockQty = totalNeeded / BLOCK_SIZE;
-  if (totalNeeded % BLOCK_SIZE != 0) {
-    memoryManager.blockQty++;
-    totalNeeded = BLOCK_SIZE * memoryManager.blockQty;
-  }
   uint32_t bitMapSize = memoryManager.blockQty / BLOCK_SIZE;
-  if (memoryManager.blockQty % BLOCK_SIZE != 0) {
-    bitMapSize++;
-  }
   totalNeeded += bitMapSize * BLOCK_SIZE;
-//   if (totalNeeded > HEAP_SIZE) {
-//     return -1;
-//   }
-
   memoryManager.bitmap = (void*)HEAP_START_ADDRESS;
   memoryManager.blocksUsed = 0;
   memoryManager.start = memoryManager.bitmap + bitMapSize * BLOCK_SIZE;
   memoryManager.current = 0;
-
   initializeBitmap();
   return;
 }
@@ -136,6 +126,7 @@ void* freeMemory(void *const restrict memory) {
   }
   memoryManager.bitmap[blockIndex + blocksToFree] = FREE;
   memoryManager.blocksUsed -= blocksToFree + 1;
+  return NULL;
 }
 void getMemoryInfo(memInfo *info) {
     if (info == NULL) {

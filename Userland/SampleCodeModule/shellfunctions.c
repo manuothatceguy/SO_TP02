@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <shellfunctions.h>
 #include <syscall.h>
 #include <stdlib.h>
@@ -67,7 +69,7 @@ static pid_t create_process_and_wait(char *name, fnptr function, uint64_t argc, 
 void handle_help(char * arg){
     free(arg); // no se usa
     printf("\n");
-    printf(help); 
+    printf("%s", help); 
 }
 
 void handle_time(char * arg){

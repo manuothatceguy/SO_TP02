@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <time.h>
 #include <stdint.h>
 #include <clock.h>
@@ -30,26 +32,22 @@ typedef uint64_t (*syscall_fn)(uint64_t rbx, uint64_t rcx, uint64_t rdx);
 
 
 static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
-    if (length < 0) return 1;
-    uint64_t color = (fd == 1 ? 0x00FFFFFF : (fd == 2 ? 0x00FF0000 : 0));
     if( fd == 1 ){
         fd = getCurrentProcessStdout();
     } else if( fd == 0 ){
         fd = getCurrentProcessStdin();
     }
+    uint64_t color;
     switch(fd){
       case 0: // stdin
         return writePipe(0, buff, length);
         break;
       case 1: // stdout
-        // For foreground processes, write directly to screen
-        for(int i = 0; i < length; i++)
-            putChar(buff[i], color);
-        return length;
-        break;
+        color = 0x00FFFFFF; // blanco
       case 2: // stderr
+        color = 0x00FF0000; // rojo
         for(int i = 0; i < length; i++)
-            putChar(buff[i], color); // rojo
+            putChar(buff[i], color); 
         return length; 
         break;
       default: // pipe

@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <videoDriver.h>
 
 struct vbe_mode_info_structure {
@@ -79,85 +81,8 @@ uint16_t getPitch(){
 	return VBE_mode_info->pitch;
 }
 
-/* 				BORRAR
-
-
-static char isPenDown = 0;
-void penUp(){
-	isPenDown = 0;
-}
-void penDown(){
-	isPenDown = 1;
-}
-
-uint64_t x_pos = 0;
-uint64_t y_pos = 0;
-uint32_t currHexColor = 0x74FF00;
-
-void setColor(uint32_t color){
-	currHexColor = color;
-}
-
-int left(uint64_t delta){
-	int i;
-	for(i = x_pos; i > 0 && i > x_pos-delta; i--){
-		if(isPenDown){
-			putPixel(currHexColor,i,y_pos);
-		}
-	}
-	x_pos = i;
-	return i-(x_pos-delta);
-}
-int right(uint64_t delta){
-	int i;
-	for(i = x_pos; i < VBE_mode_info->width && i < x_pos+delta; i++){
-		if(isPenDown){
-			putPixel(currHexColor,i,y_pos);
-		}
-	}
-	x_pos = i;
-	return x_pos+delta-i;
-}
-int up(uint64_t delta){
-	int j;
-	for(j = y_pos; j > 0 && j > y_pos-delta; j--){
-		if (isPenDown){
-			putPixel(currHexColor,x_pos,j);
-		}
-	}
-	y_pos = j;
-	return y_pos-(y_pos-delta);
-}
-int down(uint64_t delta){
-	int j;
-	for(j = y_pos; j < VBE_mode_info->height && j < y_pos+delta; j++){
-		if(isPenDown){
-			putPixel(currHexColor,x_pos,j);
-		}
-	
-	}
-	y_pos = j;
-	return y_pos+delta-y_pos;
-}
-int setX(uint64_t newX){
-	if(newX > VBE_mode_info->width || newX < 0){
-		return -1;
-	}
-	x_pos = newX;
-	return 0;
-}
-int setY(uint64_t newY){
-
-	if(newY > VBE_mode_info->height || newY < 0){
-		return -1;
-	}
-	y_pos = newY;
-	return 0;
-}
-
-*/
 int drawSquare(uint64_t x, uint64_t y, uint64_t sideLength, uint32_t hexColor){
-	if(x > VBE_mode_info->width || x < 0 || y < 0 || y > VBE_mode_info->height || sideLength <= 0){
+	if(x > VBE_mode_info->width || y > VBE_mode_info->height || sideLength <= 0){
 		return -1; // Error de argumentos.
 	}
 	int i = x, j = y;
@@ -170,7 +95,7 @@ int drawSquare(uint64_t x, uint64_t y, uint64_t sideLength, uint32_t hexColor){
 }
 
 int drawRectangle(uint64_t x, uint64_t y, uint64_t vLength, uint64_t hLength, uint32_t hexColor){
-	if(x > VBE_mode_info->width || x < 0 || y < 0 || y > VBE_mode_info->height || vLength <= 0 || hLength <= 0){
+	if(x > VBE_mode_info->width || y > VBE_mode_info->height || vLength <= 0 || hLength <= 0){
 		return -1; // Error de argumentos.
 	}
 	for(int i = x; i < hLength + x; i++){

@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <programs.h>
 
 #define COL_PROCESS 11
@@ -152,7 +154,7 @@ void showRegisters(){
 }
 
 uint64_t cat(uint64_t argc, char *argv[]) {
-    char c;
+    int c;
     char buffer[BUFFER_SPACE] = {0};
     int i = 0;
     
@@ -193,9 +195,11 @@ void loop(uint64_t argc, char *argv[]) {
     }
 }
 
+
+
 uint64_t wc(uint64_t argc, char *argv[]) {
     int lines = 1;
-    char c;
+    int c;
     
     //printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
     
@@ -216,7 +220,7 @@ uint64_t wc(uint64_t argc, char *argv[]) {
 }
 
 uint64_t filter(uint64_t argc, char *argv[]) {
-    char c;
+    int c;
     char filtered[BUFFER_SPACE] = {0};
     int i = 0;
     
