@@ -113,6 +113,12 @@ int atoi(const char *str) {
     return (int)satoi((char *)str);
 }
 
+char* itoa(int n){
+    char* buff = (char*)malloc(MAX_INT_LENGTH);
+    intToStr(n, buff);
+    return buff;
+}
+
 uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
     char output[MAX_LENGTH] = {0};
     int i = 0, k = 0;

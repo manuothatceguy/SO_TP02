@@ -80,12 +80,38 @@ char getChar();
  */
 unsigned int randInt();
 
+/**
+ * @brief Reserva memoria dinámica
+ * @param size tamaño de la memoria a reservar
+ * @return puntero a la memoria reservada
+ */
 void * malloc(uint64_t size);
 
+/**
+ * @brief Libera memoria dinámica
+ * @param ptr puntero a la memoria a liberar
+ */
 void free(void *ptr);
 
+/**
+ * @brief Convierte un string a entero
+ * @param str string a convertir
+ * @return entero convertido
+ */
 int64_t satoi(char *str);
 
+/**
+ * @brief Convierte un string a entero
+ * @param str string a convertir
+ * @return entero convertido
+ */
 int atoi(const char *str);
+
+/**
+ * @brief Convierte un entero a string
+ * @param n entero a convertir
+ * @param buff buffer donde se guardará el string
+ */
+char* itoa(int n);
 
 #endif // STDLIB_H

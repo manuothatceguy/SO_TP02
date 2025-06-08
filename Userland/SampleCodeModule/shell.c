@@ -6,7 +6,6 @@
 
 #define FALSE 0
 #define TRUE 1
-#define BUFFER_SPACE 1000
 #define MAX_ECHO 1000
 #define MAX_USERNAME_LENGTH 16
 #define PROMPT "%s$> "
