@@ -310,6 +310,23 @@ char isForegroundProcess(PCB* process) {
     return process && process->fds.stdout == 1;
 }
 
+void adjustHierarchy(QueueADT queue, pid_t oldPid, pid_t newPid){
+    if(queue == NULL || isQueueEmpty(queue)) {
+        return; 
+    }
+    PCB** processes = (PCB**)dumpQueue(queue);
+    if (processes == NULL) {
+        return; 
+    }
+    for (int i = 0; processes[i] != NULL; i++) {
+        PCB* process = processes[i];
+        if (process->parentPid == oldPid) {
+            process->parentPid = newPid; 
+        }
+    }
+    freeMemory(processes); 
+}
+
 PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessState state) {
     if (list == NULL) {
         return NULL; 
@@ -332,6 +349,10 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
 
     process->retValue = retValue;
     process->state = state;
+    adjustHierarchy(list->readyQueue, pid, process->parentPid);
+    adjustHierarchy(list->blockedQueue, pid, process->parentPid);
+    adjustHierarchy(list->blockedQueueBySem, pid, process->parentPid);
+    adjustHierarchy(list->zombieQueue, pid, process->parentPid);
     return process;
 }
 

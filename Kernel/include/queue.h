@@ -23,4 +23,6 @@ void* containsQueue(QueueADT queue, void* data, int (*compare)(void*, void*));
 
 void* removeFromQueue(QueueADT queue, void* data, int (*compare)(void*, void*));
 
+void ** dumpQueue(QueueADT queue);
+
 #endif

@@ -151,3 +151,22 @@ void* removeFromQueue(QueueADT queue, void* data, int (*compare)(void*, void*)) 
     }
     return NULL; 
 }
+
+void ** dumpQueue(QueueADT queue) {
+    if (queue == NULL || queue->size == 0) {
+        return NULL; 
+    }
+    void **dataArray = (void **)allocMemory(sizeof(void *) * queue->size);
+    if (dataArray == NULL) {
+        return NULL; 
+    }
+    
+    Node* current = queue->front;
+    int index = 0;
+    while (current != NULL) {
+        dataArray[index++] = current->data;
+        current = current->next;
+    }
+    
+    return dataArray; 
+}
