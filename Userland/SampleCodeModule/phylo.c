@@ -72,30 +72,41 @@ static void addPhilosopher() {
 	state[phylosCount] = THINKING;
 
 	if (syscall_sem_open(philosopherSemaphore(phylosCount) , 0) == -1) {
-		printf("Error al crear semáforo %d\n", philosopherSemaphore(phylosCount));
+		printferror("Error al crear semáforo %d\n", philosopherSemaphore(phylosCount));
+		syscall_sem_post(MUTEX_ID);
 		return;
 	}
 
     char *id_str = (char *)syscall_allocMemory(2);
     if (id_str == NULL) {
-        syscall_freeMemory(id_str);
+		printferror("Error al asignar memoria para el ID del filósofo\n");
+		syscall_sem_close(philosopherSemaphore(phylosCount));
+		syscall_sem_post(MUTEX_ID);
+		//syscall_freeMemory(id_str);
         return;
     }
     intToStr(phylosCount, id_str);
 
     char **argv = (char **)syscall_allocMemory(2 * sizeof(char*));
     if (argv == NULL) {
-        printf("Error al asignar memoria para los argumentos\n");
-        syscall_freeMemory(argv);
+        printferror("Error al asignar memoria para los argumentos\n");
+		syscall_sem_close(philosopherSemaphore(phylosCount));
+		syscall_sem_post(MUTEX_ID);
+		syscall_freeMemory(id_str);
+        //syscall_freeMemory(argv);
         return;
     }
 
     argv[0] = id_str;
     argv[1] = NULL;
         
-	philosopherPids[phylosCount] = syscall_create_process("philosopher", philosopher, 1, argv, 1, 0, -1, -1);
+	philosopherPids[phylosCount] = syscall_create_process("philosopher", philosopher, 1, argv, 1, 0, -1, 1);
 	if (philosopherPids[phylosCount] < 0) {
-		printf("Error al crear filosofo %d\n", phylosCount);
+		printferror("Error al crear filosofo %d\n", phylosCount);
+		syscall_sem_close(philosopherSemaphore(phylosCount));
+		syscall_sem_post(MUTEX_ID);
+		syscall_freeMemory(id_str);
+		syscall_freeMemory(argv);
 		return;
 	}
 
@@ -104,30 +115,31 @@ static void addPhilosopher() {
 }
 
 static void removePhilosopher() {
-	phylosCount--;
-
-    printf("Eliminando filosofo...\n");
-
 	syscall_sem_wait(MUTEX_ID);
-	while (state[LEFT(phylosCount)] == EATING && state[RIGHT(phylosCount)] == EATING) {
-		syscall_sem_post(MUTEX_ID);
-		syscall_sem_wait(philosopherSemaphore(phylosCount));
-		syscall_sem_wait(MUTEX_ID);
-	}
+	phylosCount--;
+    printf("Eliminando filosofo...\n");
+	// while (state[LEFT(phylosCount)] == EATING && state[RIGHT(phylosCount)] == EATING) {
+	// 	syscall_sem_post(MUTEX_ID);
+	// 	syscall_sem_wait(philosopherSemaphore(phylosCount));
+	// 	syscall_sem_wait(MUTEX_ID);
+	// }
 	if (syscall_kill(philosopherPids[phylosCount]) == -1) {
 		printferror("Error al matar filosofo %d\n", phylosCount);
+		syscall_sem_post(MUTEX_ID);
 		return;
 	}
     syscall_waitpid(philosopherPids[phylosCount], NULL);
 	//printf("matado ok");
 	if (syscall_sem_close(philosopherSemaphore(phylosCount)) == -1) {
 		printferror("Error al cerrar semaforo %d\n", philosopherSemaphore(phylosCount));
+		syscall_sem_post(MUTEX_ID);
 		return;
 	}
 	//printf("sem cerrado ok");
 	//printf("eliminado ok");
 	syscall_sem_post(MUTEX_ID);
 }
+
 void start() {
 	char c;
 	while (1) {
