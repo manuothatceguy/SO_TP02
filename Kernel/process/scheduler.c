@@ -32,8 +32,7 @@ static pid_t currentPid = -1;
 static pid_t nextFreePid = 0; // PID 0 será asignado al proceso idle, PID 1 será la shell
 static uint64_t quantum = 0;    
 
-// Declaración de función interna
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout);
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, int8_t priority, char foreground, int stdin, int stdout);
 static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) ;
 int getCurrentProcessStdin();
 int getCurrentProcessStdout();
