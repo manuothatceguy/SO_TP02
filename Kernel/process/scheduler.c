@@ -219,6 +219,9 @@ static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
     if (parentPid == -1){
         return;
     } 
+    if(parentPid == getIdleProcess(processes)->pid){
+        reapChild(getProcess(processes, childPid), NULL);
+    }
     
     PCB* parent = getProcess(processes, parentPid);
     if (parent == NULL) {
