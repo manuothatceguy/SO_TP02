@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define NAME_MAX_LENGTH 32  
+#define NUM_SEMS 300
 
 typedef struct memInfo {
     uint64_t total;
