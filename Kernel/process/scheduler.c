@@ -5,6 +5,7 @@
 #include <memoryManager.h>
 #include <interrupts.h>
 #include <shared_structs.h>
+#include <processStackFrame.h>
 #include <lib.h>
 #include <textModule.h>
 #include <syscall.h>
@@ -31,7 +32,8 @@ static pid_t currentPid = -1;
 static pid_t nextFreePid = 0; // PID 0 será asignado al proceso idle, PID 1 será la shell
 static uint64_t quantum = 0;    
 
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, int8_t priority, char foreground, int stdin, int stdout);
+// Declaración de función interna
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout);
 static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) ;
 int getCurrentProcessStdin();
 int getCurrentProcessStdout();
@@ -55,12 +57,8 @@ pid_t createProcess(char* name, fnptr function, uint64_t argc, char **arg, int8_
     return process->pid;
 }
 
-static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, int8_t priority, char foreground, int stdin, int stdout) {
-    if (name == NULL || function == NULL) {
-        return NULL;
-    }
-
-    if (argc > 0 && arg == NULL) {
+static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout) {
+    if (name == NULL || function == NULL || (argc > 0 && arg == NULL)) {
         return NULL;
     }
 
@@ -80,27 +78,17 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->foreground = foreground? 1 : 0; //programacion defensiva
     process->fds.stdin = -1;   // Initialize file descriptors to -1
     process->fds.stdout = -1;
-
-    pid_t parent_pid = getCurrentPid();
-
-    if (parent_pid == -1) {
-        process->parentPid = -1; 
-    } else {
-        process->parentPid = parent_pid;
-    }
-
     process->state = READY;
-    
     process->priority = priority;
-    process->base = (uint64_t)allocMemory(STACK_SIZE);
+    process->parentPid = getCurrentPid();
 
-    if ((void *)process->base == NULL) {
-        freeMemory(process); 
+    process->entryPoint = (uint64_t)function;
+
+    process->rsp = setupProcessStack(&process->base, (uint64_t)function, argc, arg);
+    if (process->rsp == 0){ // NULL
+        freeMemory(process);
         return NULL;
     }
-    process->base += STACK_SIZE;
-    process->rip = (uint64_t)function;
-    process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
 
     if (process->pid > 1) { // proceso usuario
         if (!foreground && stdin == TTY) {
@@ -200,7 +188,7 @@ uint64_t unblockProcessBySem(pid_t pid) {
 }
 
 uint64_t kill(pid_t pid, uint64_t retValue) {
-    if (pid <= SHELL_PID) { // Can't kill shell or idle
+    if (pid <= 1) { // Can't kill shell or idle
         return -1;
     }
     //child->retValue es: (pid == getCurrentPid()) ? EXITED : KILLED; // si es el actual sale, sino es xq lo mataron
@@ -324,6 +312,7 @@ int32_t waitpid(pid_t pid, int32_t* retValue) {
     return -1;
 }
 
+
 int8_t changePrio(pid_t pid, int8_t newPrio){
     PCB* process = getProcess(processes, pid);
     if (process == NULL) {
@@ -376,7 +365,7 @@ int16_t copyProcess(PCB *dest, PCB *src) {
     dest->state = src->state;
     dest->rsp = src->rsp;
     dest->base = src->base;
-    dest->rip = src->rip;
+    dest->entryPoint = src->entryPoint;
 	strncpy(dest->name, src->name, NAME_MAX_LENGTH);
 	dest->name[NAME_MAX_LENGTH - 1] = '\0'; 
     dest->retValue = src->retValue;

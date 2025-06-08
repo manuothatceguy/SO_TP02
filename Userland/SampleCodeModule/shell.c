@@ -143,7 +143,6 @@ int getInstruction(char * arguments){
     int iNum = 0;
     if((iNum = verifyInstruction(instruction)) == -1 && instruction[0] != 0){
         printferror("Comando no reconocido: %s\n", instruction);
-        free(arguments);
     }
     free(instruction);
     return iNum;
@@ -184,7 +183,7 @@ uint64_t shell(uint64_t argc, char **argv) {
                 exit = TRUE;
             }
         }
-        
+        free(arg);
     }
     printf("Saliendo de la terminal...\n");
     syscall_wait(2000);

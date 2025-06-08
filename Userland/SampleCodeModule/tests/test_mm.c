@@ -25,7 +25,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     return -1;
   }
   max_memory = satoi(argv[0]);
-  //printf("max_memory: %d\n", max_memory);
+  printf("max_memory: %d\n", max_memory);
   if (max_memory <= 0){
     printferror("\ntest_mm: error, max_memory debe ser un numero positivo\n");
     return -1;
@@ -63,7 +63,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       if (mm_rqs[i].address)
         if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
           printferror("\ntest_mm ERROR\n");
-          free(argv);
         }
 
     // Free
@@ -71,7 +70,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       if (mm_rqs[i].address)
         free(mm_rqs[i].address);
   }
-  free((void*)argv);
   printf("\ntest_mm: finished successfully\n");
   return 0;
 }

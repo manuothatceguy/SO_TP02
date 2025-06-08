@@ -124,12 +124,11 @@ char* itoa(int n){
 uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
     char * output = malloc(sizeof(char) * MAX_LENGTH);
     if (output == NULL) {
-        return 0; // falló malloc
+        return 0;
     }
     for (int i = 0; i < MAX_LENGTH; i++){
         output[i] = 0; 
     }
-    //char output[MAX_LENGTH] = {0};
     
     int i = 0, k = 0;
     while(format[i] != 0){

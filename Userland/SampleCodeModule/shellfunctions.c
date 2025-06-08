@@ -14,7 +14,6 @@
 extern void div_zero();
 extern void invalid_opcode();
 
-//uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority);
 
 char * help =   " Lista de comandos disponibles:\n"        
                 "    - exit: corta la ejecucion\n"
@@ -115,7 +114,6 @@ void handle_clear(char * arg){
 }
 
 void handle_mem_info(char * arg) {
-    free(arg);
     printf("Estado de memoria:\n");
 
     memInfo info;
@@ -132,7 +130,7 @@ void handle_mem_info(char * arg) {
 }
 
 void handle_test_mm(char * arg) {
-    if (arg == NULL || arg[0] == '\0') {
+    if (arg == NULL || checkNumber(arg) == 0) {
         printf("Uso: test_mm <max_memory>\n");
         return;
     }
@@ -147,9 +145,7 @@ void handle_test_mm(char * arg) {
     
     // Crear un nuevo proceso para ejecutar el test (background porque es test)
     create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 1, -1, 1);
-    
-    // Liberar la memoria después de crear el proceso
-    //free(argv);
+    free(argv);
 }
 
 void handle_test_processes(char * arg) {
@@ -167,9 +163,7 @@ void handle_test_processes(char * arg) {
     argv[1] = NULL; // Terminar el array de argumentos
     
     create_process_and_wait("test_processes", (fnptr)test_processes, 1, argv, 1, 1, 0, 1);
-    
-    // Liberar la memoria después de crear el proceso
-    //free(argv);
+    free(argv);
 }
 
 void handle_test_prio(char * arg) {
@@ -273,9 +267,7 @@ void handle_loop(char * arg) {
     argv[1] = NULL;
     
     create_process_and_wait("loop", (fnptr)loop, 1, argv, 1, 1, -1, 1);
-    
-    // Liberar memoria
-    //free(argv);
+    free(argv);
 }
 
 void handle_wc(char * arg) {
@@ -372,6 +364,5 @@ void handle_phylo(char * arg) {
     
     create_process_and_wait("phylo", (fnptr)phylo, 1, argv, 1, 1, 0, 1);
     free(argv);
-    free(arg);
 }
     

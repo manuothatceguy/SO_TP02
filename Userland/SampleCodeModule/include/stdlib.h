@@ -87,6 +87,8 @@ unsigned int randInt();
  */
 void * malloc(uint64_t size);
 
+int checkNumber(char *str);
+
 /**
  * @brief Libera memoria dinámica
  * @param ptr puntero a la memoria a liberar

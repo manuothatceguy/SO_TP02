@@ -1,7 +1,6 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-//#include <pcb.h>
 #include <shared_structs.h>
 
 #define STACK_SIZE 4096 
@@ -199,9 +198,5 @@ void addToBlockedQueue(ProcessManagerADT list, PCB* process);
  * @param process Process to add
  */
 void addToBlockedQueueBySem(ProcessManagerADT list, PCB* process);
-
-// Assembly functions
-uint64_t processStackFrame(uint64_t base, uint64_t rip, uint64_t argc, char **arg);
-void wrapper(uint64_t function, char **argv);
 
 #endif // PROCESS_H

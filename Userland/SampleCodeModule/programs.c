@@ -61,9 +61,9 @@ void printProcessInfo(PCB processInfo) {
 
     printf("   RBP: 0x%x\n", (unsigned int)processInfo.base); // REGISTERS
 
-    // Línea inferior: RIP
+    // Línea inferior: EntryPoint
     for (int i = 0; i < LINE_WIDTH - 19; i++) printf(" ");
-    printf("RIP: 0x%x\n", (unsigned int)processInfo.rip);
+    printf("Entry: 0x%x\n", (unsigned int)processInfo.entryPoint);
 }
 
 int parse_arguments(char *arg, char **args, int max_args, int max_size) {
