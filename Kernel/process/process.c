@@ -29,7 +29,6 @@ int hasPid(void* a, void*b){ // a es el proceso, b es el pid. el signature es as
     PCB* processA = (PCB*)a;
     pid_t* pid = (pid_t*)b;
     
-    // Debug print
     DEBUG_PRINT("Comparing PID in hasPid - Process PID: ", 0x00FFFFFF);
     DEBUG_PRINT_INT(processA->pid, 0x00FFFFFF);
     DEBUG_PRINT(" vs Target PID: ", 0x00FFFFFF);
@@ -76,7 +75,7 @@ ProcessManagerADT createProcessManager(){
     return list;
 }
 
-void addProcess(ProcessManagerADT list, PCB *process, char foreground){
+void addProcess(ProcessManagerADT list, PCB *process){
     if(list == NULL || process == NULL) {
         return;
     }
@@ -85,12 +84,6 @@ void addProcess(ProcessManagerADT list, PCB *process, char foreground){
         list->currentProcess = process; 
     }
     
-    // if(foreground) {
-    //     // For foreground processes, use the same stdin as the shell
-    //     if (process->pid > 1) {  // If not the shell
-    //         process->fds.stdin = 0;  // Use pipe 0 (shell's stdin)
-    //     }
-    // }
     enqueue(list->readyQueue, process);
 }
 
@@ -307,7 +300,7 @@ char isCurrentForegroundProcess(ProcessManagerADT list, pid_t pid) {
 }
 
 char isForegroundProcess(PCB* process) {
-    return process && process->fds.stdout == 1;
+    return process && process->foreground == 1;
 }
 
 void adjustHierarchy(QueueADT queue, pid_t oldPid, pid_t newPid){
@@ -396,4 +389,14 @@ int isInAnyQueue(ProcessManagerADT list, pid_t pid) {
 void addToReadyQueue(ProcessManagerADT list, PCB* process) {
     if (list == NULL || process == NULL) return;
     enqueue(list->readyQueue, process);
+}
+
+void addToBlockedQueue(ProcessManagerADT list, PCB* process) {
+    if (list == NULL || process == NULL) return;
+    enqueue(list->blockedQueue, process);
+}
+
+void addToBlockedQueueBySem(ProcessManagerADT list, PCB* process) {
+    if (list == NULL || process == NULL) return;
+    enqueue(list->blockedQueueBySem, process);
 }

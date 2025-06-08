@@ -194,7 +194,6 @@ int bufferWrite(){
         }
         if(ctrlPressed && press_keys[c].ascii == 'd'){
             addToBuffer(EOF); // Add EOF character to buffer
-            lineFeed();
             printStr("^D", 0x00FFFFFF);
             lineFeed();
             return 0;

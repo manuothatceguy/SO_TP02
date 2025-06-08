@@ -539,6 +539,7 @@ void handle_nice(char * arg) {
 }
 
 void handle_test_malloc_free(char *arg) {
+    free(arg); // no se usa
     printf("Estado de memoria antes de malloc:\n");
     memInfo info;
     syscall_memInfo(&info);

@@ -10,6 +10,9 @@
 #include <debug.h>
 #include <pipes.h>
 
+#define SHELL_PID 1
+#define TTY 0
+
 #define QUANTUM 3
 #define MAX_PRIORITY 5 // agregar a limitaciones
 #define MIN_PRIORITY 0
@@ -75,7 +78,8 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     strncpy(process->name, name, NAME_MAX_LENGTH);
     process->pid = nextFreePid++;
     process->waitingForPid = -1;
-    process->retValue = 0;     
+    process->retValue = 0;
+    process->foreground = foreground? 1 : 0; //programacion defensiva
     process->fds.stdin = -1;   // Initialize file descriptors to -1
     process->fds.stdout = -1;
 
@@ -100,21 +104,28 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->rip = (uint64_t)function;
     process->rsp = processStackFrame(process->base, (uint64_t)function, argc, arg);
 
-    if(process->pid > 1){
-        process->fds.stdin = stdin == 0 ? getCurrentProcessStdin() : stdin;
-        process->fds.stdout = stdout == 1 ? getCurrentProcessStdout() : stdout;
-    } else if (process->pid == 1){
-        process->fds.stdin = createPipe(); // Shell's stdin
+    if (process->pid > 1) { // proceso usuario
+        if (!foreground && stdin == TTY) {
+            process->fds.stdout = stdout;
+            process->state = BLOCKED;
+            addToBlockedQueue(processes, process);
+            return process;
+        }
+        process->fds.stdin = (stdin == TTY) ? getCurrentProcessStdin() : stdin;
+        process->fds.stdout = (stdout == 1) ? getCurrentProcessStdout() : stdout;
+
+    } else if (process->pid == SHELL_PID) {
+        process->fds.stdin = createPipe();
         if (process->fds.stdin < 0) {
-            freeMemory((void*)process->base - STACK_SIZE); // libera el stack
+            freeMemory((void*)process->base - STACK_SIZE);
             freeMemory(process);
             return NULL;
         }
-        process->fds.stdout = 1; // Shell's stdout
+        process->fds.stdout = 1;
     }
-    
+        
 
-    if(priority != IDLE_PRIORITY) addProcess(processes, process, foreground);
+    if(priority != IDLE_PRIORITY) addProcess(processes, process);
     DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
     return process;
 }
@@ -133,13 +144,7 @@ uint64_t schedule(uint64_t rsp){
     static int first = 1;
     PCB* currentProcess = getCurrentProcess(processes);
     
-    // If current process is foreground, give it priority
-    //if(isForegroundProcess(processes, currentProcess->pid)) {
-    //    if(currentProcess->state == RUNNING) {
-    //        quantum--;
-    //        return rsp;
-    //    }
-    //}
+    
 
     if(quantum > 0 && currentProcess->state == RUNNING) {
         quantum--;
@@ -197,7 +202,7 @@ uint64_t unblockProcessBySem(pid_t pid) {
 }
 
 uint64_t kill(pid_t pid, uint64_t retValue) {
-    if (pid <= 1) { // Can't kill shell or idle
+    if (pid <= SHELL_PID) { // Can't kill shell or idle
         return -1;
     }
     //child->retValue es: (pid == getCurrentPid()) ? EXITED : KILLED; // si es el actual sale, sino es xq lo mataron
@@ -377,6 +382,7 @@ int16_t copyProcess(PCB *dest, PCB *src) {
 	strncpy(dest->name, src->name, NAME_MAX_LENGTH);
 	dest->name[NAME_MAX_LENGTH - 1] = '\0'; 
     dest->retValue = src->retValue;
+    dest->foreground = src->foreground;
     dest->fds.stdin = src->fds.stdin;
     dest->fds.stdout = src->fds.stdout;
     return 0;

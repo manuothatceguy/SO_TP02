@@ -46,6 +46,7 @@ typedef struct {
     uint64_t base;
     uint64_t rip;
     uint64_t retValue;
+    char foreground;
     struct {
         int stdin;
         int stdout;

@@ -19,9 +19,8 @@ ProcessManagerADT createProcessManager();
  * @brief Adds a new process to the manager
  * @param list Process manager
  * @param process Process to add
- * @param foreground Whether the process is foreground (1) or background (0)
  */
-void addProcess(ProcessManagerADT list, PCB *process, char foreground);
+void addProcess(ProcessManagerADT list, PCB *process);
 
 /**
  * @brief Removes a process from the ready queue
@@ -186,6 +185,20 @@ int isInAnyQueue(ProcessManagerADT list, pid_t pid);
  * @param process Process to add
  */
 void addToReadyQueue(ProcessManagerADT list, PCB* process);
+
+/**
+ * @brief Adds a process to the blocked queue
+ * @param list Process manager
+ * @param process Process to add
+ */
+void addToBlockedQueue(ProcessManagerADT list, PCB* process);
+
+/**
+ * @brief Adds a process to the blocked queue by semaphore
+ * @param list Process manager
+ * @param process Process to add
+ */
+void addToBlockedQueueBySem(ProcessManagerADT list, PCB* process);
 
 // Assembly functions
 uint64_t processStackFrame(uint64_t base, uint64_t rip, uint64_t argc, char **arg);

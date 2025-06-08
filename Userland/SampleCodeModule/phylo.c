@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <phylo.h>
 
-#define MAX_PHYLOS 7
-#define MIN_PHYLOS 3
+#define MAX_PHYLOS 10
+#define MIN_PHYLOS 1
 
 #define MUTEX_ID 100
 
