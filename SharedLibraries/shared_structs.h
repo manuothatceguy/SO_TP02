@@ -18,7 +18,7 @@ typedef struct ProcessCreationParams {
     char* name;
     fnptr function;
     uint64_t argc;
-    uint8_t priority;
+    int8_t priority;
     char** arg;
     char foreground;
     int stdin;
@@ -41,7 +41,7 @@ typedef struct {
     pid_t pid;
     pid_t parentPid;
     pid_t waitingForPid;
-    uint8_t priority;
+    int8_t priority;
     ProcessState state;
     uint64_t rsp;
     uint64_t base;

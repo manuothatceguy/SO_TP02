@@ -4,7 +4,6 @@
 #include <defs.h>
 #include <memoryManager.h>
 #include <interrupts.h>
-//#include <pcb.h>
 #include <shared_structs.h>
 #include <lib.h>
 #include <textModule.h>
@@ -18,9 +17,9 @@
 #define QUANTUM 3
 #define MAX_PRIORITY 5 // agregar a limitaciones
 #define MIN_PRIORITY 0
-#define IDLE_PRIORITY -1
+#define IDLE_PRIORITY 6
 
-uint64_t calculateQuantum(uint8_t priority) {
+uint64_t calculateQuantum(int8_t priority) {
     if (priority == IDLE_PRIORITY) {
         return QUANTUM;  // Minimum quantum for idle
     }
@@ -70,9 +69,7 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
         return NULL; 
     }
 
-    if(priority < IDLE_PRIORITY){
-        priority = IDLE_PRIORITY;
-    } else if(priority > MAX_PRIORITY){
+    if(priority > IDLE_PRIORITY){
         priority = MAX_PRIORITY;
     }
 
