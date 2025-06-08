@@ -117,10 +117,6 @@ static void removePhilosopher() {
 		return;
 	}
     syscall_waitpid(philosopherPids[phylosCount], NULL);
-    if(status != 9) {
-        printferror("Error al esperar filosofo %d, status: %d\n", phylosCount, status);
-        return;
-    }
 	//printf("matado ok");
 	if (syscall_sem_close(philosopherSemaphore(phylosCount)) == -1) {
 		printferror("Error al cerrar semaforo %d\n", philosopherSemaphore(phylosCount));
