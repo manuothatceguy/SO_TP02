@@ -120,7 +120,15 @@ char* itoa(int n){
 }
 
 uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
-    char output[MAX_LENGTH] = {0};
+    char * output = malloc(sizeof(char) * MAX_LENGTH);
+    if (output == NULL) {
+        return 0; // falló malloc
+    }
+    for (int i = 0; i < MAX_LENGTH; i++){
+        output[i] = 0; 
+    }
+    //char output[MAX_LENGTH] = {0};
+    
     int i = 0, k = 0;
     while(format[i] != 0){
         if(format[i] == '%' && format[i+1] != 0){
@@ -175,8 +183,9 @@ uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
         }
         i++;
     }
-    
-    return syscall_write(fd, output, strlen(output));
+    uint64_t toReturn = syscall_write(fd, output, k);
+    free(output);
+    return toReturn;
 }
 
 uint64_t printf(const char *format, ...){
