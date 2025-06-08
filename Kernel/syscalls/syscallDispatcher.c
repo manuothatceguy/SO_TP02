@@ -37,15 +37,13 @@ static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
     } else if( fd == 0 ){
         fd = getCurrentProcessStdin();
     }
-    uint64_t color;
+    uint64_t color = fd == 1 ? 0x00FFFFFF : 0x00FF0000; // blanco o rojo
     switch(fd){
       case 0: // stdin
         return writePipe(0, buff, length);
         break;
       case 1: // stdout
-        color = 0x00FFFFFF; // blanco
       case 2: // stderr
-        color = 0x00FF0000; // rojo
         for(int i = 0; i < length; i++)
             putChar(buff[i], color); 
         return length; 

@@ -34,7 +34,6 @@ typedef MemoryManager* MemoryManagerADT;
 
 // Function declarations
 static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level);
-static BuddyBlock * splitBlock(MemoryManagerADT memoryManager, uint8_t sourceLevel, uint8_t targetLevel);
 static inline void initMemoryBlock(BuddyBlock * block, uint8_t level);
 static inline uint64_t calculateOffset(MemoryManagerADT memoryManager, BuddyBlock * block);
 static inline uint8_t memoryToLevel(uint64_t memoryToAllocate);
@@ -271,76 +270,6 @@ static BuddyBlock* splitBlockToLevel(MemoryManagerADT memoryManager, BuddyBlock*
     
     // Otherwise, continue splitting left child
     return splitBlockToLevel(memoryManager, leftChild, newLevel, targetLevel);
-}
-
-static BuddyBlock * splitBlock(MemoryManagerADT memoryManager, uint8_t sourceLevel, uint8_t targetLevel) {
-    DEBUG_PRINT("[splitBlock] INICIO: de nivel ", DEBUG_COLOR);
-    DEBUG_PRINT_INT(sourceLevel, DEBUG_COLOR);
-    DEBUG_PRINT(" a nivel ", DEBUG_COLOR);
-    DEBUG_PRINT_INT(targetLevel, DEBUG_COLOR);
-    DEBUG_PRINT("\n", DEBUG_COLOR);
-    if (sourceLevel <= targetLevel) {
-        DEBUG_PRINT("[splitBlock] No se puede dividir a un nivel mayor o igual\n", DEBUG_COLOR);
-        return NULL; // No se puede dividir a un nivel mayor o igual
-    }
-
-    // Obtener un bloque libre del nivel sourceLevel
-    BuddyBlock* block = memoryManager->blocks[sourceLevel];
-    if (block == NULL) {
-        DEBUG_PRINT("[splitBlock] No se pudo encontrar un bloque libre\n", DEBUG_COLOR);
-        return NULL;
-    }
-    // Eliminar el bloque de la lista de libres antes de dividir
-    memoryManager->blocks[sourceLevel] = block->next;
-    if (block->next) {
-        block->next->prev = NULL;
-    }
-    block->next = NULL;
-    block->prev = NULL;
-
-    DEBUG_PRINT("[splitBlock] Dividiendo bloque en dirección: ", DEBUG_COLOR);
-    DEBUG_PRINT_INT((uint64_t)block, DEBUG_COLOR);
-    DEBUG_PRINT("\n", DEBUG_COLOR);
-
-    block->blockState = SPLIT;
-
-    // Calcular el tamaño del bloque hijo
-    uint8_t newLevel = sourceLevel - 1;
-    uint64_t childSize = (1ULL << newLevel);
-
-    // Calcular las posiciones de los hijos
-    BuddyBlock* leftChild = block;
-    BuddyBlock* rightChild = (BuddyBlock*)((char*)block + childSize);
-
-    // Inicializar los hijos
-    initMemoryBlock(leftChild, newLevel);
-    initMemoryBlock(rightChild, newLevel);
-
-    // Añadir el bloque derecho a la lista de libres de su nivel
-    rightChild->next = memoryManager->blocks[newLevel];
-    if (memoryManager->blocks[newLevel]) {
-        DEBUG_PRINT("[splitBlock] Bloque derecho añadido a la lista de libres\n", DEBUG_COLOR);
-        memoryManager->blocks[newLevel]->prev = rightChild;
-    }
-    memoryManager->blocks[newLevel] = rightChild;
-    DEBUG_PRINT("[splitBlock] Estado de blocks tras split: ", DEBUG_COLOR);
-    for (int i = 0; i < BLOCKS; i++) {
-        if (memoryManager->blocks[i] != NULL) {
-            DEBUG_PRINT("[", DEBUG_COLOR);
-            DEBUG_PRINT_INT(i, DEBUG_COLOR);
-            DEBUG_PRINT(":L]", DEBUG_COLOR);
-        }
-    }
-    DEBUG_PRINT("\n", DEBUG_COLOR);
-
-    // Si hemos llegado al nivel objetivo, devolver el bloque izquierdo
-    if (newLevel == targetLevel) {
-        DEBUG_PRINT("[splitBlock] Bloque izquierdo devuelto\n", DEBUG_COLOR);
-        return leftChild;
-    }
-
-    // De lo contrario, seguir dividiendo el bloque izquierdo
-    return splitBlock(memoryManager, newLevel, targetLevel);
 }
 
 static inline uint64_t calculateOffset(MemoryManagerADT memoryManager, BuddyBlock * block) {

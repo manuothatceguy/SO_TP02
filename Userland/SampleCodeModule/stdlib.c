@@ -45,9 +45,9 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
 	return digits;
 }
 
-uint64_t strlen(char * s){
+uint64_t strlen(const char * s){
     uint64_t length = 0;
-    while(*(s++)) length++;
+    for (; s[length] != '\0'; length++);
     return length;
 }
 

@@ -62,62 +62,11 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-void idle(uint64_t argc, char **argv) {
+uint64_t idle(uint64_t argc, char **argv) {
 	while(1){
 		_hlt();
 	}
-}
-
-// Test process to verify pipe communication
-void pipeTest(uint64_t argc, char **argv) {
-    int pipe_id = createPipe();
-    if (pipe_id < 0) {
-        printStr("Error creating pipe\n", RED);
-        return;
-    }
-
-    char test_msg[] = "Testing pipe communication...\n";
-    char read_buffer[100] = {0};
-
-    // Write to pipe
-    int written = writePipe(pipe_id, test_msg, strlen(test_msg));
-    if (written < 0) {
-        printStr("Error writing to pipe\n", RED);
-        return;
-    }
-
-    // Read from pipe
-    int read = readPipe(pipe_id, read_buffer, written);
-    if (read < 0) {
-        printStr("Error reading from pipe\n", RED);
-        return;
-    }
-
-    // Display what was read
-    printStr("Read from pipe: ", WHITE);
-    printStr(read_buffer, WHITE);
-
-    closePipe(pipe_id);
-}
-
-int feDeVida(uint64_t argc, char **argv) {
-	while(1) {
-		printStr("se me jijean\n", WHITE);
-		wait_seconds(4);
-	}
-	return 0;
-}
-
-int feDeVida2(uint64_t argc, char *argv[]) {
-	while(1) {
-		if (argc > 0 && argv != NULL && argv[0] != NULL) {
-			printStr(argv[0], WHITE);
-		} else {
-			printStr("los jolines\n", WHITE);
-		}
-		wait_ticks(40);
-	}
-	return 0;
+	return 0xdeadbeef;
 }
 
 int main(){	
