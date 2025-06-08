@@ -166,7 +166,7 @@ void handle_test_processes(char * arg) {
     argv[0] = arg; // Asignar el argumento
     argv[1] = NULL; // Terminar el array de argumentos
     
-    create_process_and_wait("test_processes", (fnptr)test_processes, 1, argv, 1, 0, 0, 1);
+    create_process_and_wait("test_processes", (fnptr)test_processes, 1, argv, 1, 1, 0, 1);
     
     // Liberar la memoria después de crear el proceso
     //free(argv);

@@ -355,11 +355,11 @@ PCB* getProcessInfo(uint64_t *cantProcesses){
         return NULL;
     }
     
-    for (uint64_t i = 0; i < count; i++) {
+    uint64_t j = 0;
+    for (uint64_t i = 0; j < count; i++) {
         PCB* process = getProcess(processes, i);
         if (process != NULL) {
-
-            if (copyProcess(&processInfo[i], process) == -1) {
+            if (copyProcess(&processInfo[j++], process) == -1) {
                 freeMemory(processInfo);
                 *cantProcesses = 0;
                 return NULL;
@@ -367,7 +367,7 @@ PCB* getProcessInfo(uint64_t *cantProcesses){
         } 
     }
 
-    *cantProcesses = count;
+    *cantProcesses = j;
     return processInfo;
 }
 
