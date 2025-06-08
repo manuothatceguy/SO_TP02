@@ -575,5 +575,7 @@ void handle_phylo(char * arg) {
     argv[1] = NULL;
     
     create_process_and_wait("phylo", (fnptr)phylo, 1, argv, 1, 1, 0, 1);
+    free(argv);
+    free(arg);
 }
     

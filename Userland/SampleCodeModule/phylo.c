@@ -91,7 +91,7 @@ static void addPhilosopher() {
     argv[0] = id_str;
     argv[1] = NULL;
         
-	philosopherPids[phylosCount] =syscall_create_process("philosopher", philosopher, 1, argv, 1, 0, 0, 1);
+	philosopherPids[phylosCount] = syscall_create_process("philosopher", philosopher, 1, argv, 1, 0, 0, 1);
 	if (philosopherPids[phylosCount] < 0) {
 		printf("Error al crear filosofo %d\n", phylosCount);
 		return;
@@ -113,12 +113,18 @@ static void removePhilosopher() {
 		syscall_sem_wait(MUTEX_ID);
 	}
 	if (syscall_kill(philosopherPids[phylosCount]) == -1) {
-		//printf("Error al matar filosofo %d\n", phylosCount);
+		printferror("Error al matar filosofo %d\n", phylosCount);
 		return;
 	}
+    int status = 0;
+    syscall_waitpid(philosopherPids[phylosCount], &status);
+    if(status != 9) {
+        printferror("Error al esperar filosofo %d, status: %d\n", phylosCount, status);
+        return;
+    }
 	//printf("matado ok");
 	if (syscall_sem_close(philosopherSemaphore(phylosCount)) == -1) {
-		printf("Error al cerrar semaforo %d\n", philosopherSemaphore(phylosCount));
+		printferror("Error al cerrar semaforo %d\n", philosopherSemaphore(phylosCount));
 		return;
 	}
 	//printf("sem cerrado ok");
@@ -144,28 +150,32 @@ void start() {
                 printf("No se pueden eliminar mas filosofos\n");
             }
 		} else if (c == 'f') {
-            return;
+            break;
 		}
 	}
 
 	for (int i = 0; i < phylosCount; i++) {
+        printf("Esperando a filosofo %d\n", i);
 		if (syscall_kill(philosopherPids[i]) == -1) {
-			printf("Error al matar filosofo %d\n", i);
+			printferror("Error al matar filosofo %d\n", i);
 			return;
 		}
+        syscall_waitpid(philosopherPids[i], NULL);
+        printf("Filosofo %d terminado\n", i);
 		if (syscall_sem_close(philosopherSemaphore(i)) == -1) {
-			printf("Error al cerrar semaforo %d\n", i);
+			printferror("Error al cerrar semaforo %d\n", i);
 			return;
 		}
 	}
+    printf("Todos los filosofos han terminado\n");
 	if (syscall_sem_close(MUTEX_ID) == -1) {
-		printf("Error al cerrar mutex\n");
+		printferror("Error al cerrar mutex\n");
 		return;
 	}
 	return;
 }
 
-void phylo(uint64_t argc, char **argv) {
+uint64_t phylo(uint64_t argc, char **argv) {
 	uint64_t aux = atoi(argv[0]);
 	if (aux < MIN_PHYLOS || aux > MAX_PHYLOS) {
 		printf("Cantidad de filosofos debe estar entre %d y %d\n", MIN_PHYLOS, MAX_PHYLOS);
@@ -186,5 +196,5 @@ void phylo(uint64_t argc, char **argv) {
 	start();
     
 	phylosCount = 0;
-	return;
+	return 0;
 }

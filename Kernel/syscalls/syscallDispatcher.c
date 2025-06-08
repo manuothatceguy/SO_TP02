@@ -211,7 +211,7 @@ void syscall_yield() {
 }
 
 pid_t syscall_waitpid(pid_t pid, int32_t* retValue) {
-    if(pid < 0 || retValue == NULL) {
+    if(pid < 0) {
         return -1;
     }
     return waitpid(pid, retValue);

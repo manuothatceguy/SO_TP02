@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void phylo(uint64_t argc, char **argv);
+uint64_t phylo(uint64_t argc, char **argv);
 
 #endif
