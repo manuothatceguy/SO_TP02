@@ -3,8 +3,9 @@
 #include <syscall.h>
 #include <stdlib.h>
 #include <phylo.h>
-#include "../../SharedLibraries/limitations.h"
 
+#define MAX_PHYLOS 10
+#define MIN_PHYLOS 1
 #define MUTEX_ID 100
 
 #define TIME 1
