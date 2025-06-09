@@ -82,7 +82,6 @@ static void addPhilosopher() {
 		printferror("Error al asignar memoria para el ID del filósofo\n");
 		syscall_sem_close(philosopherSemaphore(phylosCount));
 		syscall_sem_post(MUTEX_ID);
-		//syscall_freeMemory(id_str);
         return;
     }
     intToStr(phylosCount, id_str);
@@ -93,7 +92,6 @@ static void addPhilosopher() {
 		syscall_sem_close(philosopherSemaphore(phylosCount));
 		syscall_sem_post(MUTEX_ID);
 		syscall_freeMemory(id_str);
-        //syscall_freeMemory(argv);
         return;
     }
 
@@ -129,14 +127,11 @@ static void removePhilosopher() {
 		return;
 	}
     syscall_waitpid(philosopherPids[phylosCount], NULL);
-	//printf("matado ok");
 	if (syscall_sem_close(philosopherSemaphore(phylosCount)) == -1) {
 		printferror("Error al cerrar semaforo %d\n", philosopherSemaphore(phylosCount));
 		syscall_sem_post(MUTEX_ID);
 		return;
 	}
-	//printf("sem cerrado ok");
-	//printf("eliminado ok");
 	syscall_sem_post(MUTEX_ID);
 }
 

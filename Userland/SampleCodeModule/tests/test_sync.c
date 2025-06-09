@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
 #include <syscall.h>
+#include <stdlib.h>
 #include "test_util.h"
 #include <test_functions.h>
 
@@ -75,8 +76,8 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    my_wait(pids[i]);
-    my_wait(pids[i + TOTAL_PAIR_PROCESSES]);
+    syscall_waitpid(pids[i], NULL);
+    syscall_waitpid(pids[i + TOTAL_PAIR_PROCESSES], NULL);
   }
 
   printf("Final value: %d\n", global);

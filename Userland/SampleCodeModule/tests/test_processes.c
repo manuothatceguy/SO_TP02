@@ -6,14 +6,14 @@
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
-//enum State { RUNNING,
+// enum State { RUNNING,
 //             BLOCKED,
 //             KILLED };
 
-//typedef struct P_rq {
+// typedef struct P_rq {
 //  int32_t pid;
 //  enum State state;
-//} p_rq;
+// } p_rq;
 
 typedef struct P_rq {
   int32_t pid;
@@ -43,7 +43,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
     printf("i: %d\n", i);
     // Create max_processes processes
     for (rq = 0; rq < max_processes; rq++) {
-      p_rqs[rq].pid = syscall_create_process("endless_loop",(fnptr) endless_loop, 0, argvAux, 2, 0, -1, -1);
+      p_rqs[rq].pid = syscall_create_process("endless_loop",(fnptr) endless_loop, 0, argvAux, 2, 1, -1, 1);
 
       if (p_rqs[rq].pid == -1) {
         printf("test_processes: ERROR creating process\n");

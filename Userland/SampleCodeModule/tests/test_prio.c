@@ -62,19 +62,19 @@ uint64_t test_prio() {
 
   printf("Creando los procesos\n");
 
-  pids[0] = syscall_create_process("print_a",(fnptr) (fnptr)print_a, 0, argv, LOWEST, 0, 0, 1);
+  pids[0] = syscall_create_process("print_a",(fnptr)print_a, 0, argv, LOWEST, 1, 0, 1);
   if( pids[0] < 0) {
     printferror("Error al crear el proceso A\n");
     return -1;
   }
   printf("Proceso A creado con PID: %d\n", (int)pids[0]);
-  pids[1] = syscall_create_process("print_b",(fnptr) (fnptr)print_b, 0, argv, MEDIUM, 0, 0, 1);
+  pids[1] = syscall_create_process("print_b",(fnptr)print_b, 0, argv, MEDIUM, 1, 0, 1);
   if( pids[1] < 0) {
     printferror("Error al crear el proceso B\n");
     return -1;
   }
   printf("Proceso B creado con PID: %d\n", (int)pids[1]);
-  pids[2] = syscall_create_process("print_c",(fnptr) (fnptr)print_c, 0, argv, HIGHEST, 0, 0, 1);
+  pids[2] = syscall_create_process("print_c",(fnptr)print_c, 0, argv, HIGHEST, 1, 0, 1);
   if( pids[2] < 0) {
     printferror("Error al crear el proceso C\n");
     return -1;
@@ -87,11 +87,11 @@ uint64_t test_prio() {
   // for (i = 0; i < TOTAL_PROCESSES; i++)
   //   pids[i] = my_create_process("endless_loop_print", 0, argv);
 
-  for (char i = 0; i < LOOPS; i++){
-    syscall_yield();
-  }
+  // for (char i = 0; i < LOOPS; i++){
+  //   syscall_yield();
+  // }
   
-  //printf("\nCHANGING PRIORITIES...\n");
+  // printf("\nCHANGING PRIORITIES...\n");
 
   // for (i = 0; i < TOTAL_PROCESSES; i++)
   //   my_nice(pids[i], prio[i]);

@@ -81,8 +81,8 @@ void *syscall_allocMemory(uint64_t size) {
     return (void *)syscall(ALLOC_MEMORY, size, 0, 0);
 }
 
-void syscall_freeMemory(void *address) {
-    syscall(FREE_MEMORY, (uint64_t)address, 0, 0);
+int syscall_freeMemory(void *address) {
+    return syscall(FREE_MEMORY, (uint64_t)address, 0, 0);
 }
 
 uint64_t syscall_create_process(char *name, fnptr function, uint64_t argc, char *argv[], uint8_t priority, char foreground, int stdin, int stdout) {
@@ -127,8 +127,8 @@ int64_t syscall_memInfo(memInfo *info) {
     return syscall(MEM_INFO, (uint64_t)info, 0, 0);
 }
 
-void syscall_exit() {
-    syscall(EXIT, 0, 0, 0);
+int syscall_exit() {
+    return syscall(EXIT, 0, 0, 0);
 }
 
 int syscall_sem_open(int sem_id, uint64_t initialValue) {
@@ -147,8 +147,8 @@ int syscall_sem_close(int sem_id) {
     return syscall(SEM_CLOSE, sem_id, 0, 0);
 }
 
-void syscall_yield() {
-    syscall(YIELD, 0, 0, 0);
+int syscall_yield() {
+    return syscall(YIELD, 0, 0, 0);
 }
 
 int syscall_open_pipe() {
@@ -158,7 +158,6 @@ int syscall_open_pipe() {
 int syscall_close_pipe(int pipe_id) {
     return syscall(CLOSE_PIPE, pipe_id, 0, 0);
 }
-//src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
 int syscall_clear_pipe(int pipe_id) {
     return syscall(CLEAR_PIPE, pipe_id, 0, 0);
@@ -167,51 +166,3 @@ int syscall_clear_pipe(int pipe_id) {
 pid_t syscall_waitpid(pid_t pid, int32_t* status){
     return syscall(WAITPID, pid, (uint64_t)status, 0);
 }   
-
-int64_t my_getpid() {
-  return 0;
-}
-
-int64_t my_create_process(char *name, uint64_t argc, char *argv[]) {
-  return 0;
-}
-
-int64_t my_nice(uint64_t pid, uint64_t newPrio) {
-  return 0;
-}
-
-int64_t my_kill(uint64_t pid) {
-  return 0;
-}
-
-int64_t my_block(uint64_t pid) {
-  return 0;
-}
-
-int64_t my_unblock(uint64_t pid) {
-  return 0;
-}
-
-int64_t my_sem_open(char *sem_id, uint64_t initialValue) {
-  return 0;
-}
-
-int64_t my_sem_wait(char *sem_id) {
-  return 0;
-}
-
-int64_t my_sem_post(char *sem_id) {
-  return 0;
-}
-
-int64_t my_sem_close(char *sem_id) {
-  return 0;
-}
-
-int64_t my_yield() {
-  return 0;
-}
-
-int64_t my_wait(int64_t pid) {
-  return 0;
-}

@@ -125,23 +125,20 @@ int blockProcessQueue(ProcessManagerADT list, pid_t pid) {
         return -1; 
     }
     QueueADT queue = list->readyQueue;
-    // First verify the process exists in the ready queue
     PCB* process = (PCB*)containsQueue(list->readyQueue, &pid, hasPid);
     if (process == NULL) {
         process = (PCB*)containsQueue(list->blockedQueueBySem, &pid, hasPid);
         if(process == NULL) {
-            return -1; // Process not found in ready or blocked by semaphore queue
+            return -1; 
         }
         queue = list->blockedQueueBySem;
     }
     
-    // Now move it to blocked queue
     process = switchProcess(queue, list->blockedQueue, pid);
     if (process == NULL) {
         return -1;
     }
     
-    // State should already be BLOCKED from waitpid, but ensure it
     if (process->state != BLOCKED) {
         process->state = BLOCKED;
     }
@@ -199,29 +196,27 @@ PCB* getProcess(ProcessManagerADT list, pid_t pid){
         return NULL;
     }
     
-    // Check if it's the current process
     if (list->currentProcess && list->currentProcess->pid == pid) {
         return list->currentProcess;
     }
     
-    // Check if it's the idle process
     if (list->idleProcess && list->idleProcess->pid == pid) {
         return list->idleProcess;
     }
     
     PCB* process = (PCB*)containsQueue(list->readyQueue, &pid, hasPid);
     if (process != NULL) {
-        return process; // Found in ready queue
+        return process; 
     }
     
     process = (PCB*)containsQueue(list->blockedQueue, &pid, hasPid);
     if (process != NULL) {
-        return process; // Found in blocked queue
+        return process; 
     }
     
     process = (PCB*)containsQueue(list->blockedQueueBySem, &pid, hasPid);
     if (process != NULL) {
-        return process; // Found in blocked by semaphore queue
+        return process; 
     }
     
     return (PCB*)containsQueue(list->zombieQueue, &pid, hasPid);
@@ -332,9 +327,11 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
         if (process == NULL) {
             process = switchProcess(list->blockedQueueBySem, list->zombieQueue, pid);
             if (process == NULL) {
-                return NULL; // Process not found in any queue
+                return NULL; 
             }
         }
+    } else if (process == NULL) {
+        return NULL;
     }
 
     if (list->foregroundProcess && list->foregroundProcess->pid == pid) {
@@ -350,7 +347,6 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
     return process;
 }
 
-// Add new function to get process I/O
 int getProcessStdin(ProcessManagerADT list, pid_t pid) {
     PCB* process = getProcess(list, pid);
     return process ? process->fds.stdin : -1;
@@ -364,22 +360,18 @@ int getProcessStdout(ProcessManagerADT list, pid_t pid) {
 int isInAnyQueue(ProcessManagerADT list, pid_t pid) {
     if (list == NULL) return 0;
     
-    // Check ready queue
     if (containsQueue(list->readyQueue, &pid, hasPid) != NULL) {
         return 1;
     }
     
-    // Check blocked queue
     if (containsQueue(list->blockedQueue, &pid, hasPid) != NULL) {
         return 1;
     }
     
-    // Check blocked by sem queue
     if (containsQueue(list->blockedQueueBySem, &pid, hasPid) != NULL) {
         return 1;
     }
     
-    // Check zombie queue
     if (containsQueue(list->zombieQueue, &pid, hasPid) != NULL) {
         return 1;
     }

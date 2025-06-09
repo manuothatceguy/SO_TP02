@@ -57,7 +57,7 @@ void endless_loop() {
 }
 
 void endless_loop_print(uint64_t wait) {
-  int64_t pid = my_getpid();
+  int64_t pid = syscall_getpid();
 
   while (1) {
     printf("%d ", pid);

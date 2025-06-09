@@ -200,7 +200,7 @@ int syscall_clear_pipe(int pipe_id) {
 }
 
 uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3){
-    if(syscall_number > CANT_SYSCALLS) return 0;
+    if(syscall_number >= CANT_SYSCALLS) return 0;
     _cli();
     syscall_fn syscalls[] = {0,
         (syscall_fn)syscall_read, 

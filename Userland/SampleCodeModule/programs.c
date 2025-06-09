@@ -41,11 +41,9 @@ void printProcessInfo(PCB processInfo) {
         default: state = "UNKNOWN"; break;
     }
 
-    // Línea superior: RSP
     for (int i = 0; i < LINE_WIDTH - 19; i++) printf(" ");
     printf("RSP: 0x%x\n", (unsigned int)processInfo.rsp);
 
-    // Línea principal
     padRight(processInfo.name, COL_PROCESS);            // PROCESS (11)
     padInt(processInfo.pid, COL_PID);                   // PID (4)
     padRight(state, COL_STATE);                         // STATE (10)
@@ -61,7 +59,6 @@ void printProcessInfo(PCB processInfo) {
 
     printf("   RBP: 0x%x\n", (unsigned int)processInfo.base); // REGISTERS
 
-    // Línea inferior: EntryPoint
     for (int i = 0; i < LINE_WIDTH - 19; i++) printf(" ");
     printf("Entry: 0x%x\n", (unsigned int)processInfo.entryPoint);
 }
@@ -75,26 +72,20 @@ int parse_string(char *arg, char **args, int max_args, int max_size) {
     int current_pos = 0;
     int start_pos = 0;
     
-    // Inicializar todos los argumentos como strings vacíos
     for (int i = 0; i < max_args; i++) {
         args[i][0] = '\0';
     }
     
-    // Procesar cada carácter
     while (arg[current_pos] != '\0' && arg_count < max_args) {
-        // Si encontramos un espacio o el final de la cadena
         if (arg[current_pos] == ' ' || arg[current_pos + 1] == '\0') {
-            // Si es el final de la cadena, incluir el último carácter
             int end_pos = (arg[current_pos + 1] == '\0') ? current_pos + 1 : current_pos;
-            
-            // Copiar el argumento actual
+
             int j = 0;
             for (int i = start_pos; i < end_pos && j < max_size - 1; i++) {
                 args[arg_count][j++] = arg[i];
             }
             args[arg_count][j] = '\0';
-            
-            // Solo incrementar arg_count si el argumento no está vacío
+
             if (j > 0) {
                 arg_count++;
             }
@@ -112,15 +103,13 @@ int anal_arg(char *arg, char **args, int expected_args, int max_size) {
         return -1;
     }
 
-    // Verificar si hay & al final
     int has_background = 0;
     int len = strlen(arg);
     if (len > 0 && arg[len-1] == '&') {
         has_background = 1;
-        arg[len-1] = '\0';  // Remover el & para el parsing
+        arg[len-1] = '\0';  
     }
 
-    // Parsear los argumentos
     int num_args = parse_string(arg, args, expected_args, max_size);
     if (num_args != expected_args) {
         return -1;
@@ -133,9 +122,7 @@ uint64_t cat(uint64_t argc, char *argv[]) {
     int c;
     char buffer[BUFFER_SPACE] = {0};
     int i = 0;
-    
-    //printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
-    
+        
     c = getChar();
     while (c != EOF) {
         if (c != 0) {
@@ -157,7 +144,7 @@ uint64_t cat(uint64_t argc, char *argv[]) {
 void loop(uint64_t argc, char *argv[]) {
     pid_t pid = syscall_getpid();
     // Convertir el argumento a número
-    uint32_t time = satoi(argv[0]);
+    int32_t time = satoi(argv[0]);
     
     if (time <= 0) {
         printf("Error: time debe ser mayor que 0\n");
@@ -176,8 +163,6 @@ void loop(uint64_t argc, char *argv[]) {
 uint64_t wc(uint64_t argc, char *argv[]) {
     int lines = 1;
     int c;
-    
-    //printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
     
     c = getChar();
     while (c != EOF) {
@@ -199,8 +184,6 @@ uint64_t filter(uint64_t argc, char *argv[]) {
     int c;
     char filtered[BUFFER_SPACE] = {0};
     int i = 0;
-    
-    //printf("Ingrese el texto (presione Ctrl+D para terminar):\n");
     
     c = getChar();
     while (c != EOF) {

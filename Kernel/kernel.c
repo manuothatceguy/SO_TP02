@@ -21,6 +21,9 @@
 #define WHITE 0x00FFFFFF
 #define RED 0x000000FF
 
+#define SAMPLE_CODE_MODULE_ADDR    0x400000UL
+#define SAMPLE_DATA_MODULE_ADDR    0x500000UL
+
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
@@ -30,8 +33,8 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
-static void * const sampleCodeModuleAddress = (void*)0x400000;
-static void * const sampleDataModuleAddress = (void*)0x500000;
+static void * const sampleCodeModuleAddress = (void*)SAMPLE_CODE_MODULE_ADDR;
+static void * const sampleDataModuleAddress = (void*)SAMPLE_DATA_MODULE_ADDR;
 
 typedef int (*EntryPoint)();
 

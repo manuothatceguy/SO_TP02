@@ -9,7 +9,6 @@ static pipeManager pipes;
 static int next_sem_id = 0;
 static int pipeManagerInit = 0;
 
-// Función auxiliar para verificar si el sistema está inicializado
 static int ensurePipeManagerInit() {
     if (!pipeManagerInit) {
         initPipeManager();
@@ -17,6 +16,17 @@ static int ensurePipeManagerInit() {
     }
     return 0;
 }
+
+#define PIPE_ID_CHECK(id) \
+    if(id < 0 || id >= MAX_PIPES) { \
+        return -1; \
+    } \
+    if(id > 2) { \
+        id -= 2; \ 
+    } \
+    if(!pipes.pipes[id].isOpen) { \
+        return -1; \
+    }
 
 void initPipeManager() {
     pipes.next_pipe_id = 0;
@@ -61,24 +71,23 @@ int createPipe() {
             return i+2;
         }
     }
-    return -1; // No hay pipes disponibles
+    return -1; 
 }
+
+
 
 int readPipe(int pipe_id, char *buffer, int size) {
     ensurePipeManagerInit();
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES){
-        return -1;
-    }
-    if(pipe_id != 0) pipe_id -= 2; 
-    if(!pipes.pipes[pipe_id].isOpen || buffer == NULL || size <= 0)
+    PIPE_ID_CHECK(pipe_id)
+    if(buffer == NULL || size <= 0)
         return -1;
     pipe_t *pipe = &pipes.pipes[pipe_id];
     int bytes_read = 0;
 
     
     for(int i = 0; i < size; i++) {
-        semWait(pipe->semReaders); // Esperar datos disponibles
-        semWait(pipe->mutex);          // Acceso exclusivo
+        semWait(pipe->semReaders); 
+        semWait(pipe->mutex);          
         
         if(pipe->count > 0) {
             buffer[i] = pipe->buffer[pipe->readIdx];
@@ -88,7 +97,7 @@ int readPipe(int pipe_id, char *buffer, int size) {
         }
         
         semPost(pipe->mutex);
-        semPost(pipe->semWriters); // Hay espacio disponible
+        semPost(pipe->semWriters); 
     }
     
     return bytes_read;
@@ -97,18 +106,15 @@ int readPipe(int pipe_id, char *buffer, int size) {
 int writePipe(int pipe_id, const char *buffer, int size) {
     ensurePipeManagerInit();
     
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES){
-        return -1;
-    }
-    if(pipe_id != 0) pipe_id -= 2; 
-    if(!pipes.pipes[pipe_id].isOpen || buffer == NULL || size <= 0)
+    PIPE_ID_CHECK(pipe_id)
+    if(buffer == NULL || size <= 0)
         return -1;
     pipe_t *pipe = &pipes.pipes[pipe_id];
     int bytes_written = 0;
     
     for(int i = 0; i < size; i++) {
-        semWait(pipe->semWriters); // Esperar espacio disponible
-        semWait(pipe->mutex);           // Acceso exclusivo
+        semWait(pipe->semWriters); 
+        semWait(pipe->mutex);           
         
         if(pipe->count < PIPE_BUFFER_SIZE) {
             pipe->buffer[pipe->writeIdx] = buffer[i];
@@ -118,18 +124,16 @@ int writePipe(int pipe_id, const char *buffer, int size) {
         }
         
         semPost(pipe->mutex);
-        semPost(pipe->semReaders); // Datos disponibles
+        semPost(pipe->semReaders); 
     }
     
     return bytes_written;
 }
 
 int closePipe(int pipe_id) {
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES){
-        return -1;
-    }
-    if(pipe_id != 0) pipe_id -= 2; 
-    if(!pipes.pipes[pipe_id].isOpen || pipe_id <= 2)
+    ensurePipeManagerInit();
+    PIPE_ID_CHECK(pipe_id)
+    if(pipe_id <= 2)
         return -1;
     
     pipe_t *pipe = &pipes.pipes[pipe_id];
@@ -154,12 +158,8 @@ int closePipe(int pipe_id) {
 }
 
 int clearPipe(int pipe_id){
-        if(pipe_id < 0 || pipe_id >= MAX_PIPES){
-        return -1;
-    }
-    if(pipe_id != 0) pipe_id -= 2; 
-    if(!pipes.pipes[pipe_id].isOpen)
-        return -1;
+    ensurePipeManagerInit();
+    PIPE_ID_CHECK(pipe_id)
     pipe_t *pipe = &pipes.pipes[pipe_id];
     
     semWait(pipe->mutex);

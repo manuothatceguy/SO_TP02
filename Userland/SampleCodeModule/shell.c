@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "shellfunctions.h"
 #include "shell.h"
 #include <stdlib.h>
@@ -78,7 +80,7 @@ static void clearBuffer(){
 }
 
 int verifyInstruction(char * instruction){
-    for(int i = 0; i < CANT_INSTRUCTIONS; i++){
+    for(int i = 0; i < CANT_INSTRUCTIONS-1; i++){
         if(strcmp(inst_list[i], instruction) == 0){
             return i;
         }
@@ -152,12 +154,19 @@ static int bufferControl(pipeCmd * pipe_cmd){
 }
 
 static void handle_piped_commands(pipeCmd * pipe_cmd){
-    //primer proceso
+    if(pipe_cmd->cmd1.instruction == -1 || pipe_cmd->cmd2.instruction == -1){
+        printferror("Comando invalido.\n");
+        free(pipe_cmd->cmd1.arguments);
+        free(pipe_cmd->cmd2.arguments);
+        free(pipe_cmd);
+        return;
+    }
     int pipe = syscall_open_pipe();
     if(pipe < 0){
         printferror("Error al abrir el pipe\n");
         return;
     }
+
     pid_t pids[2];
     pids[0] = instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, pipe);
     pids[1] = instruction_handlers[pipe_cmd->cmd2.instruction](pipe_cmd->cmd2.arguments, pipe, 1);
@@ -193,7 +202,7 @@ uint64_t shell(uint64_t argc, char **argv) {
     while(!exit){
         clearBuffer();
         printf(PROMPT, username);
-        pipe_cmd = (pipeCmd *)malloc(BUFFER_SPACE * sizeof(pipeCmd));
+        pipe_cmd = (pipeCmd *)malloc(sizeof(pipeCmd));
         if(pipe_cmd == NULL){
             printferror("Error al asignar memoria para los argumentos.\n");
             return 1;
@@ -203,13 +212,25 @@ uint64_t shell(uint64_t argc, char **argv) {
         instructions =  bufferControl(pipe_cmd);
         if(instructions != -1){
             if(instructions == 1){
-                pid_t pid = instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, 1);
-                int status = 0;
-                syscall_waitpid(pid, &status);
-                free(pipe_cmd->cmd1.arguments);
-                free(pipe_cmd);
-                printf("Proceso %d terminado con estado %d\n", pid, status);
-            }else if(instructions == 2){
+                if(pipe_cmd->cmd1.instruction == EXIT){
+                    exit = TRUE;
+                    free(pipe_cmd->cmd1.arguments);
+                    free(pipe_cmd);
+                } else {
+                    if(pipe_cmd->cmd1.instruction == -1){
+                        printferror("Comando invalido.\n");
+                        free(pipe_cmd->cmd1.arguments);
+                        free(pipe_cmd);
+                    } else {
+                        pid_t pid = instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, 1);
+                        int status = 0;
+                        syscall_waitpid(pid, &status);
+                        free(pipe_cmd->cmd1.arguments);
+                        free(pipe_cmd);
+                        printf("Proceso %d terminado con estado %d\n", pid, status);
+                    }
+                }
+            } else if(instructions == 2){
                 handle_piped_commands(pipe_cmd);
             }
         }
