@@ -40,6 +40,21 @@ uint64_t printferror(const char *format, ...);
 uint64_t readLine(char * buff, uint64_t length);
 
 /**
+ * @brief Busca una subcadena en un string
+ * @param haystack string donde buscar
+ * @param needle subcadena a buscar
+ * @return puntero a la subcadena encontrada o NULL si no se encuentra
+ */
+char *strstr(const char *haystack, const char *needle);
+
+/**
+ * @brief Copia un string a otro
+ * @param dest string destino
+ * @param src string origen
+ */
+void strcpy(char *dest, const char *src);
+
+/**
  * @brief Compara dos strings
  * @param s1 primer string
  * @param s2 segundo string

@@ -29,7 +29,7 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - test_mm <max_memory>: test de gestion de memoria\n"
                 "    - test_processes <max_processes>: test de procesos\n"
                 "    - test_prio: test de prioridades\n"
-                "    - test_sync: test de sincronizacion\n"
+                "    - test_sync <iterations> <use_sem>: test de sincronizacion\n"
                 "    - ps: muestra los procesos con su informacion\n"
                 "    - memInfo: imprime estado de la memoria\n"
                 "    - loop <time>: ejecuta un bucle por el tiempo especificado\n"
@@ -65,55 +65,57 @@ static pid_t create_process_and_wait(char *name, fnptr function, uint64_t argc, 
     return pid;
 }
 
-void handle_help(char * arg){
+void handle_help(char * arg, int stdin, int stdout){
     free(arg); // no se usa
     printf("\n");
     printf("%s", help); 
 }
 
-void handle_time(char * arg){
+void handle_time(char * arg, int stdin, int stdout){
     free(arg); // no se usa
     showTime();
 }
 
-void handle_registers(char * arg){
+void handle_registers(char * arg, int stdin, int stdout){
     free(arg); // no se usa
     showRegisters();
 }
 
-void handle_echo(char * arguments){
+
+
+void handle_echo(char * arguments, int stdin, int stdout){
     printf("%s\n", arguments);
     free(arguments); // libero desp de usar
 }
 
-void handle_size_up(char * arg){
+void handle_size_up(char * arg, int stdin, int stdout){
     free(arg); // no se usa
     syscall_sizeUpFont(1);
     syscall_clearScreen();
 }
 
-void handle_size_down(char * arg){
+void handle_size_down(char * arg, int stdin, int stdout){
     free(arg); // no se usa
     syscall_sizeDownFont(1);
     syscall_clearScreen();
 }
 
-void handle_test_div_0(char * arg){
+void handle_test_div_0(char * arg, int stdin, int stdout){
     free(arg); // no se usa
     div_zero(); 
 }
 
-void handle_test_invalid_opcode(char * arg){
+void handle_test_invalid_opcode(char * arg, int stdin, int stdout){
     free(arg); // no se usa
     invalid_opcode(); 
 }
 
-void handle_clear(char * arg){
+void handle_clear(char * arg, int stdin, int stdout){
     free(arg); // no se usa
     syscall_clearScreen();
 }
 
-void handle_mem_info(char * arg) {
+void handle_mem_info(char * arg, int stdin, int stdout) {
     printf("Estado de memoria:\n");
 
     memInfo info;
@@ -129,8 +131,8 @@ void handle_mem_info(char * arg) {
     return;
 }
 
-void handle_test_mm(char * arg) {
-    if (arg == NULL || checkNumber(arg) == 0) {
+void handle_test_mm(char * arg, int stdin, int stdout) {
+    if (arg == NULL || arg[0] == '\0') {
         printf("Uso: test_mm <max_memory>\n");
         return;
     }
@@ -144,11 +146,13 @@ void handle_test_mm(char * arg) {
     argv[1] = NULL; // Terminar el array de argumentos
     
     // Crear un nuevo proceso para ejecutar el test (background porque es test)
-    create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 1, -1, 1);
-    free(argv);
+    create_process_and_wait("test_mm", (fnptr)test_mm, 1, argv, 1, 1, -1, stdout);
+    
+    // Liberar la memoria después de crear el proceso
+    //free(argv);
 }
 
-void handle_test_processes(char * arg) {
+void handle_test_processes(char * arg, int stdin, int stdout) {
     if (arg == NULL || arg[0] == '\0') {
         printf("Uso: test_processes <max_processes>\n");
         return;
@@ -162,19 +166,21 @@ void handle_test_processes(char * arg) {
     argv[0] = arg; // Asignar el argumento
     argv[1] = NULL; // Terminar el array de argumentos
     
-    create_process_and_wait("test_processes", (fnptr)test_processes, 1, argv, 1, 1, 0, 1);
-    free(argv);
+    create_process_and_wait("test_processes", (fnptr)test_processes, 1, argv, 1, 1, stdin, stdout);
+    
+    // Liberar la memoria después de crear el proceso
+    //free(argv);
 }
 
-void handle_test_prio(char * arg) {
+void handle_test_prio(char * arg, int stdin, int stdout) {
     printf("Iniciando test de prioridades...\n");
     char *argv[] = { NULL };
     
     // Crear un nuevo proceso para ejecutar el test
-    create_process_and_wait("test_prio", (fnptr)test_prio, 0, argv, 1, 1, 0, 1);
+    create_process_and_wait("test_prio", (fnptr)test_prio, 0, argv, 1, 1, stdin, stdout);
 }
 
-void handle_test_sync(char * arg) {
+void handle_test_sync(char * arg, int stdin, int stdout) {
     if (arg == NULL || arg[0] == '\0') {
         printf("Uso: test_sync <iterations> <use_sem>\n");
         printf("  iterations: número de iteraciones por proceso\n");
@@ -229,10 +235,10 @@ void handle_test_sync(char * arg) {
     char *argv[] = { iterations, use_sem, NULL };
     
     // Crear un nuevo proceso para ejecutar el test
-    create_process_and_wait("test_sync", (fnptr)test_sync, 2, argv, 1, 1, 0, 1);
+    create_process_and_wait("test_sync", (fnptr)test_sync, 2, argv, 1, 1, stdin, stdout);
 }
 
-void handle_ps(char * arg){
+void handle_ps(char * arg, int stdin, int stdout) {
     free(arg);
     uint64_t cantProcesses; 
 
@@ -253,7 +259,7 @@ void handle_ps(char * arg){
 }
 
 
-void handle_loop(char * arg) {
+void handle_loop(char * arg, int stdin, int stdout) {
     if (arg == NULL || checkNumber(arg) == 0) {
         printf("Uso: loop <time>\n");
         return;
@@ -266,36 +272,38 @@ void handle_loop(char * arg) {
     argv[0] = arg;
     argv[1] = NULL;
     
-    create_process_and_wait("loop", (fnptr)loop, 1, argv, 1, 1, -1, 1);
-    free(argv);
+    create_process_and_wait("loop", (fnptr)loop, 1, argv, 1, 1, -1, stdout);
+    
+    // Liberar memoria
+    //free(argv);
 }
 
-void handle_wc(char * arg) {
+void handle_wc(char * arg, int stdin, int stdout) {
     free(arg); // no se usa
     char *argv[] = { NULL };
-    create_process_and_wait("wc", (fnptr)wc, 0, argv, 1, 1, 0, 1);
+    create_process_and_wait("wc", (fnptr)wc, 0, argv, 1, 1, stdin, stdout);
 }
 
-void handle_filter(char * arg) {
+void handle_filter(char * arg, int stdin, int stdout) {
     free(arg); // no se usa
     char *argv[] = { NULL };
-    create_process_and_wait("filter", (fnptr)filter, 0, argv, 1, 1, 0, 1);
+    create_process_and_wait("filter", (fnptr)filter, 0, argv, 1, 1, stdin, stdout);
 }
 
-void handle_cat(char * arg) {
+void handle_cat(char * arg, int stdin, int stdout) {
     free(arg); // no se usa
     char *argv[] = { NULL };
-    create_process_and_wait("cat", (fnptr)cat, 0, argv, 1, 1, 0, 1);
+    create_process_and_wait("cat", (fnptr)cat, 0, argv, 1, 1, stdin, stdout);
 }
 
-void handle_nice(char * arg) {
+void handle_nice(char * arg, int stdin, int stdout) {
     char *args[2];
     char arg1[32] = {0};
     char arg2[32] = {0};
     args[0] = arg1;
     args[1] = arg2;
     
-    if (parse_arguments(arg, args, 2, 32) != 2) {
+    if (parse_string(arg, args, 2, 32) != 2) {
         printf("Uso: nice <pid> <new_priority>\n");
         return;
     }
@@ -325,7 +333,7 @@ void handle_nice(char * arg) {
     }
 }
 
-void handle_test_malloc_free(char *arg) {
+void handle_test_malloc_free(char *arg, int stdin, int stdout) {
     free(arg); // no se usa
     printf("Estado de memoria antes de malloc:\n");
     memInfo info;
@@ -349,7 +357,7 @@ void handle_test_malloc_free(char *arg) {
     printf("Usada: %d, Libre: %d\n", info.used, info.free);
 }
 
-void handle_phylo(char * arg) {
+void handle_phylo(char * arg, int stdin, int stdout) {
     if ( arg == NULL || arg[0] == '\0') {
         printf("Uso: phylo <cant_philosophers>\n");
         return;
@@ -362,7 +370,6 @@ void handle_phylo(char * arg) {
     argv[0] = arg;
     argv[1] = NULL;
     
-    create_process_and_wait("phylo", (fnptr)phylo, 1, argv, 1, 1, 0, 1);
+    create_process_and_wait("phylo", (fnptr)phylo, 1, argv, 1, 1, stdin, stdout);
     free(argv);
 }
-    

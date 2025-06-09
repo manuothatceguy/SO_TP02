@@ -9,7 +9,7 @@
 #define CANT_REGISTERS 19
 
 //utils
-int parse_arguments(char *arg, char **args, int max_args, int max_size);
+int parse_string(char *arg, char **args, int max_args, int max_size);
 
 //shellfunctions
 void showTime();

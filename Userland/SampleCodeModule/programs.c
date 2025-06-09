@@ -66,7 +66,7 @@ void printProcessInfo(PCB processInfo) {
     printf("Entry: 0x%x\n", (unsigned int)processInfo.entryPoint);
 }
 
-int parse_arguments(char *arg, char **args, int max_args, int max_size) {
+int parse_string(char *arg, char **args, int max_args, int max_size) {
     if (arg == NULL || arg[0] == '\0') {
         return -1;
     }

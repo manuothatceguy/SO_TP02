@@ -74,6 +74,15 @@ int strcmp(const char *s1, const char *s2){
     return *s1 - *s2;
 }
 
+void strcpy(char *dest, const char *src){
+    int i = 0;
+    while(src[i] != '\0'){
+        dest[i] = src[i];
+        i++;
+    }
+    dest[i] = '\0';
+}
+
 int checkNumber(char *str){
     if (str == NULL || *str == '\0') return 0; 
 
@@ -228,6 +237,28 @@ uint64_t readLine(char *buff, uint64_t length) {
     buff[i] = 0;
     printf("\n");
     return i;
+}
+
+char *strstr(const char *haystack, const char *needle) {
+  if (!*needle) {
+    return (char *)haystack;
+  }
+
+  for (const char *h = haystack; *h; h++) {
+    const char *hIter = h;
+    const char *nIter = needle;
+
+    while (*hIter && *nIter && *hIter == *nIter) {
+      hIter++;
+      nIter++;
+    }
+
+    if (!*nIter) {
+      return (char *)h;
+    }
+  }
+
+  return NULL;
 }
 
 unsigned long int next = 1;
