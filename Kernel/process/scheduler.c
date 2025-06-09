@@ -32,11 +32,11 @@ static pid_t currentPid = -1;
 static pid_t nextFreePid = 0; // PID 0 será asignado al proceso idle, PID 1 será la shell
 static uint64_t quantum = 0;    
 
-// Declaración de función interna
 static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **arg, uint8_t priority, char foreground, int stdin, int stdout);
 static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) ;
 int getCurrentProcessStdin();
 int getCurrentProcessStdout();
+static int32_t reapChild(PCB* child, int32_t* retValue);
 
 
 void initScheduler(fnptr idle) {
@@ -199,6 +199,7 @@ uint64_t kill(pid_t pid, uint64_t retValue) {
     
     freeMemory((void*)process->base - STACK_SIZE); // libera el stack
     wakeupWaitingParent(process->parentPid, pid);
+
     if (pid == currentPid) {
         quantum = 0;
         callTimerTick();

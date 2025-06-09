@@ -299,7 +299,7 @@ char isForegroundProcess(PCB* process) {
     return process && process->foreground == 1;
 }
 
-void adjustHierarchy(QueueADT queue, pid_t oldPid, pid_t newPid){
+void adjustHierarchy(QueueADT queue, pid_t oldPid, pid_t newPid, char shouldRemove) {
     if(queue == NULL || isQueueEmpty(queue)) {
         return; 
     }
@@ -310,8 +310,11 @@ void adjustHierarchy(QueueADT queue, pid_t oldPid, pid_t newPid){
     for (int i = 0; processes[i] != NULL; i++) {
         PCB* process = processes[i];
         if (process->parentPid == oldPid) {
-            process->parentPid = newPid; 
-        }
+            if(shouldRemove)
+                removeFromQueue(queue, &process->pid, hasPid);
+            else
+                process->parentPid = newPid; 
+        } 
     }
     freeMemory(processes); 
 }
@@ -340,10 +343,10 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
 
     process->retValue = retValue;
     process->state = state;
-    adjustHierarchy(list->readyQueue, pid, process->parentPid);
-    adjustHierarchy(list->blockedQueue, pid, process->parentPid);
-    adjustHierarchy(list->blockedQueueBySem, pid, process->parentPid);
-    adjustHierarchy(list->zombieQueue, pid, process->parentPid);
+    adjustHierarchy(list->readyQueue, pid, list->idleProcess->pid, 0);
+    adjustHierarchy(list->blockedQueue, pid, list->idleProcess->pid, 0);
+    adjustHierarchy(list->blockedQueueBySem, pid, list->idleProcess->pid, 0);
+    adjustHierarchy(list->zombieQueue, pid, list->idleProcess->pid, 1);
     return process;
 }
 

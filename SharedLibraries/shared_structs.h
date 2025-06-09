@@ -17,7 +17,6 @@ typedef uint64_t (*fnptr)(uint64_t argc, char **argv);
 typedef struct ProcessCreationParams {
     char* name;
     fnptr function;
-    uint64_t argc;
     int8_t priority;
     char** arg;
     char foreground;
