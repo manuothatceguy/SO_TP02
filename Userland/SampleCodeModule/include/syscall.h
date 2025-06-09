@@ -5,7 +5,7 @@
 #include "../../../SharedLibraries/shared_structs.h"
 
 #define NAME_MAX_LENGTH 32 
-
+#define STDIN 0
 
 typedef struct Point2D {
     uint64_t x, y;

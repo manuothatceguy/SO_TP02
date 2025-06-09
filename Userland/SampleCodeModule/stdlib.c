@@ -6,8 +6,7 @@
 #include <stdint.h>
 
 #define MAX_LENGTH 2000
-#define MAX_INT_LENGTH 10
-#define STDIN 0
+#define MAX_INT_LENGTH 21  
 #define STDOUT 1
 #define STDERR 2
 
@@ -52,6 +51,21 @@ uint64_t strlen(const char * s){
 }
 
 void intToStr(int n, char * buff){
+    uintToBase(n, buff, 10);
+    return;
+}
+
+void signedIntToStr(int n, char * buff){
+    if (n < 0) {
+        buff[0] = '-';
+        uintToBase(-n, buff + 1, 10);
+    } else {
+        uintToBase(n, buff, 10);
+    }
+    return;
+}
+
+void uint64ToStr(uint64_t n, char * buff){
     uintToBase(n, buff, 10);
     return;
 }
@@ -147,7 +161,16 @@ uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
                 case 'd':{
                     int num = va_arg(args, int);
                     char str[MAX_INT_LENGTH];
-                    intToStr(num, str);
+                    signedIntToStr(num, str);
+                    for(int j = 0; str[j] != 0; j++, k++){
+                        output[k] = str[j];
+                    }
+                    break;
+                }
+                case 'l':{
+                    uint64_t num = va_arg(args, uint64_t);
+                    char str[MAX_INT_LENGTH];
+                    uint64ToStr(num, str);
                     for(int j = 0; str[j] != 0; j++, k++){
                         output[k] = str[j];
                     }

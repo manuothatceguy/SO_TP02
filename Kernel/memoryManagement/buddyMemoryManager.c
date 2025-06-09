@@ -80,9 +80,9 @@ void createMemoryManager() {
     memoryManager->blocks[maxLevel] = rootBlock;
 
     // Prints de depuración
-    DEBUG_PRINT("[createMemoryManager] Bloque raíz en nivel: ", DEBUG_COLOR);
+    DEBUG_PRINT("[createMemoryManager] Bloque raiz en nivel: ", DEBUG_COLOR);
     DEBUG_PRINT_INT(maxLevel, DEBUG_COLOR);
-    DEBUG_PRINT(" dirección: ", DEBUG_COLOR);
+    DEBUG_PRINT(" direccion: ", DEBUG_COLOR);
     DEBUG_PRINT_INT((uint64_t)rootBlock, DEBUG_COLOR);
     DEBUG_PRINT("\n", DEBUG_COLOR);
     DEBUG_PRINT("[createMemoryManager] Estado inicial de blocks: ", DEBUG_COLOR);
@@ -111,7 +111,7 @@ void *allocMemory(const size_t memoryToAllocate) {
     DEBUG_PRINT("\n", DEBUG_COLOR);
 
     if (size < BUDDY_MIN_BLOCK_SIZE) {
-        DEBUG_PRINT("El tamaño mínimo de bloque es 8 bytes\n", DEBUG_COLOR);
+        DEBUG_PRINT("El tamaño minimo de bloque es 8 bytes\n", DEBUG_COLOR);
         size = BUDDY_MIN_BLOCK_SIZE;
     }
 
@@ -179,7 +179,7 @@ static BuddyBlock * findFreeBlock(MemoryManagerADT memoryManager, uint8_t level)
         
         // Verificar que el bloque esté realmente libre
         if (block->blockState != FREE) {
-            DEBUG_PRINT("[findFreeBlock] El bloque no está libre\n", DEBUG_COLOR);
+            DEBUG_PRINT("[findFreeBlock] El bloque no esta libre\n", DEBUG_COLOR);
             return NULL;
         }
         
@@ -279,7 +279,7 @@ static inline uint64_t calculateOffset(MemoryManagerADT memoryManager, BuddyBloc
 
 void *freeMemory(void *const restrict address) {
     if (address == NULL || memoryManager == NULL || memoryManager->status != BUDDY_OK) {
-        DEBUG_PRINT("Dirección inválida o memory manager no creado\n", DEBUG_COLOR);
+        DEBUG_PRINT("Direccion invalida o memory manager no creado\n", DEBUG_COLOR);
         return NULL;
     }
 
@@ -323,7 +323,7 @@ void *freeMemory(void *const restrict address) {
 
 static BuddyBlock* getBuddy(MemoryManagerADT memoryManager, BuddyBlock* block) {
     if (block == NULL || block->level >= BLOCKS) {
-        DEBUG_PRINT("Bloque inválido o nivel fuera de rango\n", DEBUG_COLOR);
+        DEBUG_PRINT("Bloque invalido o nivel fuera de rango\n", DEBUG_COLOR);
         return NULL;
     }
     
@@ -343,7 +343,7 @@ static BuddyBlock* getBuddy(MemoryManagerADT memoryManager, BuddyBlock* block) {
 
 static void mergeBlocks(MemoryManagerADT memoryManager, BuddyBlock* block) {
     if (block == NULL || block->level >= BLOCKS || block->blockState != FREE) {
-        DEBUG_PRINT("Bloque inválido o no libre\n", DEBUG_COLOR);
+        DEBUG_PRINT("Bloque invalido o no libre\n", DEBUG_COLOR);
         return;
     }
     

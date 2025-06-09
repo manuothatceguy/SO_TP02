@@ -72,14 +72,14 @@ static void addPhilosopher() {
 	state[phylosCount] = THINKING;
 
 	if (syscall_sem_open(philosopherSemaphore(phylosCount) , 0) == -1) {
-		printferror("Error al crear semáforo %d\n", philosopherSemaphore(phylosCount));
+		printferror("Error al crear semaforo %d\n", philosopherSemaphore(phylosCount));
 		syscall_sem_post(MUTEX_ID);
 		return;
 	}
 
     char *id_str = (char *)syscall_allocMemory(2);
     if (id_str == NULL) {
-		printferror("Error al asignar memoria para el ID del filósofo\n");
+		printferror("Error al asignar memoria para el ID del filosofo\n");
 		syscall_sem_close(philosopherSemaphore(phylosCount));
 		syscall_sem_post(MUTEX_ID);
         return;
@@ -145,13 +145,13 @@ void start() {
                 addPhilosopher();
 			}
 			else {
-                printf("No se pueden agregar mas filosofos\n");
+                printferror("No se pueden agregar mas filosofos\n");
             }
 		} else if (c == 'e') {
             if (phylosCount > MIN_PHYLOS) {
                 removePhilosopher();
             } else {
-                printf("No se pueden eliminar mas filosofos\n");
+                printferror("No se pueden eliminar mas filosofos\n");
             }
 		} else if (c == 'f') {
             break;
@@ -182,11 +182,11 @@ void start() {
 uint64_t phylo(uint64_t argc, char **argv) {
 	uint64_t aux = atoi(argv[0]);
 	if (aux < MIN_PHYLOS || aux > MAX_PHYLOS) {
-		printf("Cantidad de filosofos debe estar entre %d y %d\n", MIN_PHYLOS, MAX_PHYLOS);
+		printferror ("Cantidad de filosofos debe estar entre %d y %d\n", MIN_PHYLOS, MAX_PHYLOS);
 		return 1;
 	}
 	if (syscall_sem_open(MUTEX_ID, 1) == -1) {
-		printf("Error al crear semaforo mutex\n");
+		printferror("Error al crear semaforo mutex\n");
 		return 1;
 	}
 

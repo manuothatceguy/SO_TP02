@@ -77,6 +77,20 @@ void intToStr(int n, char * buff);
 void intToHex(int n, char * buff);
 
 /**
+ * @brief Convierte un entero con signo a string (maneja números negativos)
+ * @param n entero con signo a convertir
+ * @param buff buffer donde se guardará el string
+ */
+void signedIntToStr(int n, char * buff);
+
+/**
+ * @brief Convierte un uint64_t a string
+ * @param n uint64_t a convertir
+ * @param buff buffer donde se guardará el string
+ */
+void uint64ToStr(uint64_t n, char * buff);
+
+/**
  * @brief Obtiene un carácter de la entrada estándar.
  * 
  * Esta función espera y devuelve un único carácter ingresado por el usuario.

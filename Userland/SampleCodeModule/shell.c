@@ -95,7 +95,7 @@ int getInstruction(char * buffer, char * arguments){
 
     char * instruction = malloc(BUFFER_SPACE * sizeof(char));
     if(instruction == NULL) {
-        printferror("Error al asignar memoria para la instrucción.\n");
+        printferror("Error al asignar memoria para la instruccion.\n");
         return -1;
     }
 
@@ -111,7 +111,6 @@ int getInstruction(char * buffer, char * arguments){
     }
 
     int arg_index = 0;
-
     while (buffer[i] != '\0' && buffer[i] != '\n') {
         arguments[arg_index++] = buffer[i++];
     }
@@ -223,11 +222,15 @@ uint64_t shell(uint64_t argc, char **argv) {
                         free(pipe_cmd);
                     } else {
                         pid_t pid = instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, 1);
-                        int status = 0;
-                        syscall_waitpid(pid, &status);
+                        if(pid < 0){
+                            printferror("Error al ejecutar el comando.\n");
+                        } else {
+                            int status = 0;
+                            syscall_waitpid(pid, &status);
+                            printf("Proceso %d terminado con estado %d\n", pid, status);
+                        }
                         free(pipe_cmd->cmd1.arguments);
                         free(pipe_cmd);
-                        printf("Proceso %d terminado con estado %d\n", pid, status);
                     }
                 }
             } else if(instructions == 2){
