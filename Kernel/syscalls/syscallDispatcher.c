@@ -18,15 +18,7 @@
 #include <pipes.h>
 #include <interrupts.h>
 
-
-#define CANT_REGS 19
-#define CANT_SYSCALLS 32
-
-extern uint64_t regs[CANT_REGS];
-
-typedef struct Point2D {
-    uint64_t x, y;
-} Point2D;
+#define CANT_SYSCALLS 29
 
 typedef uint64_t (*syscall_fn)(uint64_t rbx, uint64_t rcx, uint64_t rdx);
 
@@ -50,29 +42,13 @@ static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
         break;
       default: // pipe
         int64_t i;
-        if(fd >= 3 + MAX_PIPES || (i = writePipe(fd - 3, buff, length)) < 0) {
+        if(fd >= 3 + MAX_PIPES || (i = writePipe(fd, buff, length)) < 0) {
             return -1; // error
         }
         return i; 
         break;
     }
     return -1;
-}
-
-static uint64_t syscall_beep(uint64_t freq, uint64_t ticks) {
-    play_sound(freq);
-    wait_ticks(ticks);
-    nosound();
-    return 0;
-}
-
-static uint64_t syscall_drawRectangle(Point2D* upLeft, Point2D *bottomRight, uint32_t color) {
-    return drawRectangle(upLeft->x, upLeft->y, bottomRight->y - upLeft->y + 1, bottomRight->x - upLeft->x + 1, color);
-}
-
-
-static void syscall_getRegisters(uint64_t buff[]) {
-    memcpy((void*)buff,(const void *)regs,CANT_REGS*(sizeof(void*)));
 }
 
 static uint64_t syscall_clearScreen(){
@@ -91,10 +67,6 @@ static uint64_t syscall_read(uint64_t fd, char* str,  uint64_t length){
         }
     }
     return readPipe(fd, str, length);
-}
-
-static uint64_t syscall_time(uint64_t mod){
-    return getTimeParam(mod);
 }
 
 static uint64_t syscall_fontSizeUp(uint64_t increase){
@@ -231,10 +203,6 @@ uint64_t syscallDispatcher(uint64_t syscall_number, uint64_t arg1, uint64_t arg2
     syscall_fn syscalls[] = {0,
         (syscall_fn)syscall_read, 
         (syscall_fn)syscall_write, 
-        (syscall_fn)syscall_time, 
-        (syscall_fn)syscall_beep, 
-        (syscall_fn)syscall_drawRectangle, 
-        (syscall_fn)syscall_getRegisters, 
         (syscall_fn)syscall_clearScreen, 
         (syscall_fn)syscall_fontSizeUp, 
         (syscall_fn)syscall_fontSizeDown, 

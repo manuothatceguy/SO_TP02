@@ -11,18 +11,12 @@
 #define MAX_ECHO 1000
 #define MAX_USERNAME_LENGTH 16
 #define PROMPT "%s$> "
-#define CANT_INSTRUCTIONS 24
+#define CANT_INSTRUCTIONS 18
 uint64_t curr = 0;
 
 typedef enum {
     HELP = 0,
-    TIME,
-    REGISTERS,
     ECHO, 
-    SIZE_UP,
-    SIZE_DOWN,
-    TEST_DIV_0,
-    TEST_INVALID_OPCODE,
     CLEAR,
     TEST_MM,
     TEST_PROCESSES,
@@ -42,13 +36,7 @@ typedef enum {
 } instructions;
 
 static char * inst_list[] = {"help", 
-                                            "time", 
-                                            "registers", 
                                             "echo", 
-                                            "size_up",
-                                            "size_down",
-                                            "test_div_0", 
-                                            "test_invalid_opcode", 
                                             "clear",
                                             "test_mm",
                                             "test_processes",
@@ -66,15 +54,9 @@ static char * inst_list[] = {"help",
                                             "exit"
                                             };
 
-void (*instruction_handlers[CANT_INSTRUCTIONS-1])(char *, int, int) = {
+pid_t (*instruction_handlers[CANT_INSTRUCTIONS-1])(char *, int, int) = {
     handle_help,
-    handle_time,
-    handle_registers,
     handle_echo,
-    handle_size_up,
-    handle_size_down,
-    handle_test_div_0,
-    handle_test_invalid_opcode,
     handle_clear,
     handle_test_mm,
     handle_test_processes,
@@ -154,9 +136,9 @@ static int bufferControl(pipeCmd * pipe_cmd){
 
     char * pipe_pos = strstr(shell_buffer, "|");
     if(pipe_pos != NULL){
-        * pipe_pos = 0;
+        *pipe_pos = 0;
         char * arg2 = malloc(BUFFER_SPACE * sizeof(char));
-        pipe_cmd->cmd2.instruction = getInstruction(pipe_pos+1, arg2);
+        pipe_cmd->cmd2.instruction = getInstruction(pipe_pos+2, arg2);
         pipe_cmd->cmd2.arguments = arg2;
         if(pipe_cmd->cmd2.instruction >= 0) instructions++;
     }
@@ -174,11 +156,14 @@ static void handle_piped_commands(pipeCmd * pipe_cmd){
         printferror("Error al abrir el pipe\n");
         return;
     }
-    instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, pipe);
-
-    //segundo proceso
-    instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, pipe, 1);
-
+    pid_t pids[2];
+    pids[0] = instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, pipe);
+    pids[1] = instruction_handlers[pipe_cmd->cmd2.instruction](pipe_cmd->cmd2.arguments, pipe, 1);
+    int status = 0;
+    syscall_waitpid(pids[0], &status);
+    printf("Proceso %d terminado con estado %d\n", pids[0], status);
+    syscall_waitpid(pids[1], &status);
+    printf("Proceso %d terminado con estado %d\n", pids[1], status);
     syscall_close_pipe(pipe);
 }
 
@@ -188,7 +173,9 @@ uint64_t shell(uint64_t argc, char **argv) {
     printf("  Bienvenido a la shell\n\n");
     syscall_sizeDownFont(1);
 
-    handle_help(0,0,0);
+    printf("\n\n\n");
+    printf("  Ingrese 'help' para ver la lista de comandos disponibles.\n");
+    printf("  Ingrese 'exit' para salir de la shell.\n\n");
 
     printf("Ingrese su nombre de usuario: ");
     char username[MAX_USERNAME_LENGTH];
@@ -211,7 +198,10 @@ uint64_t shell(uint64_t argc, char **argv) {
         instructions =  bufferControl(pipe_cmd);
         if(instructions != -1){
             if(instructions == 1){
-                instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, 1);
+                pid_t pid = instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, 1);
+                int status = 0;
+                syscall_waitpid(pid, &status);
+                printf("Proceso %d terminado con estado %d\n", pid, status);
             }else if(instructions == 2){
                 handle_piped_commands(pipe_cmd);
             }

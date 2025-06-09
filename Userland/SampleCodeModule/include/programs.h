@@ -12,10 +12,8 @@
 int parse_string(char *arg, char **args, int max_args, int max_size);
 
 //shellfunctions
-void showTime();
 void printHeader();
 void printProcessInfo(PCB processInfo); 
-void showRegisters();
 
 //programs
 void loop(uint64_t argc, char *argv[]);

@@ -16,11 +16,7 @@ extern int64_t syscall(uint64_t code, uint64_t param1, uint64_t param2, uint64_t
 enum syscall_number {
     NONE, 
     READ, 
-    WRITE, 
-    TIME, 
-    BEEP, 
-    DRAW_RECTANGLE, 
-    GET_REGISTERS, 
+    WRITE,  
     CLEAR_SCREEN, 
     SIZE_UP_FONT, 
     SIZE_DOWN_FONT, 
@@ -55,22 +51,6 @@ uint64_t syscall_read(uint64_t fd, char * buff, uint64_t len){
 
 uint64_t syscall_write(uint64_t fd, char * buff, uint64_t len){
     return syscall(WRITE, fd, (uint64_t)buff, len);
-}
-
-uint64_t syscall_time(uint64_t mod){
-    return syscall(TIME, mod, 0, 0);
-}
-
-uint64_t syscall_beep(uint64_t freq, uint64_t ticks){
-    return syscall(BEEP, freq, ticks, 0);
-}
-
-uint64_t syscall_drawRectangle(Point2D * ul, Point2D * br, uint32_t color){
-    return syscall(DRAW_RECTANGLE, (uint64_t)ul, (uint64_t)br, (uint64_t)color);
-}
-
-uint64_t syscall_getRegisters(uint64_t * registers){
-    return syscall(GET_REGISTERS, (uint64_t)registers, 0, 0);
 }
 
 uint64_t syscall_clearScreen(){

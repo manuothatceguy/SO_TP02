@@ -30,6 +30,6 @@ int createPipe();
 int readPipe(int pipe_id, char *buffer, int size);
 int writePipe(int pipe_id, const char *buffer, int size);
 int closePipe(int pipe_id);
-int clearPipe(int pipeId);
+int clearPipe(int pipe_id);
 
 #endif

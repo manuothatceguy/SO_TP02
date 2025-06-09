@@ -4,7 +4,7 @@ GLOBAL processStackFrame
 wrapper:
     call r8
     mov rbx, rax ; rbx = retValue
-    mov rax, 23
+    mov rax, 19
     int 80h
 
 .hang: ; should never be here

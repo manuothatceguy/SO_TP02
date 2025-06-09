@@ -56,8 +56,9 @@ int createPipe() {
                semInit(pipe->mutex, 1) < 0) {                    
                 return -1;
             }
-            
-            return i;
+            if(i == 0) 
+                return 0;
+            return i+2;
         }
     }
     return -1; // No hay pipes disponibles
@@ -65,10 +66,12 @@ int createPipe() {
 
 int readPipe(int pipe_id, char *buffer, int size) {
     ensurePipeManagerInit();
-    
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !pipes.pipes[pipe_id].isOpen || buffer == NULL || size <= 0)
+    if(pipe_id < 0 || pipe_id >= MAX_PIPES){
         return -1;
-        
+    }
+    if(pipe_id != 0) pipe_id -= 2; 
+    if(!pipes.pipes[pipe_id].isOpen || buffer == NULL || size <= 0)
+        return -1;
     pipe_t *pipe = &pipes.pipes[pipe_id];
     int bytes_read = 0;
     
@@ -93,9 +96,12 @@ int readPipe(int pipe_id, char *buffer, int size) {
 int writePipe(int pipe_id, const char *buffer, int size) {
     ensurePipeManagerInit();
     
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !pipes.pipes[pipe_id].isOpen || buffer == NULL || size <= 0)
+    if(pipe_id < 0 || pipe_id >= MAX_PIPES){
         return -1;
-        
+    }
+    if(pipe_id != 0) pipe_id -= 2; 
+    if(!pipes.pipes[pipe_id].isOpen || buffer == NULL || size <= 0)
+        return -1;
     pipe_t *pipe = &pipes.pipes[pipe_id];
     int bytes_written = 0;
     
@@ -118,9 +124,13 @@ int writePipe(int pipe_id, const char *buffer, int size) {
 }
 
 int closePipe(int pipe_id) {
-    if(pipe_id < 0 || pipe_id >= MAX_PIPES || !pipes.pipes[pipe_id].isOpen)
+        if(pipe_id < 0 || pipe_id >= MAX_PIPES){
         return -1;
-        
+    }
+    if(pipe_id != 0) pipe_id -= 2; 
+    if(!pipes.pipes[pipe_id].isOpen)
+        return -1;
+    
     pipe_t *pipe = &pipes.pipes[pipe_id];
     
     // Cerrar semáforos
@@ -142,11 +152,14 @@ int closePipe(int pipe_id) {
     return 0;
 }
 
-int clearPipe(int pipeId){
-    if(pipeId < 0 || pipeId >= MAX_PIPES || !pipes.pipes[pipeId].isOpen)
+int clearPipe(int pipe_id){
+        if(pipe_id < 0 || pipe_id >= MAX_PIPES){
         return -1;
-        
-    pipe_t *pipe = &pipes.pipes[pipeId];
+    }
+    if(pipe_id != 0) pipe_id -= 2; 
+    if(!pipes.pipes[pipe_id].isOpen)
+        return -1;
+    pipe_t *pipe = &pipes.pipes[pipe_id];
     
     semWait(pipe->mutex);
     
