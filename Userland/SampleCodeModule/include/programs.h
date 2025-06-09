@@ -4,9 +4,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <shell.h>
+#include <syscall.h>
+#include <shellfunctions.h>
 #include "../../../SharedLibraries/shared_structs.h"
 
 //utils
+
+/**
+ * @brief Lee de la entrada estandar un string
+ * @param buff Buffer donde poner lo leído
+ * @param length cantidad de caracteres a leer (menor o igual al tamaño del buffer)
+ * @return cantidad de caracteres leidos
+ */
+uint64_t readLine(char * buff, uint64_t length);
+
+/**
+ * @brief Analiza un string y lo divide en argumentos
+ * @param arg string con los argumentos
+ * @param args array de strings donde se guardan los argumentos
+ * @param max_args cantidad de argumentos esperados
+ * @param max_size tamaño maximo del array de strings
+ */
 int parse_string(char *arg, char **args, int max_args, int max_size);
 
 /**

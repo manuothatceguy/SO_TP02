@@ -63,6 +63,27 @@ void printProcessInfo(PCB processInfo) {
     printf("Entry: 0x%x\n", (unsigned int)processInfo.entryPoint);
 }
 
+uint64_t readLine(char *buff, uint64_t length) {
+    int k = 0;
+    while(buff[k] != '\0'){buff[k] = '\0'; k++;};
+    char c;
+    int i = 0;
+    while ((c = getChar()) != '\n' && i < length - 1) {
+        if (c == '\b') {
+            if (i > 0) {
+                i--;
+                printf("\b \b");
+            }
+        } else if (c != 0) {
+            buff[i++] = c;
+            printf("%c", c);
+        }
+    }
+    buff[i] = 0;
+    printf("\n");
+    return i;
+}
+
 static int is_space(char c){
     return c == ' ';
 }
@@ -81,12 +102,18 @@ int parse_string(char *arg, char **args, int max_args, int max_size) {
     while (arg[i] != '\0' && arg_count < max_args) {
         int j = 0;
 
-        // Copiar argumento mientras no haya espacio
+        // Copiar argumento mientras no haya espacio y haya espacio en buffer
         while (arg[i] != '\0' && !is_space(arg[i]) && j < max_size - 1) {
             args[arg_count][j++] = arg[i++];
         }
 
+        // Terminar string
         args[arg_count][j] = '\0';
+
+        // Si el argumento era más largo, saltar el resto
+        while (arg[i] != '\0' && !is_space(arg[i])) {
+            i++;
+        }
 
         if (j > 0) {
             arg_count++;
@@ -101,7 +128,6 @@ int parse_string(char *arg, char **args, int max_args, int max_size) {
 
 int anal_arg(char *arg, char **args, int expected_args, int max_size) {
     if (arg == NULL || arg[0] == '\0' ) {
-        printf("arg: %s\n", arg);
         if(expected_args == 0) return 0;
         return -1;
     }

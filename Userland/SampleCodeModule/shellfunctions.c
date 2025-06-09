@@ -26,7 +26,14 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - filter: filtra las vocales del input\n"
                 "    - cat: muestra el input tal cual se ingresa\n"
                 "    - test_malloc_free: test de malloc y free\n"
-                "    - phylo <cant_philosophers>: test de filosofos\n";
+                "    - phylo <cant_philosophers>: test de filosofos\n"
+                "    - kill <pid>: mata el proceso con el pid especificado\n"
+                "    - block <pid>: bloquea el proceso con el pid especificado\n"
+                "    - unblock <pid>: desbloquea el proceso con el pid especificado\n";
+
+void clearBuffer(){
+    syscall_clear_pipe(0);
+}
 
 uint64_t doHelp(uint64_t argc, char ** argv){
     printf("\n%s", help);
@@ -137,11 +144,17 @@ pid_t handle_test_sync(char * arg, int stdin, int stdout) {
     }
     
     printf("Iniciando test de sincronizacion...\n");
-    char *argv[] = { args[0], args[1], NULL };
-    printf("argv[0]: %s\n", argv[0]);
-    printf("argv[1]: %s\n", argv[1]);
-    
-    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, args, 1, !bg, -1, stdout);
+    char **argv = malloc(3 * sizeof(char*));
+
+    if (argv == NULL) {
+        printferror("Error al asignar memoria para los argumentos\n");
+        return -1;
+    }
+    argv[0] = args[0];
+    argv[1] = args[1];
+    argv[2] = NULL;
+    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, argv, 1, !bg, -1, stdout);
+    free(argv); //eureka
     return !bg ? pid : 0;
 }
 
@@ -185,39 +198,37 @@ pid_t handle_loop(char * arg, int stdin, int stdout) {
 }
 
 pid_t handle_wc(char * arg, int stdin, int stdout) {
-    // char *args[1];
-    // int bg = anal_arg(arg, args, 0, 32);
-    // if (bg == -1) {
-    //     printferror("Uso: wc\n");
-    //     return -1;
-    // }
+    char *args[1];
+    int bg = anal_arg(arg, args, 0, 32);
+    if (bg == -1) {
+        printferror("Uso: wc\n");
+        return -1;
+    }
     pid_t pid = syscall_create_process("wc", (fnptr)wc, NULL, 1, 1, stdin, stdout);
-    return pid;
-    //return !bg ? pid : 0;
+    return !bg ? pid : 0;
 }
 
 pid_t handle_filter(char * arg, int stdin, int stdout) {
-    // char *args[1];
-    // int bg = anal_arg(arg, args, 0, 32);
-    // if (bg == -1) {
-    //     printferror("Uso: filter\n");
-    //     return -1;
-    // }
+    char *args[1];
+    int bg = anal_arg(arg, args, 0, 32);
+    if (bg == -1) {
+        printferror("Uso: filter\n");
+        return -1;
+    }
     pid_t pid = syscall_create_process("filter", (fnptr)filter, NULL, 1, 1, stdin, stdout);
-    return pid;
-    //return !bg ? pid : 0;
+    return !bg ? pid : 0;
 }
 
 pid_t handle_cat(char * arg, int stdin, int stdout) {
-    // char *args[1];
-    // int bg = anal_arg(arg, args, 0, 32);
-    // if (bg == -1) {
-    //     printferror("Uso: cat\n");
-    //     return -1;
-    // }
-    pid_t pid = syscall_create_process("cat", (fnptr)cat, NULL, 1, 1, stdin, stdout);
-    return pid;
-    //return !bg ? pid : 0;
+    char *args[1];
+    int bg = anal_arg(arg, args, 0, 32);
+    if (bg == -1) {
+        printferror("Uso: cat\n");
+        return -1;
+    }
+    pid_t pid = syscall_create_process("cat", (fnptr)cat, NULL, 1, !bg, stdin, stdout);
+
+    return !bg ? pid : 0;
 }
 
 uint64_t nice(int argc, char **argv){
@@ -312,4 +323,54 @@ pid_t handle_phylo(char * arg, int stdin, int stdout) {
     pid_t pid = syscall_create_process("phylo", (fnptr)phylo, argv, 1, !bg, stdin, stdout);
     free(argv);
     return !bg ? pid : 0;
+}
+
+char checkErrorInPid(uint64_t pid) {
+    if (pid == 1) {
+        printferror("Error: la shell no se toca\n");
+    } else if (pid < 0) {
+        printferror("Error: pid debe ser un numero positivo\n");
+    } else if(pid == 0) {
+        printferror("Error: idle no se toca\n");
+    }
+    return (pid <= 1);
+}
+
+void kill(char * arg){
+    uint64_t pid = satoi(arg);
+    if(checkErrorInPid(pid)) {
+        return;
+    }
+
+    if (syscall_kill(pid) == -1) {
+        printferror("Error al matar el proceso %l\n", pid);
+    } else {
+        printf("Proceso %l terminado correctamente\n", pid);
+    }
+}
+
+void block(char * arg){
+    uint64_t pid = satoi(arg);
+    if(checkErrorInPid(pid)) {
+        return;
+    }
+
+    if (syscall_block(pid) == -1) {
+        printferror("Error al bloquear el proceso %l\n", pid);
+    } else {
+        printf("Proceso %l bloqueado correctamente\n", pid);
+    }
+}
+
+void unblock(char * arg){
+    uint64_t pid = satoi(arg);
+    if(checkErrorInPid(pid)) {
+        return;
+    }
+
+    if (syscall_unblock(pid) == -1) {
+        printferror("Error al desbloquear el proceso %l\n", pid);
+    } else {
+        printf("Proceso %l desbloqueado correctamente\n", pid);
+    }
 }

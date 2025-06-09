@@ -16,6 +16,8 @@ typedef struct pipecmd{
     command cmd2;
 } pipeCmd;
 
+void clearBuffer();
+
 pid_t handle_help(char * arg, int sdtin, int stdout);
 pid_t handle_echo(char * arg, int sdtin, int stdout);
 pid_t handle_clear(char * arg, int sdtin, int stdout);
@@ -33,5 +35,10 @@ pid_t handle_filter(char * arg, int sdtin, int stdout);
 pid_t handle_cat(char * arg, int sdtin, int stdout);
 pid_t handle_test_malloc_free(char * arg, int sdtin, int stdout);
 pid_t handle_phylo(char * arg, int sdtin, int stdout);
+pid_t handle_kill(char * arg, int sdtin, int stdout);
+pid_t handle_block(char * arg, int sdtin, int stdout);
+void kill(char * arg);
+void block(char * arg);
+void unblock(char * arg);
 
 #endif //SHELL_FUNCTIONS_H
