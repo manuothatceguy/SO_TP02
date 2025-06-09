@@ -107,6 +107,28 @@ int parse_string(char *arg, char **args, int max_args, int max_size) {
     return arg_count;
 }
 
+static int anal_arg(char *arg, char **args, int expected_args, int max_size) {
+    if (arg == NULL || arg[0] == '\0') {
+        return -1;
+    }
+
+    // Verificar si hay & al final
+    int has_background = 0;
+    int len = strlen(arg);
+    if (len > 0 && arg[len-1] == '&') {
+        has_background = 1;
+        arg[len-1] = '\0';  // Remover el & para el parsing
+    }
+
+    // Parsear los argumentos
+    int num_args = parse_string(arg, args, expected_args, max_size);
+    if (num_args != expected_args) {
+        return -1;
+    }
+
+    return has_background;
+}
+
 uint64_t cat(uint64_t argc, char *argv[]) {
     int c;
     char buffer[BUFFER_SPACE] = {0};

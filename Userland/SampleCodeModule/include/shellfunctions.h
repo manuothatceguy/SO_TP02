@@ -8,6 +8,7 @@
 typedef struct command{
     int instruction;
     char * arguments;
+    char foreground; // 1 si es foreground, 0 si es background
 } command;
 
 typedef struct pipecmd{

@@ -158,9 +158,6 @@ static void handleSpecialKeys(unsigned int key){
         case CTRL_RELEASE:
             ctrlPressed = 0;
             break;
-        case ESC_PRESS:
-            getRegisters();
-            break;
         default:
             break; 
     }

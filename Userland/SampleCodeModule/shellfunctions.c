@@ -34,38 +34,12 @@ char * help =   " Lista de comandos disponibles:\n"
                 "    - test_malloc_free: test de malloc y free\n"
                 "    - phylo <cant_philosophers>: test de filosofos\n";
 
-
-// Wrapper para crear procesos y manejar waitpid automáticamente
-static pid_t create_process_and_wait(char *name, fnptr function, uint64_t argc, char **argv, uint8_t priority, char foreground, int stdin, int stdout) {
-    // Crear el proceso
-    pid_t pid = syscall_create_process(name, function, argc, argv, priority, foreground, stdin, stdout);
-    
-    if (pid < 0) {
-        printf("Error al crear el proceso %s\n", name);
-        return -1;
-    }
-    
-    printf("Proceso %s creado con PID: %d\n", name, pid);
-    
-    // Si es foreground, esperar a que termine
-    if (foreground) {
-        int status = 0;
-        int waited_pid = syscall_waitpid(pid, &status);
-        if (waited_pid == pid) {
-            printf("Proceso %s (PID: %d) termino con valor %d\n", name, pid, status);
-        }
-    }
-    
-    return pid;
-}
-
 uint64_t doHelp(uint64_t argc, char ** argv){
     printf("\n%s", help);
     return 0;
 }
 
 pid_t handle_help(char * arg, int stdin, int stdout){
-    free(arg); // no se usa
     return syscall_create_process("help", (fnptr)doHelp, 0, NULL, 1, 1, stdin, stdout);
 }
 
@@ -107,7 +81,6 @@ uint64_t showMemInfo(int argc, char ** argv){
 }
 
 pid_t handle_mem_info(char * arg, int stdin, int stdout) {
-    free(arg); // no se usa
     return syscall_create_process("memInfo", (fnptr)showMemInfo, 0, NULL, 1, 1, stdin, stdout);
 }
 
@@ -129,7 +102,7 @@ pid_t handle_test_mm(char * arg, int stdin, int stdout) {
     return syscall_create_process("test_mm", (fnptr)test_mm, 1, argv, 1, 1, -1, stdout);
     
     // Liberar la memoria después de crear el proceso
-    //free(argv);
+    free(argv);
 }
 
 pid_t handle_test_processes(char * arg, int stdin, int stdout) {
@@ -149,7 +122,7 @@ pid_t handle_test_processes(char * arg, int stdin, int stdout) {
     return syscall_create_process("test_processes", (fnptr)test_processes, 1, argv, 1, 1, stdin, stdout);
     
     // Liberar la memoria después de crear el proceso
-    //free(argv);
+    free(argv);
 }
 
 pid_t handle_test_prio(char * arg, int stdin, int stdout) {
@@ -235,7 +208,6 @@ uint64_t processInfo(uint64_t argc, char ** argv) {
 }
 
 pid_t handle_ps(char * arg, int stdin, int stdout) {
-    free(arg);
     return syscall_create_process("ps", (fnptr)processInfo, 0, NULL, 1, 1, stdin, stdout);
 }
 
@@ -253,21 +225,20 @@ pid_t handle_loop(char * arg, int stdin, int stdout) {
     argv[0] = arg;
     argv[1] = NULL;
     
-    return syscall_create_process("loop", (fnptr)loop, 1, argv, 1, 1, -1, stdout);
+    pid_t pid = syscall_create_process("loop", (fnptr)loop, 1, argv, 1, 1, -1, stdout);
+    free(argv); // Liberar memoria después de crear el proceso
+    return pid;
 }
 
 pid_t handle_wc(char * arg, int stdin, int stdout) {
-    free(arg); // no se usa
     return syscall_create_process("wc", (fnptr)wc, 0, NULL, 1, 1, stdin, stdout);
 }
 
 pid_t handle_filter(char * arg, int stdin, int stdout) {
-    free(arg); // no se usa
     return syscall_create_process("filter", (fnptr)filter, 0, NULL, 1, 1, stdin, stdout);
 }
 
 pid_t handle_cat(char * arg, int stdin, int stdout) {
-    free(arg); // no se usa
     return syscall_create_process("cat", (fnptr)cat, 0, NULL, 1, 1, stdin, stdout);
 }
 
@@ -338,7 +309,6 @@ uint64_t test_malloc_free(int argc, char** argv){
 }
 
 pid_t handle_test_malloc_free(char *arg, int stdin, int stdout) {
-    free(arg); // no se usa
     return syscall_create_process("test_malloc_free", (fnptr)test_malloc_free, 0, NULL, 1, 1, stdin, stdout);
 }
 
@@ -352,8 +322,11 @@ pid_t handle_phylo(char * arg, int stdin, int stdout) {
         printf("Error al asignar memoria para los argumentos\n");
         return -1;
     }
+
     argv[0] = arg;
     argv[1] = NULL;
     
-    return syscall_create_process("phylo", (fnptr)phylo, 1, argv, 1, 1, stdin, stdout);
+    pid_t pid = syscall_create_process("phylo", (fnptr)phylo, 1, argv, 1, 1, stdin, stdout);
+    free(argv);
+    return pid;
 }

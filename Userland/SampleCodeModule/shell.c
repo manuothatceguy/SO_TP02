@@ -163,9 +163,12 @@ static void handle_piped_commands(pipeCmd * pipe_cmd){
     pids[1] = instruction_handlers[pipe_cmd->cmd2.instruction](pipe_cmd->cmd2.arguments, pipe, 1);
     int status = 0;
     syscall_waitpid(pids[0], &status);
+    free(pipe_cmd->cmd1.arguments);
     printf("Proceso %d terminado con estado %d\n", pids[0], status);
     syscall_waitpid(pids[1], &status);
+    free(pipe_cmd->cmd2.arguments);
     printf("Proceso %d terminado con estado %d\n", pids[1], status);
+    free(pipe_cmd);
     syscall_close_pipe(pipe);
 }
 
@@ -203,6 +206,8 @@ uint64_t shell(uint64_t argc, char **argv) {
                 pid_t pid = instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, 1);
                 int status = 0;
                 syscall_waitpid(pid, &status);
+                free(pipe_cmd->cmd1.arguments);
+                free(pipe_cmd);
                 printf("Proceso %d terminado con estado %d\n", pid, status);
             }else if(instructions == 2){
                 handle_piped_commands(pipe_cmd);

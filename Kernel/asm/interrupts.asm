@@ -15,11 +15,9 @@ GLOBAL _irq80Handler
 
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
-GLOBAL rsp_aux
 
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
-EXTERN getRegisters
 EXTERN schedule
 EXTERN timer_handler
 EXTERN bufferWrite
@@ -66,8 +64,6 @@ SECTION .text
 
 %macro exceptionHandler 1
 	pushState
-	mov [rsp_aux], rsp
-	call getRegisters
 	
 	mov rdi, %1 			; pasaje de parametro de la excepcion
 	call exceptionDispatcher
@@ -169,4 +165,3 @@ haltcpu:
 
 SECTION .bss
 	aux resq 1
-	rsp_aux resq 1

@@ -9,6 +9,16 @@
 //utils
 int parse_string(char *arg, char **args, int max_args, int max_size);
 
+/**
+ * @brief Analiza los argumentos de un comando y los guarda en un array de strings.
+ * @param arg string con los argumentos
+ * @param args array de strings donde se guardan los argumentos
+ * @param expected_args cantidad de argumentos esperados
+ * @param max_size tamaño maximo del array de strings
+ * @return -1 si hay error en el parsing, 0 si los argumentos son correctos y no hay &, 1 si los argumentos son correctos y hay &
+ */
+int anal_arg(char *arg, char **args, int expected_args, int max_size);
+
 //shellfunctions
 void printHeader();
 void printProcessInfo(PCB processInfo); 

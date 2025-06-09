@@ -11,7 +11,7 @@ loader:
 init:
 	call getStackBase
 	mov rsp, rax
-	mov rax, userland
+	mov rax, main
 	jmp rax
 hang:
 	cli
@@ -19,5 +19,5 @@ hang:
 	jmp hang
 
 	
-section .rodata
-userland equ 0x400000
+; section .rodata
+; userland equ 0x400000
