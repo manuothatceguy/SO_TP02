@@ -340,10 +340,10 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
 
     process->retValue = retValue;
     process->state = state;
-    adjustHierarchy(list->readyQueue, pid, process->parentPid);
-    adjustHierarchy(list->blockedQueue, pid, process->parentPid);
-    adjustHierarchy(list->blockedQueueBySem, pid, process->parentPid);
-    adjustHierarchy(list->zombieQueue, pid, process->parentPid);
+    adjustHierarchy(list->readyQueue, pid, list->idleProcess->pid);
+    adjustHierarchy(list->blockedQueue, pid, list->idleProcess->pid);
+    adjustHierarchy(list->blockedQueueBySem, pid, list->idleProcess->pid);
+    adjustHierarchy(list->zombieQueue, pid, list->idleProcess->pid);
     return process;
 }
 
