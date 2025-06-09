@@ -36,7 +36,7 @@ static uint64_t syscall_write(uint64_t fd, char *buff, uint64_t length) {
         break;
       case 1: // stdout
       case 2: // stderr
-        for(int i = 0; i < length; i++)
+        for(int i = 0; i < length && buff[i] != -1; i++)
             putChar(buff[i], color); 
         return length; 
         break;
@@ -95,6 +95,8 @@ pid_t syscall_create_process(ProcessCreationParams* params) {
 }
 
 static uint64_t syscall_exit(uint64_t retValue){ // mata al proceso que llama a la syscall
+    int eof = -1;
+    syscall_write(1,&eof,1);
     kill(getCurrentPid(), retValue);
     return 0; // no deberia ejecutarse
 }

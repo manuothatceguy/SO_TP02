@@ -193,6 +193,7 @@ uint64_t format_printf(const uint64_t fd, const char *format, va_list args){
         }
         i++;
     }
+
     uint64_t toReturn = syscall_write(fd, output, k);
     free(output);
     return toReturn;

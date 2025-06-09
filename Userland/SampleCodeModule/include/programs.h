@@ -6,8 +6,6 @@
 #include <shell.h>
 #include "../../../SharedLibraries/shared_structs.h"
 
-#define CANT_REGISTERS 19
-
 //utils
 int parse_string(char *arg, char **args, int max_args, int max_size);
 

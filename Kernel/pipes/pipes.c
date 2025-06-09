@@ -74,6 +74,7 @@ int readPipe(int pipe_id, char *buffer, int size) {
         return -1;
     pipe_t *pipe = &pipes.pipes[pipe_id];
     int bytes_read = 0;
+
     
     for(int i = 0; i < size; i++) {
         semWait(pipe->semReaders); // Esperar datos disponibles
@@ -124,11 +125,11 @@ int writePipe(int pipe_id, const char *buffer, int size) {
 }
 
 int closePipe(int pipe_id) {
-        if(pipe_id < 0 || pipe_id >= MAX_PIPES){
+    if(pipe_id < 0 || pipe_id >= MAX_PIPES){
         return -1;
     }
     if(pipe_id != 0) pipe_id -= 2; 
-    if(!pipes.pipes[pipe_id].isOpen)
+    if(!pipes.pipes[pipe_id].isOpen || pipe_id <= 2)
         return -1;
     
     pipe_t *pipe = &pipes.pipes[pipe_id];
