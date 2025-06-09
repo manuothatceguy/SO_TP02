@@ -107,7 +107,7 @@ int parse_string(char *arg, char **args, int max_args, int max_size) {
     return arg_count;
 }
 
-static int anal_arg(char *arg, char **args, int expected_args, int max_size) {
+int anal_arg(char *arg, char **args, int expected_args, int max_size) {
     if (arg == NULL || arg[0] == '\0') {
         return -1;
     }

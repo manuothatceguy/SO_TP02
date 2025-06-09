@@ -85,11 +85,6 @@ pid_t handle_mem_info(char * arg, int stdin, int stdout) {
 }
 
 pid_t handle_test_mm(char * arg, int stdin, int stdout) {
-    if (arg == NULL || arg[0] == '\0') {
-        printf("Uso: test_mm <max_memory>\n");
-        return -1;
-    }
-    printf("Iniciando test de gestion de memoria...\n");
     char **argv = malloc(2 * sizeof(char*));
     if (argv == NULL) {
         printf("Error al asignar memoria para los argumentos\n");
