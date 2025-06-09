@@ -251,25 +251,6 @@ char getChar(){
     return c;
 }
 
-uint64_t readLine(char *buff, uint64_t length) {
-    char c;
-    int i = 0;
-    while ((c = getChar()) != '\n' && i < length - 1) {
-        if (c == '\b') {
-            if (i > 0) {
-                i--;
-                printf("\b \b");
-            }
-        } else if (c != 0) {
-            buff[i++] = c;
-            printf("%c", c);
-        }
-    }
-    buff[i] = 0;
-    printf("\n");
-    return i;
-}
-
 char *strstr(const char *haystack, const char *needle) {
   if (!*needle) {
     return (char *)haystack;
