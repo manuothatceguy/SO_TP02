@@ -55,6 +55,14 @@ char *strstr(const char *haystack, const char *needle);
 void strcpy(char *dest, const char *src);
 
 /**
+ * @brief Copia un string a otro
+ * @param dest string destino
+ * @param src string origen
+ * @param length cantidad de caracteres a copiar
+ */
+void strncpy(char *dest, const char *src, uint64_t length);
+
+/**
  * @brief Compara dos strings
  * @param s1 primer string
  * @param s2 segundo string

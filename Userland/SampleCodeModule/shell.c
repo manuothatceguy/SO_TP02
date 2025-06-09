@@ -224,7 +224,9 @@ uint64_t shell(uint64_t argc, char **argv) {
                         pid_t pid = instruction_handlers[pipe_cmd->cmd1.instruction](pipe_cmd->cmd1.arguments, 0, 1);
                         if(pid < 0){
                             printferror("Error al ejecutar el comando.\n");
-                        } else {
+                        } else if(pid == 0){
+                            printf("Proceso %s ejecutado en background.\n", inst_list[pipe_cmd->cmd1.instruction]);
+                        }else {
                             int status = 0;
                             syscall_waitpid(pid, &status);
                             printf("Proceso %d terminado con estado %d\n", pid, status);
