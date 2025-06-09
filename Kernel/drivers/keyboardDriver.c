@@ -174,7 +174,8 @@ static void checkSpecialKeys(unsigned int key){
 }
 
 static void addToBuffer(unsigned int key){
-    writePipe(0, &key, 1);
+    char c = (char)key;
+    writePipe(0, &c, 1);
 }
 
 int bufferWrite(){

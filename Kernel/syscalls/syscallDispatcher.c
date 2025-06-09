@@ -106,8 +106,8 @@ pid_t syscall_create_process(ProcessCreationParams* params) {
 }
 
 static uint64_t syscall_exit(uint64_t retValue){ // mata al proceso que llama a la syscall
-    int eof = -1;
-    syscall_write(1,&eof,1);
+    char eof = (char)-1;
+    syscall_write(1, &eof, 1);
     kill(getCurrentPid(), retValue);
     return 0; // no deberia ejecutarse
 }

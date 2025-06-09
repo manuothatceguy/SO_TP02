@@ -185,36 +185,39 @@ pid_t handle_loop(char * arg, int stdin, int stdout) {
 }
 
 pid_t handle_wc(char * arg, int stdin, int stdout) {
-    char *args[1];
-    int bg = anal_arg(arg, args, 0, 32);
-    if (bg == -1) {
-        printferror("Uso: wc\n");
-        return -1;
-    }
-    pid_t pid = syscall_create_process("wc", (fnptr)wc, NULL, 1, !bg, stdin, stdout);
-    return !bg ? pid : 0;
+    // char *args[1];
+    // int bg = anal_arg(arg, args, 0, 32);
+    // if (bg == -1) {
+    //     printferror("Uso: wc\n");
+    //     return -1;
+    // }
+    pid_t pid = syscall_create_process("wc", (fnptr)wc, NULL, 1, 1, stdin, stdout);
+    return pid;
+    //return !bg ? pid : 0;
 }
 
 pid_t handle_filter(char * arg, int stdin, int stdout) {
-    char *args[1];
-    int bg = anal_arg(arg, args, 0, 32);
-    if (bg == -1) {
-        printferror("Uso: filter\n");
-        return -1;
-    }
-    pid_t pid = syscall_create_process("filter", (fnptr)filter, NULL, 1, !bg, stdin, stdout);
-    return !bg ? pid : 0;
+    // char *args[1];
+    // int bg = anal_arg(arg, args, 0, 32);
+    // if (bg == -1) {
+    //     printferror("Uso: filter\n");
+    //     return -1;
+    // }
+    pid_t pid = syscall_create_process("filter", (fnptr)filter, NULL, 1, 1, stdin, stdout);
+    return pid;
+    //return !bg ? pid : 0;
 }
 
 pid_t handle_cat(char * arg, int stdin, int stdout) {
-    char *args[1];
-    int bg = anal_arg(arg, args, 0, 32);
-    if (bg == -1) {
-        printferror("Uso: cat\n");
-        return -1;
-    }
-    pid_t pid = syscall_create_process("cat", (fnptr)cat, NULL, 1, !bg, stdin, stdout);
-    return !bg ? pid : 0;
+    // char *args[1];
+    // int bg = anal_arg(arg, args, 0, 32);
+    // if (bg == -1) {
+    //     printferror("Uso: cat\n");
+    //     return -1;
+    // }
+    pid_t pid = syscall_create_process("cat", (fnptr)cat, NULL, 1, 1, stdin, stdout);
+    return pid;
+    //return !bg ? pid : 0;
 }
 
 uint64_t nice(int argc, char **argv){
@@ -286,7 +289,6 @@ uint64_t test_malloc_free(int argc, char** argv){
 }
 
 pid_t handle_test_malloc_free(char *arg, int stdin, int stdout) {
-    int bg = 0; // No es background
     pid_t pid = syscall_create_process("test_malloc_free", (fnptr)test_malloc_free, NULL, 1, 1, -1, stdout);
     printf("Proceso %d ejecutado en background.\n", pid);
     return pid;

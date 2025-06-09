@@ -316,6 +316,9 @@ int32_t waitpid(pid_t pid, int32_t* retValue) {
 
 int8_t changePrio(pid_t pid, int8_t newPrio){
     PCB* process = getProcess(processes, pid);
+    if(pid <= 1){ //idle y shell>>>
+        return -1;
+    }
     if (process == NULL) {
         return -1;
     }

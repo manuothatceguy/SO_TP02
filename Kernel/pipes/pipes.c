@@ -22,7 +22,7 @@ static int ensurePipeManagerInit() {
         return -1; \
     } \
     if(id > 2) { \
-        id -= 2; \ 
+        id -= 2;\
     } \
     if(!pipes.pipes[id].isOpen) { \
         return -1; \
