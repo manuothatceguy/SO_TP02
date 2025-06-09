@@ -97,6 +97,13 @@ void strcpy(char *dest, const char *src){
     dest[i] = '\0';
 }
 
+void strncpy(char *dest, const char *src, uint64_t length){
+    for (uint64_t i = 0; i < length; i++){
+        dest[i] = src[i];
+    }
+    dest[length] = '\0';
+}
+
 int checkNumber(char *str){
     if (str == NULL || *str == '\0') return 0; 
 

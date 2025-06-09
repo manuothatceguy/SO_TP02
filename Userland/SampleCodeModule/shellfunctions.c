@@ -46,7 +46,7 @@ uint64_t echo(int argc, char ** argv){
 }
 
 pid_t handle_echo(char * arg, int stdin, int stdout){
-    return syscall_create_process("echo", (fnptr)echo, &arg, 1, 1, stdin, stdout);
+    return syscall_create_process("echo", (fnptr)echo, &arg, 1, 1, -1, stdout);
 }
 
 uint64_t clearScreen(int argc, char ** argv){
@@ -96,7 +96,7 @@ pid_t handle_test_mm(char * arg, int stdin, int stdout) {
     
     pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, argv, 1, !bg, -1, stdout);
     free(argv);
-    return pid;
+    return !bg ? pid : 0;
 }
 
 pid_t handle_test_processes(char * arg, int stdin, int stdout) {
@@ -115,13 +115,15 @@ pid_t handle_test_processes(char * arg, int stdin, int stdout) {
     argv[0] = args[0];
     argv[1] = NULL;
     
-    pid_t pid = syscall_create_process("test_processes", (fnptr)test_processes, argv, 1, !bg, stdin, stdout);
+    pid_t pid = syscall_create_process("test_processes", (fnptr)test_processes, argv, 1, !bg, -1, stdout);
     free(argv);
-    return pid;
+    return !bg ? pid : 0;
 }
 
 pid_t handle_test_prio(char * arg, int stdin, int stdout) {
-    return syscall_create_process("test_prio", (fnptr)test_prio, NULL, 1, 1, stdin, stdout);
+    int bg = 0; // No es background
+    pid_t pid = syscall_create_process("test_prio", (fnptr)test_prio, NULL, 1, 1, -1, stdout);
+    return !bg ? pid : 0;
 }
 
 pid_t handle_test_sync(char * arg, int stdin, int stdout) {
@@ -136,9 +138,11 @@ pid_t handle_test_sync(char * arg, int stdin, int stdout) {
     
     printf("Iniciando test de sincronizacion...\n");
     char *argv[] = { args[0], args[1], NULL };
+    printf("argv[0]: %s\n", argv[0]);
+    printf("argv[1]: %s\n", argv[1]);
     
-    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, argv, 1, !bg, stdin, stdout);
-    return pid;
+    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, args, 1, !bg, -1, stdout);
+    return !bg ? pid : 0;
 }
 
 uint64_t processInfo(uint64_t argc, char ** argv) {
@@ -162,7 +166,9 @@ uint64_t processInfo(uint64_t argc, char ** argv) {
 }
 
 pid_t handle_ps(char * arg, int stdin, int stdout) {
-    return syscall_create_process("ps", (fnptr)processInfo, NULL, 1, 1, stdin, stdout);
+    int bg = 0; // No es background
+    pid_t pid = syscall_create_process("ps", (fnptr)processInfo, NULL, 1, 1, -1, stdout);
+    return !bg ? pid : 0;
 }
 
 
@@ -173,17 +179,9 @@ pid_t handle_loop(char * arg, int stdin, int stdout) {
         printferror("Uso: loop <time>\n");
         return -1;
     }
-    char **argv = malloc(2 * sizeof(char*));
-    if (argv == NULL) {
-        printferror("Error al asignar memoria para los argumentos\n");
-        return -1;
-    }
-    argv[0] = args[0];
-    argv[1] = NULL;
-    
-    pid_t pid = syscall_create_process("loop", (fnptr)loop, argv, 1, !bg, -1, stdout);
-    free(argv);
-    return pid;
+
+    pid_t pid = syscall_create_process("loop", (fnptr)loop, args, 1, !bg, -1, stdout);
+    return !bg ? pid : 0;
 }
 
 pid_t handle_wc(char * arg, int stdin, int stdout) {
@@ -193,7 +191,8 @@ pid_t handle_wc(char * arg, int stdin, int stdout) {
         printferror("Uso: wc\n");
         return -1;
     }
-    return syscall_create_process("wc", (fnptr)wc, NULL, 1, !bg, stdin, stdout);
+    pid_t pid = syscall_create_process("wc", (fnptr)wc, NULL, 1, !bg, stdin, stdout);
+    return !bg ? pid : 0;
 }
 
 pid_t handle_filter(char * arg, int stdin, int stdout) {
@@ -203,7 +202,8 @@ pid_t handle_filter(char * arg, int stdin, int stdout) {
         printferror("Uso: filter\n");
         return -1;
     }
-    return syscall_create_process("filter", (fnptr)filter, NULL, 1, !bg, stdin, stdout);
+    pid_t pid = syscall_create_process("filter", (fnptr)filter, NULL, 1, !bg, stdin, stdout);
+    return !bg ? pid : 0;
 }
 
 pid_t handle_cat(char * arg, int stdin, int stdout) {
@@ -213,7 +213,8 @@ pid_t handle_cat(char * arg, int stdin, int stdout) {
         printferror("Uso: cat\n");
         return -1;
     }
-    return syscall_create_process("cat", (fnptr)cat, NULL, 1, !bg, stdin, stdout);
+    pid_t pid = syscall_create_process("cat", (fnptr)cat, NULL, 1, !bg, stdin, stdout);
+    return !bg ? pid : 0;
 }
 
 uint64_t nice(int argc, char **argv){
@@ -247,9 +248,17 @@ pid_t handle_nice(char * arg, int stdin, int stdout) {
         printferror("Uso: nice <pid> <new_priority>\n");
         return -1;
     }
-    
-    pid_t pid = syscall_create_process("nice", (fnptr)nice, args, 1, !bg, stdin, stdout);
-    return pid;
+    char **argv = malloc(3 * sizeof(char*));
+    if (argv == NULL) {
+        printferror("Error al asignar memoria para los argumentos\n");
+        return -1;
+    }
+    argv[0] = args[0];
+    argv[1] = args[1];
+    argv[2] = NULL;
+
+    pid_t pid = syscall_create_process("nice", (fnptr)nice, argv, 1, !bg, -1, stdout);
+    return !bg ? pid : 0;
 }
 
 uint64_t test_malloc_free(int argc, char** argv){
@@ -277,7 +286,10 @@ uint64_t test_malloc_free(int argc, char** argv){
 }
 
 pid_t handle_test_malloc_free(char *arg, int stdin, int stdout) {
-    return syscall_create_process("test_malloc_free", (fnptr)test_malloc_free, NULL, 1, 1, stdin, stdout);
+    int bg = 0; // No es background
+    pid_t pid = syscall_create_process("test_malloc_free", (fnptr)test_malloc_free, NULL, 1, 1, -1, stdout);
+    printf("Proceso %d ejecutado en background.\n", pid);
+    return pid;
 }
 
 pid_t handle_phylo(char * arg, int stdin, int stdout) {
@@ -297,5 +309,5 @@ pid_t handle_phylo(char * arg, int stdin, int stdout) {
     
     pid_t pid = syscall_create_process("phylo", (fnptr)phylo, argv, 1, !bg, stdin, stdout);
     free(argv);
-    return pid;
+    return !bg ? pid : 0;
 }

@@ -63,56 +63,80 @@ void printProcessInfo(PCB processInfo) {
     printf("Entry: 0x%x\n", (unsigned int)processInfo.entryPoint);
 }
 
+static int is_space(char c){
+    return c == ' ';
+}
+
 int parse_string(char *arg, char **args, int max_args, int max_size) {
     if (arg == NULL || arg[0] == '\0') {
         return -1;
     }
-    
+
     int arg_count = 0;
-    int current_pos = 0;
-    int start_pos = 0;
-    
-    for (int i = 0; i < max_args; i++) {
-        args[i][0] = '\0';
-    }
-    
-    while (arg[current_pos] != '\0' && arg_count < max_args) {
-        if (arg[current_pos] == ' ' || arg[current_pos + 1] == '\0') {
-            int end_pos = (arg[current_pos + 1] == '\0') ? current_pos + 1 : current_pos;
+    int i = 0;
 
-            int j = 0;
-            for (int i = start_pos; i < end_pos && j < max_size - 1; i++) {
-                args[arg_count][j++] = arg[i];
-            }
-            args[arg_count][j] = '\0';
+    // Saltar espacios iniciales
+    while (is_space(arg[i])) i++;
 
-            if (j > 0) {
-                arg_count++;
-            }
-            
-            start_pos = current_pos + 1;
+    while (arg[i] != '\0' && arg_count < max_args) {
+        int j = 0;
+
+        // Copiar argumento mientras no haya espacio
+        while (arg[i] != '\0' && !is_space(arg[i]) && j < max_size - 1) {
+            args[arg_count][j++] = arg[i++];
         }
-        current_pos++;
+
+        args[arg_count][j] = '\0';
+
+        if (j > 0) {
+            arg_count++;
+        }
+
+        // Saltar espacios entre argumentos
+        while (is_space(arg[i])) i++;
     }
-    
+
     return arg_count;
 }
 
 int anal_arg(char *arg, char **args, int expected_args, int max_size) {
-    if (arg == NULL || arg[0] == '\0') {
+    if (arg == NULL || arg[0] == '\0' ) {
+        printf("arg: %s\n", arg);
+        if(expected_args == 0) return 0;
         return -1;
     }
 
     int has_background = 0;
-    int len = strlen(arg);
-    if (len > 0 && arg[len-1] == '&') {
-        has_background = 1;
-        arg[len-1] = '\0';  
+
+    // Copia temporal
+    char buffer[1024];
+    strncpy(buffer, arg, sizeof(buffer) - 1);
+    buffer[sizeof(buffer) - 1] = '\0';
+
+    // Parsear argumentos (permitimos uno más por si hay un & suelto)
+    char *temp_args[expected_args + 2];
+    char temp_storage[expected_args + 2][max_size];
+    for (int i = 0; i < expected_args + 2; i++) {
+        temp_args[i] = temp_storage[i];
     }
 
-    int num_args = parse_string(arg, args, expected_args, max_size);
+    int num_args = parse_string(buffer, temp_args, expected_args + 2, max_size);
+    if (num_args < 0) return -1;
+
+    // Detectar "&" como argumento independiente
+    if (num_args > 0 && strcmp(temp_args[num_args - 1], "&") == 0) {
+        has_background = 1;
+        num_args--;  // Eliminar '&' del conteo
+    }
+
     if (num_args != expected_args) {
         return -1;
+    }
+
+    // Copiar argumentos válidos al arreglo destino
+    for (int i = 0; i < expected_args; i++) {
+        strncpy(args[i], temp_args[i], max_size);
+        args[i][max_size - 1] = '\0';
     }
 
     return has_background;
@@ -153,7 +177,7 @@ void loop(uint64_t argc, char *argv[]) {
     printf("Proceso loop %d iniciado. Saludando cada %d segundos...\n", pid, time);
     
     while(1) {
-        printf("Hola! Soy el proceso %d\n", pid);
+        printf("\nHola! Soy el proceso %d\n", pid);
         syscall_wait(time);
     }
 }
