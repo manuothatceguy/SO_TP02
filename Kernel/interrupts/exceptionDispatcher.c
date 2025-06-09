@@ -10,21 +10,6 @@
 
 extern void init();
 
-void printHex(uint64_t value, uint32_t color) {
-    char hexStr[17];
-    hexStr[16] = '\0';
-    for (int i = 15; i >= 0; i--) {
-        uint8_t nibble = value & 0xF;
-        if (nibble < 10) {
-            hexStr[i] = '0' + nibble;
-        } else {
-            hexStr[i] = 'A' + (nibble - 10);
-        }
-        value >>= 4;
-    }
-    printStr(hexStr, color);
-}
-
 void exception(char * name) {
     clearText(0);
     printStr(name,RED);

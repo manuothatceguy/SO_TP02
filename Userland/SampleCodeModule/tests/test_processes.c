@@ -96,6 +96,6 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
         }
     }
   }
-  printf("si llegue aca esta todo joya\n");
+  printf("test_processes: All processes killed successfully\n");
   return 0;
 }
