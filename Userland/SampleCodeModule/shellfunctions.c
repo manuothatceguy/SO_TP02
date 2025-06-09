@@ -40,7 +40,7 @@ uint64_t doHelp(uint64_t argc, char ** argv){
 }
 
 pid_t handle_help(char * arg, int stdin, int stdout){
-    return syscall_create_process("help", (fnptr)doHelp, 0, NULL, 1, 1, stdin, stdout);
+    return syscall_create_process("help", (fnptr)doHelp, NULL, 1, 1, stdin, stdout);
 }
 
 uint64_t echo(int argc, char ** argv){
@@ -52,7 +52,7 @@ uint64_t echo(int argc, char ** argv){
 }
 
 pid_t handle_echo(char * arg, int stdin, int stdout){
-    return syscall_create_process("echo", (fnptr)echo, 1, &arg, 1, 1, stdin, stdout);
+    return syscall_create_process("echo", (fnptr)echo, &arg, 1, 1, stdin, stdout);
 }
 
 uint64_t clearScreen(int argc, char ** argv){
@@ -62,7 +62,7 @@ uint64_t clearScreen(int argc, char ** argv){
 
 pid_t handle_clear(char * arg, int stdin, int stdout){
     free(arg); // no se usa
-    return syscall_create_process("clear", (fnptr)clearScreen, 0, NULL, 1, 1, stdin, stdout);
+    return syscall_create_process("clear", (fnptr)clearScreen, NULL, 1, 1, stdin, stdout);
 }
 
 uint64_t showMemInfo(int argc, char ** argv){
@@ -81,7 +81,7 @@ uint64_t showMemInfo(int argc, char ** argv){
 }
 
 pid_t handle_mem_info(char * arg, int stdin, int stdout) {
-    return syscall_create_process("memInfo", (fnptr)showMemInfo, 0, NULL, 1, 1, stdin, stdout);
+    return syscall_create_process("memInfo", (fnptr)showMemInfo, NULL, 1, 1, stdin, stdout);
 }
 
 pid_t handle_test_mm(char * arg, int stdin, int stdout) {
@@ -100,7 +100,7 @@ pid_t handle_test_mm(char * arg, int stdin, int stdout) {
     argv[0] = args[0];
     argv[1] = NULL;
     
-    pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, 1, argv, 1, !bg, -1, stdout);
+    pid_t pid = syscall_create_process("test_mm", (fnptr)test_mm, argv, 1, !bg, -1, stdout);
     free(argv);
     return pid;
 }
@@ -121,13 +121,13 @@ pid_t handle_test_processes(char * arg, int stdin, int stdout) {
     argv[0] = args[0];
     argv[1] = NULL;
     
-    pid_t pid = syscall_create_process("test_processes", (fnptr)test_processes, 1, argv, 1, !bg, stdin, stdout);
+    pid_t pid = syscall_create_process("test_processes", (fnptr)test_processes, argv, 1, !bg, stdin, stdout);
     free(argv);
     return pid;
 }
 
 pid_t handle_test_prio(char * arg, int stdin, int stdout) {
-    return syscall_create_process("test_prio", (fnptr)test_prio, 0, NULL, 1, 1, stdin, stdout);
+    return syscall_create_process("test_prio", (fnptr)test_prio, NULL, 1, 1, stdin, stdout);
 }
 
 pid_t handle_test_sync(char * arg, int stdin, int stdout) {
@@ -143,7 +143,7 @@ pid_t handle_test_sync(char * arg, int stdin, int stdout) {
     printf("Iniciando test de sincronizacion...\n");
     char *argv[] = { args[0], args[1], NULL };
     
-    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, 2, argv, 1, !bg, stdin, stdout);
+    pid_t pid = syscall_create_process("test_sync", (fnptr)test_sync, argv, 1, !bg, stdin, stdout);
     return pid;
 }
 
@@ -168,7 +168,7 @@ uint64_t processInfo(uint64_t argc, char ** argv) {
 }
 
 pid_t handle_ps(char * arg, int stdin, int stdout) {
-    return syscall_create_process("ps", (fnptr)processInfo, 0, NULL, 1, 1, stdin, stdout);
+    return syscall_create_process("ps", (fnptr)processInfo, NULL, 1, 1, stdin, stdout);
 }
 
 
@@ -187,7 +187,7 @@ pid_t handle_loop(char * arg, int stdin, int stdout) {
     argv[0] = args[0];
     argv[1] = NULL;
     
-    pid_t pid = syscall_create_process("loop", (fnptr)loop, 1, argv, 1, !bg, -1, stdout);
+    pid_t pid = syscall_create_process("loop", (fnptr)loop, argv, 1, !bg, -1, stdout);
     free(argv);
     return pid;
 }
@@ -199,7 +199,7 @@ pid_t handle_wc(char * arg, int stdin, int stdout) {
         printf("Uso: wc\n");
         return -1;
     }
-    return syscall_create_process("wc", (fnptr)wc, 0, NULL, 1, !bg, stdin, stdout);
+    return syscall_create_process("wc", (fnptr)wc, NULL, 1, !bg, stdin, stdout);
 }
 
 pid_t handle_filter(char * arg, int stdin, int stdout) {
@@ -209,7 +209,7 @@ pid_t handle_filter(char * arg, int stdin, int stdout) {
         printf("Uso: filter\n");
         return -1;
     }
-    return syscall_create_process("filter", (fnptr)filter, 0, NULL, 1, !bg, stdin, stdout);
+    return syscall_create_process("filter", (fnptr)filter, NULL, 1, !bg, stdin, stdout);
 }
 
 pid_t handle_cat(char * arg, int stdin, int stdout) {
@@ -219,7 +219,7 @@ pid_t handle_cat(char * arg, int stdin, int stdout) {
         printf("Uso: cat\n");
         return -1;
     }
-    return syscall_create_process("cat", (fnptr)cat, 0, NULL, 1, !bg, stdin, stdout);
+    return syscall_create_process("cat", (fnptr)cat, NULL, 1, !bg, stdin, stdout);
 }
 
 uint64_t nice(int argc, char **argv){
@@ -254,7 +254,7 @@ pid_t handle_nice(char * arg, int stdin, int stdout) {
         return -1;
     }
     
-    pid_t pid = syscall_create_process("nice", (fnptr)nice, 2, args, 1, !bg, stdin, stdout);
+    pid_t pid = syscall_create_process("nice", (fnptr)nice, args, 1, !bg, stdin, stdout);
     return pid;
 }
 
@@ -283,7 +283,7 @@ uint64_t test_malloc_free(int argc, char** argv){
 }
 
 pid_t handle_test_malloc_free(char *arg, int stdin, int stdout) {
-    return syscall_create_process("test_malloc_free", (fnptr)test_malloc_free, 0, NULL, 1, 1, stdin, stdout);
+    return syscall_create_process("test_malloc_free", (fnptr)test_malloc_free, NULL, 1, 1, stdin, stdout);
 }
 
 pid_t handle_phylo(char * arg, int stdin, int stdout) {
@@ -301,7 +301,7 @@ pid_t handle_phylo(char * arg, int stdin, int stdout) {
     argv[0] = args[0];
     argv[1] = NULL;
     
-    pid_t pid = syscall_create_process("phylo", (fnptr)phylo, 1, argv, 1, !bg, stdin, stdout);
+    pid_t pid = syscall_create_process("phylo", (fnptr)phylo, argv, 1, !bg, stdin, stdout);
     free(argv);
     return pid;
 }

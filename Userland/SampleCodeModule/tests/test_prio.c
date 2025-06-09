@@ -85,7 +85,7 @@ uint64_t test_prio() {
   uint64_t i;
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    pids[i] = syscall_create_process("endless_loop_print", (fnptr)endless_loop_print, 0, argv, prio[i], 1, 0, 1);
+    pids[i] = syscall_create_process("endless_loop_print", (fnptr)endless_loop_print, argv, prio[i], 1, 0, 1);
 
   for (char i = 0; i < LOOPS; i++){
     syscall_yield();

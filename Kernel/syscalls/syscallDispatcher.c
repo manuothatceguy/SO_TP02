@@ -90,8 +90,19 @@ static uint64_t syscall_wait(uint64_t seconds){
     return seconds;
 }
 
+static inline uint64_t getArgc(char** argv) {
+    uint64_t argc = 0;
+    if(argv == NULL || *argv == NULL) {
+        return 0;
+    }
+    while (argv[argc] != NULL) {
+        argc++;
+    }
+    return argc;
+}
+
 pid_t syscall_create_process(ProcessCreationParams* params) {
-    return createProcess(params->name, (fnptr)params->function, params->argc, params->arg, params->priority, params->foreground, params->stdin, params->stdout);
+    return createProcess(params->name, (fnptr)params->function, getArgc(params->arg), params->arg, params->priority, params->foreground, params->stdin, params->stdout);
 }
 
 static uint64_t syscall_exit(uint64_t retValue){ // mata al proceso que llama a la syscall

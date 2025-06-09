@@ -98,7 +98,7 @@ static void addPhilosopher() {
     argv[0] = id_str;
     argv[1] = NULL;
         
-	philosopherPids[phylosCount] = syscall_create_process("philosopher", philosopher, 1, argv, 1, 0, -1, 1);
+	philosopherPids[phylosCount] = syscall_create_process("philosopher", philosopher, argv, 1, 0, -1, 1);
 	if (philosopherPids[phylosCount] < 0) {
 		printferror("Error al crear filosofo %d\n", phylosCount);
 		syscall_sem_close(philosopherSemaphore(phylosCount));
