@@ -8,7 +8,7 @@
 
 //src : https://github.com/alejoaquili/ITBA-72.11-SO/tree/main/kernel-development/tests
 
-#define SEM_ID 20
+#define SEM_ID 150
 #define TOTAL_PAIR_PROCESSES 2
 
 int64_t global; // shared memory
@@ -36,7 +36,7 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     return -1;
 
   if (use_sem)
-    if (!syscall_sem_open(SEM_ID, 1)) {
+    if (syscall_sem_open(SEM_ID, 1) == -1) {
       printf("test_sync: ERROR opening semaphore\n");
       return -1;
     }
@@ -71,8 +71,8 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
 
   uint64_t i;
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = syscall_create_process("my_process_inc", &my_process_inc, 3, argvDec, 1, 1, 0, 1);
-    pids[i + TOTAL_PAIR_PROCESSES] = syscall_create_process("my_process_inc", &my_process_inc, 3, argvInc, 1, 1, 0, 1);
+    pids[i] = syscall_create_process("my_process_inc", my_process_inc, 3, argvDec, 1, 1, 0, 1);
+    pids[i + TOTAL_PAIR_PROCESSES] = syscall_create_process("my_process_inc", my_process_inc, 3, argvInc, 1, 1, 0, 1);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
