@@ -136,7 +136,9 @@ static int bufferControl(pipeCmd * pipe_cmd){
 
     char * pipe_pos = strstr(shell_buffer, "|");
     if(pipe_pos != NULL){
+        *(pipe_pos-1) = 0;
         *pipe_pos = 0;
+        *(pipe_pos+1) = 0;
         char * arg2 = malloc(BUFFER_SPACE * sizeof(char));
         pipe_cmd->cmd2.instruction = getInstruction(pipe_pos+2, arg2);
         pipe_cmd->cmd2.arguments = arg2;
