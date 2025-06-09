@@ -22,7 +22,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
   uint64_t max_memory;
 
   if (argc != 1){
-    //printf("test_mm: error, se esperaba un argumento (max_memory)\n");
+    printferror("test_mm: error, se esperaba un argumento (max_memory)\n");
     return -1;
   }
   max_memory = satoi(argv[0]);

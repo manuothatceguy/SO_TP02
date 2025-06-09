@@ -30,12 +30,6 @@ int hasPid(void* a, void*b){ // a es el proceso, b es el pid. el signature es as
     PCB* processA = (PCB*)a;
     pid_t* pid = (pid_t*)b;
     
-    DEBUG_PRINT("Comparing PID in hasPid - Process PID: ", 0x00FFFFFF);
-    DEBUG_PRINT_INT(processA->pid, 0x00FFFFFF);
-    DEBUG_PRINT(" vs Target PID: ", 0x00FFFFFF);
-    DEBUG_PRINT_INT(*pid, 0x00FFFFFF);
-    DEBUG_PRINT("\n", 0x00FFFFFF);
-    
     return (processA->pid == *pid) ? 0 : -1;
 }
 

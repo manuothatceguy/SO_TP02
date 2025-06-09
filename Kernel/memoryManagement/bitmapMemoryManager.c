@@ -80,7 +80,6 @@ void *allocMemory(const size_t memoryToAllocate) {
   uint32_t blocksNeeded = sizeToBlockQty(memoryToAllocate);
 
   if (blocksNeeded > memoryManager.blockQty - memoryManager.blocksUsed) {
-    DEBUG_PRINT("No hay suficiente memoria", DEBUG_COLOR);
     return NULL;
   }
   uintptr_t initialBlockAddress = findFreeBlocks(
@@ -91,7 +90,6 @@ void *allocMemory(const size_t memoryToAllocate) {
         findFreeBlocks(blocksNeeded, 0, memoryManager.blockQty);
   }
   if (initialBlockAddress == 0) {
-    DEBUG_PRINT("No hay suficiente memoria",DEBUG_COLOR );
     return NULL;
   }
   memoryManager.current = sizeToBlockQty(initialBlockAddress - (uintptr_t)memoryManager.start) + blocksNeeded;

@@ -112,7 +112,6 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
         
 
     if(priority != IDLE_PRIORITY) addProcess(processes, process);
-    DEBUG_PRINT("Creating process...\n", 0x00FFFFFF);   
     return process;
 }
 
@@ -137,17 +136,11 @@ uint64_t schedule(uint64_t rsp){
         return rsp;
     }
     
-    DEBUG_PRINT("Quantum expired, switching processes...\n", 0x00FFFFFF);
-
     if(!first) currentProcess->rsp = rsp; else first = 0;
     if(currentProcess->state == RUNNING) currentProcess->state = READY;
 
     PCB* nextProcess = getNextProcess(processes);
 
-    DEBUG_PRINT("Switching to process: ", 0x00FFFFFF);
-    DEBUG_PRINT(nextProcess->name, 0x00FFFFFF);
-    DEBUG_PRINT("\n", 0x00FFFFFF);
-    
     nextProcess->state = RUNNING;
     currentPid = nextProcess->pid;
     quantum = calculateQuantum(nextProcess->priority);
@@ -220,10 +213,6 @@ static int32_t reapChild(PCB* child, int32_t* retValue) {
     removeZombieProcess(processes, childPid);
     freeMemory(child);
     
-    DEBUG_PRINT("Process reaped: ", 0x00FFFFFF);
-    DEBUG_PRINT_INT(childPid, 0x00FFFFFF);
-    DEBUG_PRINT("\n", 0x00FFFFFF);
-    
     return childPid;
 }
 
@@ -240,12 +229,6 @@ static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
         return;
     }
 
-    DEBUG_PRINT("Waking parent PID ", 0x00FFFFFF);
-    DEBUG_PRINT_INT(parentPid, 0x00FFFFFF);
-    DEBUG_PRINT(" from child PID ", 0x00FFFFFF);
-    DEBUG_PRINT_INT(childPid, 0x00FFFFFF);
-    DEBUG_PRINT("\n", 0x00FFFFFF);
-
     if (parent->state == BLOCKED && parent->waitingForPid == childPid) {
         unblockProcess(parentPid);
     }
@@ -253,12 +236,6 @@ static void wakeupWaitingParent(pid_t parentPid, pid_t childPid) {
 
 int32_t waitpid(pid_t pid, int32_t* retValue) {
     pid_t currentProcPid = getCurrentPid();
-    
-    DEBUG_PRINT("waitpid: Current PID ", 0x00FFFFFF);
-    DEBUG_PRINT_INT(currentProcPid, 0x00FFFFFF);
-    DEBUG_PRINT(" waiting for PID ", 0x00FFFFFF);
-    DEBUG_PRINT_INT(pid, 0x00FFFFFF);
-    DEBUG_PRINT("\n", 0x00FFFFFF);
     
     // Buscar el proceso
     PCB* target = getProcess(processes, pid);
@@ -284,10 +261,6 @@ int32_t waitpid(pid_t pid, int32_t* retValue) {
     
     // Si el proceso aún está corriendo, BLOQUEAR al proceso actual
     if (target->state < ZOMBIE) {
-        DEBUG_PRINT("Blocking process ", 0x00FFFFFF);
-        DEBUG_PRINT_INT(currentProcPid, 0x00FFFFFF);
-        DEBUG_PRINT("\n", 0x00FFFFFF);
-        
         // Primero marcar que estamos esperando a este proceso específico
         current->waitingForPid = pid;
         current->state = BLOCKED;
