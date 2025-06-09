@@ -33,7 +33,6 @@ typedef enum {
     CAT,
     TEST_MALLOC_FREE,
     PHYLO,
-    PIPED_COMMANDS,
     EXIT
 } instructions;
 
@@ -215,6 +214,7 @@ uint64_t shell(uint64_t argc, char **argv) {
                     exit = TRUE;
                     free(pipe_cmd->cmd1.arguments);
                     free(pipe_cmd);
+                    break;
                 } else {
                     if(pipe_cmd->cmd1.instruction == -1){
                         printferror("Comando invalido.\n");
@@ -239,6 +239,14 @@ uint64_t shell(uint64_t argc, char **argv) {
         }
     }
     printf("Saliendo de la terminal...\n");
-    syscall_wait(2000);
+    syscall_wait(3);
+    syscall_clearScreen();
+    printf("\n\n\n\n");
+    syscall_sizeUpFont(1);
+    printf("Adios %s, gracias por usar la shell!\n", username);
+    syscall_sizeDownFont(1);
+    printf("\n\n    \"No llores porque termino, sonrie porque sucedio.\"\n\n      Dr. Seuss.");
+    syscall_wait(200);
+    syscall_clearScreen();
     return 0;
 }

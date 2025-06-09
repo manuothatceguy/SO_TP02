@@ -9,12 +9,6 @@
 #include <shell.h>
 #include "phylo.h"
 
-#define CANT_SPECIAL_KEYS 9
-
-extern void div_zero();
-extern void invalid_opcode();
-
-
 char * help =   " Lista de comandos disponibles:\n"        
                 "    - exit: corta la ejecucion\n"
                 "    - help: muestra este menu\n"

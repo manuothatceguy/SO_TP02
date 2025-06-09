@@ -2,9 +2,7 @@
 #define PIPES_H
 
 #include <semaphore.h>
-
-#define MAX_PIPES 16
-#define PIPE_BUFFER_SIZE 100
+#include "../SharedLibraries/limitations.h"
 
 typedef struct {
     char buffer[PIPE_BUFFER_SIZE];
