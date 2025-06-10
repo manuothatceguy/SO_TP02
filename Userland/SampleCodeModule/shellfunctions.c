@@ -128,7 +128,12 @@ pid_t handle_test_processes(char * arg, int stdin, int stdout) {
 }
 
 pid_t handle_test_prio(char * arg, int stdin, int stdout) {
-    int bg = 0; // No es background
+    char *args[1];
+    int bg = anal_arg(arg, args, 0, 32);
+    if (bg == -1) {
+        printferror("Uso: test_prio\n");
+        return -1;
+    }
     pid_t pid = syscall_create_process("test_prio", (fnptr)test_prio, NULL, 1, 1, -1, stdout);
     return !bg ? pid : 0;
 }
@@ -179,7 +184,12 @@ uint64_t processInfo(uint64_t argc, char ** argv) {
 }
 
 pid_t handle_ps(char * arg, int stdin, int stdout) {
-    int bg = 0; // No es background
+    char *args[1];
+    int bg = anal_arg(arg, args, 0, 32);
+    if (bg == -1) {
+        printferror("Uso: ps\n");
+        return -1;
+    }
     pid_t pid = syscall_create_process("ps", (fnptr)processInfo, NULL, 1, 1, -1, stdout);
     return !bg ? pid : 0;
 }
@@ -239,10 +249,7 @@ uint64_t nice(int argc, char **argv){
     if (pid == 0) {
         printferror("Error: la shell no se toca\n");
         return 1;
-    }else if (pid < 0) {
-        printferror("Error: pid debe ser un numero positivo\n");
-        return 1;
-    }else if (new_priority < 0 || new_priority > 5) {
+    } else if (new_priority < 0 || new_priority > 5) {
         printferror("Error: la prioridad debe estar entre 0 y 5\n");
         return 1;
     }
@@ -328,8 +335,6 @@ pid_t handle_phylo(char * arg, int stdin, int stdout) {
 char checkErrorInPid(uint64_t pid) {
     if (pid == 1) {
         printferror("Error: la shell no se toca\n");
-    } else if (pid < 0) {
-        printferror("Error: pid debe ser un numero positivo\n");
     } else if(pid == 0) {
         printferror("Error: idle no se toca\n");
     }

@@ -333,8 +333,6 @@ PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessSt
                 return NULL; 
             }
         }
-    } else if (process == NULL) {
-        return NULL;
     }
 
     if (list->foregroundProcess && list->foregroundProcess->pid == pid) {
