@@ -56,7 +56,7 @@ int semInit (int id, uint32_t value) {
 
 int semOpen (int id) {
     validateid(id);
-    if ( ! manager->semaphores[id].used == 0 ) {
+    if (manager->semaphores[id].used) { 
         return 0;
     }
     return -1;
@@ -115,4 +115,3 @@ int post (sem_t *sem){
     release(&sem->lock);
     return 0;
 }
-

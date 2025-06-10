@@ -313,13 +313,19 @@ void adjustHierarchy(QueueADT queue, pid_t oldPid, pid_t newPid, char shouldRemo
     freeMemory(processes); 
 }
 
+
+
 PCB* killProcess(ProcessManagerADT list, pid_t pid, uint64_t retValue, ProcessState state) {
     if (list == NULL) {
         return NULL; 
     }
     
+    if (list->currentProcess && list->currentProcess->pid == pid) {
+        list->currentProcess = list->idleProcess;
+    }
+
     PCB* process = switchProcess(list->readyQueue, list->zombieQueue, pid);
-    if (process == NULL && (retValue == 1 || retValue == 9) ) {
+    if (process == NULL) {
         process = switchProcess(list->blockedQueue, list->zombieQueue, pid);
         if (process == NULL) {
             process = switchProcess(list->blockedQueueBySem, list->zombieQueue, pid);
