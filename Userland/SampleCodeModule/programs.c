@@ -65,7 +65,7 @@ void printProcessInfo(PCB processInfo) {
 
 uint64_t readLine(char *buff, uint64_t length) {
     int k = 0;
-    while(buff[k] != '\0'){buff[k] = '\0'; k++;};
+    while(k < length){buff[k] = '\0'; k++;};
     char c;
     int i = 0;
     while ((c = getChar()) != '\n' && i < length - 1) {

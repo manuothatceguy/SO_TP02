@@ -165,6 +165,9 @@ static int bufferControl(pipeCmd * pipe_cmd){
         free(pipe_cmd);
         return -1;
     }
+    if(IS_BUILT_IN(pipe_cmd->cmd1.instruction)){
+        return 0;
+    }
     return instructions;
 }
 

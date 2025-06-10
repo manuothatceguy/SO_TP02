@@ -4,7 +4,6 @@
 #include <shared_structs.h>
 
 #define STACK_SIZE 4096 
-#define IDLE_PRIORITY -1
 
 typedef struct ProcessManagerCDT *ProcessManagerADT;
 

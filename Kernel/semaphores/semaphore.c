@@ -31,12 +31,7 @@ SemaphoreADT semManager(){
         manager->semaphores[i].value = 0;
         manager->semaphores[i].lock = 0;
         manager->semaphores[i].used = 0;
-        manager->semaphores[i].blocked = createQueue();
-
-        if (manager->semaphores[i].blocked == NULL) {
-            freeMemory(manager);
-            return NULL;
-        }
+        manager->semaphores[i].blocked = NULL;
     }
     return manager;
 }
@@ -49,6 +44,13 @@ int semInit (int id, uint32_t value) {
         manager->semaphores[id].value = value;
         manager->semaphores[id].lock = 0;
         manager->semaphores[id].used = 1;
+        manager->semaphores[id].blocked = createQueue();
+
+        if (manager->semaphores[id].blocked == NULL) {
+            freeMemory(manager);
+            return -1;
+        }
+
         return 0;
     }
     return -1;

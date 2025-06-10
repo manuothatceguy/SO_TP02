@@ -187,7 +187,6 @@ int bufferWrite(){
     if(!specialKey && c < F12_PRESS){  
         if(ctrlPressed && press_keys[c].ascii == 'c'){
             kill(getForegroundPid(),1); // CTRL + C mata al proceso actual
-            lineFeed();
             printStr("^C", 0x00FFFFFF);
             lineFeed();
             return 0;
