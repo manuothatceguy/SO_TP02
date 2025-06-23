@@ -131,11 +131,11 @@ static uint64_t syscall_unblock(uint64_t pid){
 }
 
 static uint64_t syscall_allocMemory(uint64_t size) {
-    return (uint64_t)allocMemory( size);
+    return (uint64_t)schedulerAlloc(size);
 }
 
 static uint64_t syscall_freeMemory(uint64_t address) {
-    freeMemory((void*)address);
+    schedulerFree((void*)address);
     return 0;
 }
 static int8_t syscall_changePrio(uint64_t pid, int8_t newPrio) {

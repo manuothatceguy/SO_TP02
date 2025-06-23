@@ -52,6 +52,7 @@ typedef struct {
         int stdout;
     } fds;
     char name[NAME_MAX_LENGTH];
+    void * heap;
 } PCB;
 
 

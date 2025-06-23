@@ -11,6 +11,7 @@
 #include <syscall.h>
 #include <debug.h>
 #include <pipes.h>
+#include <queue.h>
 
 #define SHELL_PID 1
 #define TTY 0
@@ -81,6 +82,7 @@ static PCB* _createProcessPCB(char* name, fnptr function, uint64_t argc, char **
     process->state = READY;
     process->priority = priority;
     process->parentPid = getCurrentPid();
+    process->heap = (void*)createQueue();
 
     process->entryPoint = (uint64_t)function;
 
@@ -189,6 +191,14 @@ uint64_t kill(pid_t pid, uint64_t retValue) {
     if(process == NULL){
         return -1;
     }
+
+    if (process->heap != NULL) {
+        void** heapItems = dumpQueue(process->heap);
+        for (uint64_t i = 0; heapItems[i] != NULL; i++) {
+            freeMemory(heapItems[i]);
+        }
+        freeQueue(process->heap);
+    }
     
     freeMemory((void*)process->base - STACK_SIZE); // libera el stack
     wakeupWaitingParent(process->parentPid, pid);
@@ -211,6 +221,7 @@ static int32_t reapChild(PCB* child, int32_t* retValue) {
     // Limpiar el proceso
     child->state = child->retValue; // EXITED O KILLED, MODIFICAR
     removeZombieProcess(processes, childPid);
+
     freeMemory(child);
     
     return childPid;
@@ -361,4 +372,32 @@ int getCurrentProcessStdin() {
 int getCurrentProcessStdout() {
     PCB* current = getCurrentProcess(processes);
     return current ? current->fds.stdout : -1;
+}
+
+void * schedulerAlloc(uint64_t size) {
+    PCB* current = getCurrentProcess(processes);
+    if (current == NULL) {
+        return NULL;
+    }
+
+    void *ptr = allocMemory(size);
+    if (ptr == NULL) {
+        return NULL; // No se pudo asignar memoria
+    }
+    current->heap = enqueue(current->heap, ptr);
+    return ptr;
+}
+
+int compareMemory(void *a, void *b) {
+    return (a == b) ? 0 : -1; // Compara direcciones de memoria
+}
+
+void schedulerFree(void *ptr) {
+    PCB* current = getCurrentProcess(processes);
+    if (current == NULL || current->heap == NULL) {
+        return; // No hay proceso actual o no hay heap asignado
+    }
+
+    freeMemory(ptr);
+    current->heap = removeFromQueue(current->heap, ptr, (int (*)(void*, void*))&compareMemory);
 }

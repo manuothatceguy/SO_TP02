@@ -127,4 +127,8 @@ int getCurrentProcessStdin();
  */
 int getCurrentProcessStdout();
 
+void * schedulerAlloc(uint64_t size);
+
+void schedulerFree(void *ptr);
+
 #endif // SCHEDULER_H

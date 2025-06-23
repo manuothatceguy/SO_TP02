@@ -201,7 +201,7 @@ void loop(uint64_t argc, char *argv[]) {
         return;
     }
     printf("Proceso loop %d iniciado. Saludando cada %d segundos...\n", pid, time);
-    
+    malloc(1000);
     while(1) {
         printf("\nHola! Soy el proceso %d\n", pid);
         syscall_wait(time);
